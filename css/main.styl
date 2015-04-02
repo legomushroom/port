@@ -1,0 +1,47 @@
+
+
+PX = (1/16)rem
+gs = 10*PX
+
+rect()
+  width  arguments
+  height arguments
+nw()
+  top  arguments
+  left arguments
+circle()
+  rect arguments
+  border-radius 50%
+
+easy-click()
+  &:after
+    content ''
+    position absolute
+    rect 200%
+    z-index 1
+    nw -50%
+    
+body
+  background #333
+  font-size 16px
+
+particleSize = 150/2
+.particle
+  circle 2*particleSize*PX
+  // border 2*PX solid deeppink
+  // background deeppink
+  position absolute
+  nw 0
+  backface-visibility hidden
+  margin-left -(2*particleSize/2)*PX
+  margin-top -(2*particleSize/2)*PX
+
+.center
+  circle 2*particleSize*PX
+  position absolute
+  nw 50%
+  margin-left -((2*particleSize)/2)*PX
+  margin-top -((2*particleSize)/2)*PX
+  background url('http://iconmelon.com/css/i/legomushroom.png') no-repeat center center
+  background-size 100%
+  

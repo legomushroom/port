@@ -1,0 +1,68 @@
+{
+  "name": "mojs-demo-1",
+  "description": "motion graphics for the web",
+  "version": "0.0.0",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "webpack-dev-server"
+    },
+  "author": {
+    "name": "LegoMushroom",
+    "email": "legomushroom@gmail.com",
+    "twitter": "@legomushroom",
+    "url": "http://legomushroom.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "motion",
+    "effects",
+    "animation",
+    "motion graphics"
+  ],
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "main": "",
+  "dependencies": {},
+  "devDependencies": {
+    "6to5-loader": "^2.0.0",
+    "coffee-loader": "^0.7.2",
+    "coffee-script": "^1.9.1",
+    "core-js": "^0.4.5",
+    "css-loader": "^0.9.1",
+    "file-loader": "^0.8.1",
+    "marked": "^0.3.3",
+    "style-loader": "^0.8.3",
+    "stylus": "^0.49.3",
+    "stylus-loader": "^0.5.0",
+    "webpack": "^1.4.15",
+    "webpack-dev-server": "^1.6.5",
+    "gulp": "latest",
+    "gulp-autoprefixer": "0.0.6",
+    "gulp-babel": "^4.0.0",
+    "gulp-browserify": "latest",
+    "gulp-changed": "~0.2.0",
+    "gulp-coffee": "~1.4.1",
+    "gulp-coffeelint": "*",
+    "gulp-concat": "*",
+    "gulp-csslint": "*",
+    "gulp-jade": "~0.4.2",
+    "gulp-karma": "*",
+    "gulp-livereload": "~1.2.0",
+    "gulp-minify-css": "~0.3.0",
+    "gulp-notify": "~0.5.1",
+    "gulp-plumber": "*",
+    "gulp-rename": "latest",
+    "gulp-rimraf": "^0.1.1",
+    "gulp-stylus": "latest",
+    "gulp-uglify": "latest",
+    "gulp-watch": "*",
+    "nodemon": "*",
+    "run-sequence": "^1.0.2"
+  }
+}

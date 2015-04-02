@@ -1,0 +1,29 @@
+body {
+  background: #333;
+  font-size: 16px;
+}
+.particle {
+  width: 9.375rem;
+  height: 9.375rem;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  -webkit-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  backface-visibility: hidden;
+  margin-left: -4.6875rem;
+  margin-top: -4.6875rem;
+}
+.center {
+  width: 9.375rem;
+  height: 9.375rem;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -4.6875rem;
+  margin-top: -4.6875rem;
+  background: url("http://iconmelon.com/css/i/legomushroom.png") no-repeat center center;
+  background-size: 100%;
+}

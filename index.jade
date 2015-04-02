@@ -1,0 +1,19 @@
+doctype
+html
+  head
+    meta(charset='UTF-8')
+    title port
+    link(rel="stylesheet", type="text/css", href="css/main.css")
+    meta(name="viewport", content="width=device-width, user-scalable=no")
+  
+  body
+    .center
+    - var colors = ['deeppink', 'orange', '#FC2D79', 'cyan', '#50E3C2', '#f1f1f1', '#F9DD5E']
+    #js-particles
+      - for (var i=0; i < 918; i++)
+        - var color = colors[i%colors.length]
+        .particle(id="js-particle-#{i}", style="background: #{color}")
+
+    script(src="js/vendor/mo.js")
+    script(src="js/vendor/coffee-physics.js")
+    script(src="dist/app.js")
