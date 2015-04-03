@@ -64,6 +64,15 @@
 
 	var _core = _interopRequire(__webpack_require__(2));
 
+	// import Particle from './particle'
+
+	// var p = new Particle({
+	//   el: document.createElement('div')
+	// });
+
+	// p.scale = 2
+	// console.log(p.scale)
+
 	var Main = (function () {
 	  function Main(o) {
 	    this.vars();
@@ -79,7 +88,7 @@
 	        this.physics = new Physics();
 	        this.physics.integrator = new Verlet();
 	        this.particles = document.querySelectorAll(".particle");
-	        this.avoidMouse = new Attraction();
+	        // this.avoidMouse     = new Attraction();
 	        this.pullToCenter = new Attraction();
 	        this.collision = new Collision();
 	        this.PARTICLE_SIZE = 75;
@@ -88,7 +97,7 @@
 	        this.PARTICLE_SIZE_G = this.PARTICLE_SIZE + this.GAP;
 	        this.CENTER_SIZE = 2.12 * this.PARTICLE_SIZE;
 	        // this.CENTER_SIZE    = 3*this.PARTICLE_SIZE;
-	        this.width = 1 * 1280;this.height = 1 * 900;
+	        this.width = 1 * 1440;this.height = 1 * 800;
 	        this.centerX = this.width / 2;
 	        this.centerY = this.height / 2;
 
@@ -124,7 +133,8 @@
 	            // Make it collidable
 	            this.collision.pool.push(particle);
 	            // Apply behaviours
-	            particle.behaviours.push(this.avoidMouse, this.pullToCenter, this.collision);
+	            particle.behaviours.push(this.pullToCenter, this.collision);
+	            // particle.behaviours.push( this.avoidMouse, this.pullToCenter, this.collision );
 	            // Add to the simulation
 	            this.physics.particles.push(particle);
 	          }
@@ -134,10 +144,10 @@
 	        this.pullToCenter.target.y = this.height / 2;
 	        this.pullToCenter.strength = 5;
 
-	        this.avoidMouse.target.x = this.width / 2;
-	        this.avoidMouse.target.y = this.height / 2;
-	        this.avoidMouse.strength = -10000;
-	        this.avoidMouse.setRadius(this.CENTER_SIZE);
+	        // this.avoidMouse.target.x = this.width / 2;
+	        // this.avoidMouse.target.y = this.height / 2;
+	        // this.avoidMouse.strength = -10000;
+	        // this.avoidMouse.setRadius( this.CENTER_SIZE );
 	      },
 	      writable: true,
 	      enumerable: true,
@@ -151,15 +161,22 @@
 	        for (var i = 0, n = this.physics.particles.length; i < n; i++) {
 	          var particle = this.physics.particles[i];
 
-	          var delta = this.width / 3 / Math.abs(this.centerX - particle.pos.x);
+	          // var delta = (this.width/3)/Math.abs(this.centerX - particle.pos.x)
+	          // delta = Math.min(delta, 1);
+	          // delta = Math.max(delta, 0.1);
+
+	          // var delta2 = (this.height/3)/Math.abs(this.centerY - particle.pos.y)
+	          // delta2 = Math.min(delta2, 1);
+	          // delta2 = Math.max(delta2, 0.1);
+
+	          var x = Math.abs(this.centerX - particle.pos.x);
+	          var y = Math.abs(this.centerY - particle.pos.y);
+	          var delta = Math.sqrt(2448400) / (Math.sqrt(x * x + y * y) * 6);
 	          delta = Math.min(delta, 1);
 	          delta = Math.max(delta, 0.1);
+	          // console.log(delta)
 
-	          var delta2 = this.height / 3 / Math.abs(this.centerY - particle.pos.y);
-	          delta2 = Math.min(delta2, 1);
-	          delta2 = Math.max(delta2, 0.1);
-
-	          delta = mojs.easing.exponential["in"](Math.min(delta, delta2));
+	          delta = mojs.easing.exponential["in"](delta);
 
 	          particle.radius2 = this.PARTICLE_SIZE_G * delta;
 	          // particle.radius2 = this.PARTICLE_SIZE_G*delta2
@@ -188,13 +205,34 @@
 	      writable: true,
 	      enumerable: true,
 	      configurable: true
+	    },
+	    saveParticles: {
+	      value: function saveParticles() {
+	        return;
+	        var parts = [];
+	        for (var i = 0; i < this.physics.particles.length; i++) {
+	          parts.push({
+	            x: this.physics.particles[i].pos.x,
+	            y: this.physics.particles[i].pos.y });
+	        };
+	        console.log(JSON.stringify(parts));
+	      },
+	      writable: true,
+	      enumerable: true,
+	      configurable: true
 	    }
 	  });
 
 	  return Main;
 	})();
 
-	var app = new Main();
+	window.app = new Main();
+
+
+
+	setTimeout(function () {
+	  window.app.saveParticles();
+	}, 20000);
 
 /***/ },
 /* 2 */
