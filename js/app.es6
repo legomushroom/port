@@ -65,8 +65,8 @@ class Main {
     },1000)
   }
   draw() {
-    this.bubleCenter.x = document.body.scrollLeft + this.wWidth/2 - 90;
-    this.bubleCenter.y = document.body.scrollTop  + this.wHeight/2 - 90;
+    this.bubleCenter.x = document.body.scrollLeft + this.wWidth/2 - 75;
+    this.bubleCenter.y = document.body.scrollTop  + this.wHeight/2 - 75;
 
     var i = this.particlesLength;
     while(i--) {
@@ -76,11 +76,12 @@ class Main {
       var delta = Math.sqrt(2448400)/(Math.sqrt(x*x + y*y)*6)
       delta = Math.min(delta, 1);
       delta = Math.max(delta, 0.1);
-      delta = mojs.easing.quadratic.in(mojs.easing.quadratic.in(delta))
+      delta = mojs.easing.quadratic.in(mojs.easing.cubic.in(delta))
       delta = Math.max(delta, 0.01);
       if (this.particleBuffer.prevDelta !== delta){
         var transform = `scale(${delta}) translateZ(0)`;
-        this.particleBuffer.style.transform = transform;
+        mojs.helpers.setPrefixedStyle(this.particleBuffer, 'transform', transform);
+        // this.particleBuffer.style.transform = transform;
         this.particleBuffer.prevDelta = delta
       }
     }

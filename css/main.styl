@@ -26,6 +26,14 @@ body
   font-size 16px
   margin  0
   padding 0
+  rect 320*PX
+  overflow hidden
+  -webkit-user-select none  /* Chrome all / Safari all */
+  -moz-user-select none     /* Firefox all */
+  -ms-user-select none      /* IE 10+ */
+  /* No support for these yet, use at own risk */
+  -o-user-select none
+  user-select none 
   &::-webkit-scrollbar
     overflow -moz-scrollbars-none !important
     display none !important
@@ -38,6 +46,12 @@ body
   overflow visible
   // overflow hidden
   position relative
+  -webkit-user-select none  /* Chrome all / Safari all */
+  -moz-user-select none     /* Firefox all */
+  -ms-user-select none      /* IE 10+ */
+  /* No support for these yet, use at own risk */
+  -o-user-select none
+  user-select none 
   // transform translateZ(0)
   // backface-visibility hidden
   // background orange

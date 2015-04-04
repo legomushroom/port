@@ -4,15 +4,14 @@ html
     meta(charset='UTF-8')
     title port
     link(rel="stylesheet", type="text/css", href="css/main.css")
-    meta(name="viewport", content="width=device-width, user-scalable=no")
-  
+    meta(name="viewport", content="width=320px, height=320px, initial-scale=1,   user-scalable=no")
   
   - var colors = ['deeppink', 'orange', '#FC2D79', 'cyan', '#50E3C2', '#f1f1f1', '#F9DD5E']
   - var size = 150, gap = 15;
   - var columnSize = 25;
   body
     .particles#js-particles(style="width:#{(size+gap)*(columnSize) - size/2 - 2*gap}px; height:#{(size)*(columnSize)-size-2*gap}px")
-      .center
+      //- .center
       - for (var j=0; j < columnSize; j++)
         - for (var i=0; i < columnSize-1; i++)
           - var color = colors[Math.round((colors.length-1)*Math.random())]

@@ -3,6 +3,15 @@ body {
   font-size: 16px;
   margin: 0;
   padding: 0;
+  width: 20rem;
+  height: 20rem;
+  overflow: hidden;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+/* No support for these yet, use at own risk */
+  -o-user-select: none;
+  user-select: none;
 }
 body::-webkit-scrollbar {
   overflow: -moz-scrollbars-none !important;
@@ -13,6 +22,12 @@ body::-webkit-scrollbar {
 .particles {
   overflow: visible;
   position: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+/* No support for these yet, use at own risk */
+  -o-user-select: none;
+  user-select: none;
 }
 .particle {
   width: 9.375rem;
