@@ -24,6 +24,23 @@ easy-click()
 body
   background #333
   font-size 16px
+  margin  0
+  padding 0
+  &::-webkit-scrollbar
+    overflow -moz-scrollbars-none !important
+    display none !important
+    -ms-overflow-style none !important
+    width 0 !important
+    
+  // overflow hidden
+    
+.particles
+  overflow visible
+  // overflow hidden
+  position relative
+  // transform translateZ(0)
+  // backface-visibility hidden
+  // background orange
 
 particleSize = 150/2
 .particle
@@ -32,9 +49,9 @@ particleSize = 150/2
   // background deeppink
   position absolute
   nw 0
-  backface-visibility hidden
-  margin-left -(2*particleSize/2)*PX
-  margin-top -(2*particleSize/2)*PX
+  // backface-visibility hidden
+  // margin-left -(2*particleSize/2)*PX
+  // margin-top -(2*particleSize/2)*PX
 
 .center
   circle 2*particleSize*PX
@@ -44,4 +61,5 @@ particleSize = 150/2
   margin-top -((2*particleSize)/2)*PX
   background url('http://iconmelon.com/css/i/legomushroom.png') no-repeat center center
   background-size 100%
+  border PX solid deeppink
   

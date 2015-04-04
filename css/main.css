@@ -1,6 +1,18 @@
 body {
   background: #333;
   font-size: 16px;
+  margin: 0;
+  padding: 0;
+}
+body::-webkit-scrollbar {
+  overflow: -moz-scrollbars-none !important;
+  display: none !important;
+  -ms-overflow-style: none !important;
+  width: 0 !important;
+}
+.particles {
+  overflow: visible;
+  position: relative;
 }
 .particle {
   width: 9.375rem;
@@ -9,11 +21,6 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  -webkit-backface-visibility: hidden;
-  -ms-backface-visibility: hidden;
-  backface-visibility: hidden;
-  margin-left: -4.6875rem;
-  margin-top: -4.6875rem;
 }
 .center {
   width: 9.375rem;
@@ -26,4 +33,5 @@ body {
   margin-top: -4.6875rem;
   background: url("http://iconmelon.com/css/i/legomushroom.png") no-repeat center center;
   background-size: 100%;
+  border: 0.0625rem solid #ff1493;
 }

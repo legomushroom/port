@@ -6,7 +6,7 @@
   "private": false,
   "scripts": {
     "start": "webpack-dev-server"
-    },
+  },
   "author": {
     "name": "LegoMushroom",
     "email": "legomushroom@gmail.com",
@@ -28,7 +28,11 @@
   },
   "homepage": "",
   "main": "",
-  "dependencies": {},
+  "dependencies": {
+    "fastclick": "^1.0.6",
+    "impulse": "^0.1.0",
+    "mo-js": "^0.110.0"
+  },
   "devDependencies": {
     "6to5-loader": "^2.0.0",
     "coffee-loader": "^0.7.2",
