@@ -21,6 +21,7 @@ class Main {
   vars() {
     this.particlesContainer = document.querySelector('#js-particles');
     this.particles = document.querySelectorAll('.particle');
+    this.badge = document.querySelector('#js-badge');
     this.particlesLength = this.particles.length;
     var styles     = getComputedStyle(this.particlesContainer);
     this.width     = parseInt(styles.width, 10);
@@ -32,6 +33,7 @@ class Main {
     this.radPoint = mojs.helpers.getRadialPoint;
     this.bubleCenter = { x: this.centerX, y: this.centerY }
     this.particleBuffer = null;
+
     var i = this.particlesLength;
     while(i--) {
       var particle = this.particles[i];
@@ -68,22 +70,53 @@ class Main {
     this.bubleCenter.x = document.body.scrollLeft + this.wWidth/2 - 75;
     this.bubleCenter.y = document.body.scrollTop  + this.wHeight/2 - 75;
 
+    var origin = `${this.bubleCenter.x}px ${this.bubleCenter.y}px`
+    mojs.helpers.setPrefixedStyle(this.particlesContainer, 'perspective-origin', origin)
+
+    var cnt = 0;
     var i = this.particlesLength;
     while(i--) {
       this.particleBuffer = this.particles[i];
       var x = Math.abs(this.bubleCenter.x-this.particleBuffer.x)
       var y = Math.abs(this.bubleCenter.y-this.particleBuffer.y)
-      var delta = Math.sqrt(2448400)/(Math.sqrt(x*x + y*y)*6)
-      delta = Math.min(delta, 1);
-      delta = Math.max(delta, 0.1);
-      delta = mojs.easing.quadratic.in(mojs.easing.cubic.in(delta))
-      delta = Math.max(delta, 0.01);
+      var delta = Math.sqrt(2448400)/(Math.sqrt(x*x + y*y)*5)
+      var radius = Math.sqrt(x*x + y*y)
+      // this.badge.textContent = delta
+      // this.particleBuffer.textContent = delta
+      delta = Math.min(delta, 1.0);
+      delta = Math.max(delta, 0);
+      delta = (mojs.easing.exponential.in(delta))
+      delta = delta.toFixed(2)
+      delta = Math.max(delta, 0.03);
       if (this.particleBuffer.prevDelta !== delta){
-        var transform = `scale(${delta}) translateZ(0)`;
+        cnt++;
+        // get angle
+        // var dX = this.particleBuffer.x-this.bubleCenter.x
+        // var dY = this.particleBuffer.y-this.bubleCenter.y
+        // var angle = (Math.atan(dY/dX)*(180/Math.PI))-90
+        // if (this.bubleCenter.x-this.particleBuffer.x < 0){
+        //   angle = 180 + angle;
+        // }
+        // var point = this.radPoint({
+        //   angle: angle,
+        //   radius: radius + 80*(1-mojs.easing.cubic.in(delta)),
+        //   center: { x: this.bubleCenter.x, y: this.bubleCenter.y}
+        // });
+        
+        // var xShift = this.particleBuffer.x - point.x;
+        // var yShift = this.particleBuffer.y - point.y;
+        // var translate = `translate3d(${xShift}px, ${yShift}px, 0)`
+        var nDelta = mojs.easing.exponential.in(1-delta)
+        var transform = `scale(${delta}) translateZ(${-150*(nDelta)}px)`;
         mojs.helpers.setPrefixedStyle(this.particleBuffer, 'transform', transform);
+        // this.particleBuffer.style.left = point.x + 'px'
+        // this.particleBuffer.style.top = point.y + 'px'
+        // this.particleBuffer.textContent = angle.toFixed(2)
         // this.particleBuffer.style.transform = transform;
         this.particleBuffer.prevDelta = delta
       }
+
+      // this.badge.textContent = cnt;
     }
 
 //         // var delta2 = (this.height/3)/Math.abs(this.centerY - particle.pos.y)

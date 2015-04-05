@@ -6,10 +6,11 @@ html
     link(rel="stylesheet", type="text/css", href="css/main.css")
     meta(name="viewport", content="width=320px, height=320px, initial-scale=1,   user-scalable=no")
   
-  - var colors = ['deeppink', 'orange', '#FC2D79', 'cyan', '#50E3C2', '#f1f1f1', '#F9DD5E']
+  - var colors = ['#FC2D79', '#FC2D79',  '#11CDC5', '#FCB635', '#f1f1f1', '#4A90E2']
   - var size = 150, gap = 15;
   - var columnSize = 25;
   body
+    .badge#js-badge
     .particles#js-particles(style="width:#{(size+gap)*(columnSize) - size/2 - 2*gap}px; height:#{(size)*(columnSize)-size-2*gap}px")
       //- .center
       - for (var j=0; j < columnSize; j++)
@@ -18,10 +19,15 @@ html
           - var shift = (j % 2) ? -(size+gap)/2: 0;
           - var left = i*(size+gap)-shift;
           - var top  = j*(size-gap/2);
-          .particle(
-            id = "js-particle-#{i}",
-            data-left = "#{left}",
-            data-top  = "#{top}",
-            style = "background: #{color}; left: #{left}px; top: #{top}px"
-          )
+          - var middle = ~~(columnSize/2)
+          - var className = (j === middle && i === middle) ? 'center': '';
+          svg(style="overflow: visible")
+            foreignObject
+              .particle(
+                class = "#{className}",
+                id = "js-particle-#{i}",
+                data-left = "#{left}",
+                data-top  = "#{top}",
+                style = "background: #{color}; left: #{left}px; top: #{top}px"
+              )
     script(src="dist/app.js")

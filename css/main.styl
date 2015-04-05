@@ -22,12 +22,12 @@ easy-click()
     nw -50%
     
 body
-  background #333
+  background #28143f
   font-size 16px
   margin  0
   padding 0
-  rect 320*PX
-  overflow hidden
+  // rect 320*PX
+  // overflow hidden
   -webkit-user-select none  /* Chrome all / Safari all */
   -moz-user-select none     /* Firefox all */
   -ms-user-select none      /* IE 10+ */
@@ -42,7 +42,15 @@ body
     
   // overflow hidden
     
+.badge
+  position fixed
+  nw 0
+  z-index 10
+  color white
+  
 .particles
+  perspective 500px
+  perspective-origin 50% 50%
   overflow visible
   // overflow hidden
   position relative
@@ -51,10 +59,13 @@ body
   -ms-user-select none      /* IE 10+ */
   /* No support for these yet, use at own risk */
   -o-user-select none
-  user-select none 
+  user-select none
+  // transition all .5s linear
   // transform translateZ(0)
   // backface-visibility hidden
   // background orange
+  svg
+    rect 0
 
 particleSize = 150/2
 .particle
@@ -63,17 +74,22 @@ particleSize = 150/2
   // background deeppink
   position absolute
   nw 0
+  text-align center
+  line-height (2*particleSize)*PX
   // backface-visibility hidden
   // margin-left -(2*particleSize/2)*PX
   // margin-top -(2*particleSize/2)*PX
+  // &:hover
+  //   transition all .25s cubic-bezier(0.19, 1, 0.22, 1)
+  //   transform scale(1.15) !important
 
 .center
-  circle 2*particleSize*PX
-  position absolute
-  nw 50%
-  margin-left -((2*particleSize)/2)*PX
-  margin-top -((2*particleSize)/2)*PX
-  background url('http://iconmelon.com/css/i/legomushroom.png') no-repeat center center
-  background-size 100%
-  border PX solid deeppink
+  // circle 2*particleSize*PX
+  // position absolute
+  // nw 50%
+  // margin-left -((2*particleSize)/2)*PX
+  // margin-top -((2*particleSize)/2)*PX
+  background url('http://iconmelon.com/css/i/legomushroom.png') no-repeat center center !important
+  background-size 100% !important
+  // border 10*PX solid deeppink
   

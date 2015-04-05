@@ -1,11 +1,8 @@
 body {
-  background: #333;
+  background: #28143f;
   font-size: 16px;
   margin: 0;
   padding: 0;
-  width: 20rem;
-  height: 20rem;
-  overflow: hidden;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -19,7 +16,20 @@ body::-webkit-scrollbar {
   -ms-overflow-style: none !important;
   width: 0 !important;
 }
+.badge {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  color: #fff;
+}
 .particles {
+  -webkit-perspective: 500px;
+  -ms-perspective: 500px;
+  perspective: 500px;
+  -webkit-perspective-origin: 50% 50%;
+  -ms-perspective-origin: 50% 50%;
+  perspective-origin: 50% 50%;
   overflow: visible;
   position: relative;
   -webkit-user-select: none;
@@ -29,6 +39,10 @@ body::-webkit-scrollbar {
   -o-user-select: none;
   user-select: none;
 }
+.particles svg {
+  width: 0;
+  height: 0;
+}
 .particle {
   width: 9.375rem;
   height: 9.375rem;
@@ -36,17 +50,10 @@ body::-webkit-scrollbar {
   position: absolute;
   top: 0;
   left: 0;
+  text-align: center;
+  line-height: 9.375rem;
 }
 .center {
-  width: 9.375rem;
-  height: 9.375rem;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-left: -4.6875rem;
-  margin-top: -4.6875rem;
-  background: url("http://iconmelon.com/css/i/legomushroom.png") no-repeat center center;
-  background-size: 100%;
-  border: 0.0625rem solid #ff1493;
+  background: url("http://iconmelon.com/css/i/legomushroom.png") no-repeat center center !important;
+  background-size: 100% !important;
 }
