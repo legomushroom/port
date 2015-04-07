@@ -6,7 +6,6 @@ body {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-/* No support for these yet, use at own risk */
   -o-user-select: none;
   user-select: none;
 }
@@ -35,7 +34,6 @@ body::-webkit-scrollbar {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-/* No support for these yet, use at own risk */
   -o-user-select: none;
   user-select: none;
 }
@@ -51,7 +49,23 @@ body::-webkit-scrollbar {
   top: 0;
   left: 0;
   text-align: center;
+  display: block;
   line-height: 9.375rem;
+}
+.particle__inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.particle__inner:hover {
+  -webkit-transition: all 0.25s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: all 0.25s cubic-bezier(0.19, 1, 0.22, 1);
+  -webkit-transform: scale(1.05);
+  -ms-transform: scale(1.05);
+  transform: scale(1.05);
 }
 .center {
   background: url("http://iconmelon.com/css/i/legomushroom.png") no-repeat center center !important;

@@ -31,7 +31,6 @@ body
   -webkit-user-select none  /* Chrome all / Safari all */
   -moz-user-select none     /* Firefox all */
   -ms-user-select none      /* IE 10+ */
-  /* No support for these yet, use at own risk */
   -o-user-select none
   user-select none 
   &::-webkit-scrollbar
@@ -39,8 +38,6 @@ body
     display none !important
     -ms-overflow-style none !important
     width 0 !important
-    
-  // overflow hidden
     
 .badge
   position fixed
@@ -52,44 +49,43 @@ body
   perspective 500px
   perspective-origin 50% 50%
   overflow visible
-  // overflow hidden
   position relative
   -webkit-user-select none  /* Chrome all / Safari all */
   -moz-user-select none     /* Firefox all */
   -ms-user-select none      /* IE 10+ */
-  /* No support for these yet, use at own risk */
   -o-user-select none
   user-select none
-  // transition all .5s linear
-  // transform translateZ(0)
-  // backface-visibility hidden
-  // background orange
   svg
     rect 0
 
 particleSize = 150/2
 .particle
   circle 2*particleSize*PX
-  // border 2*PX solid deeppink
-  // background deeppink
   position absolute
   nw 0
   text-align center
+  display block
   line-height (2*particleSize)*PX
-  // backface-visibility hidden
-  // margin-left -(2*particleSize/2)*PX
-  // margin-top -(2*particleSize/2)*PX
+  &__inner
+    circle 100%
+    position absolute
+    nw 0
+    &:hover
+      transition all .25s cubic-bezier(0.19, 1, 0.22, 1)
+      transform scale(1.05)
+    
   // &:hover
   //   transition all .25s cubic-bezier(0.19, 1, 0.22, 1)
   //   transform scale(1.15) !important
 
 .center
-  // circle 2*particleSize*PX
-  // position absolute
-  // nw 50%
-  // margin-left -((2*particleSize)/2)*PX
-  // margin-top -((2*particleSize)/2)*PX
   background url('http://iconmelon.com/css/i/legomushroom.png') no-repeat center center !important
   background-size 100% !important
-  // border 10*PX solid deeppink
-  
+
+
+
+
+
+
+
+

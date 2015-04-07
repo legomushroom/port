@@ -23,11 +23,10 @@ html
           - var className = (j === middle && i === middle) ? 'center': '';
           svg(style="overflow: visible")
             foreignObject
-              .particle(
-                class = "#{className}",
-                id = "js-particle-#{i}",
-                data-left = "#{left}",
-                data-top  = "#{top}",
-                style = "background: #{color}; left: #{left}px; top: #{top}px"
-              )
+              a(href="#").particle( class="#{className}", id="js-particle-#{i}",
+                         data-left="#{left}", data-top="#{top}"
+                         style="left: #{left}px; top: #{top}px" )
+                .particle__inner(style="background: #{color}")
+
+
     script(src="dist/app.js")
