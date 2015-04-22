@@ -60,13 +60,6 @@ body::-webkit-scrollbar {
   top: 0;
   left: 0;
 }
-.particle__inner:hover {
-  -webkit-transition: all 0.25s cubic-bezier(0.19, 1, 0.22, 1);
-  transition: all 0.25s cubic-bezier(0.19, 1, 0.22, 1);
-  -webkit-transform: scale(1.05);
-  -ms-transform: scale(1.05);
-  transform: scale(1.05);
-}
 .center {
   background: url("http://iconmelon.com/css/i/legomushroom.png") no-repeat center center !important;
   background-size: 100% !important;

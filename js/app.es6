@@ -99,14 +99,14 @@ class Main {
       // this.badge.textContent = delta
       var shift = (delta > 1.4) ? (delta-1.4)/14 : 0
       shift = mojs.helpers.clamp(shift, 0, 1.006)
-      delta = Math.min(delta, 1); delta = Math.max(delta, 0);
+      delta = mojs.helpers.clamp(delta, 0, 1)
+      // delta = (mojs.easing.cubic.in(delta))
       delta = (mojs.easing.exponential.in(delta))
+      delta = (mojs.easing.quadratic.out(delta))
       // delta = (mojs.easing.back.in(delta))
       delta = Math.max(delta, 0.03);
       // delta += mojs.easing.cubic.out(shift)
-      // delta = Math.min(delta, 1.08)
-      delta = delta.toFixed(2);
-      // console.log()
+      // delta = delta.toFixed(5);
       // this.particleBuffer.children[0].textContent = delta
       if (this.particleBuffer.prevDelta !== delta) {
         cnt++;
