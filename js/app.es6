@@ -136,9 +136,8 @@ class Main {
           15: 0
         }
       }
-    })
-
-
+    });
+    
     var timeline = new mojs2.Timeline({
       duration: 700,
       easing: 'cubic.out',

@@ -237,7 +237,6 @@
 	          }
 	        });
 
-
 	        var timeline = new mojs2.Timeline({
 	          duration: 700,
 	          easing: "cubic.out",
