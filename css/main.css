@@ -34,7 +34,6 @@ body::-webkit-scrollbar {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  -o-user-select: none;
   user-select: none;
 }
 .particles svg {
@@ -44,7 +43,6 @@ body::-webkit-scrollbar {
 .particle {
   width: 9.375rem;
   height: 9.375rem;
-  border-radius: 50%;
   position: absolute;
   top: 0;
   left: 0;
@@ -60,7 +58,40 @@ body::-webkit-scrollbar {
   top: 0;
   left: 0;
 }
+.particle__content {
+  position: absolute;
+  background: #ccc;
+  width: 30rem;
+  height: 30rem;
+  border-radius: 50%;
+  display: none;
+  top: 50%;
+  left: 50%;
+  margin-left: -15rem;
+  margin-top: -10rem;
+}
 .center {
   background: url("http://iconmelon.com/css/i/legomushroom.png") no-repeat center center !important;
   background-size: 100% !important;
+}
+.close {
+  position: fixed;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 50%;
+  background: #fff;
+  top: 25%;
+  left: -10%;
+  z-index: -1;
+  opacity: 0;
+  -webkit-transition: opacity 0.25s ease-out;
+  transition: opacity 0.25s ease-out;
+}
+.close:hover {
+  cursor: pointer;
+}
+.close.is-show {
+  opacity: 1;
+  left: 75%;
+  z-index: 10;
 }

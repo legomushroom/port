@@ -1,5 +1,4 @@
 
-
 PX = (1/16)rem
 gs = 10*PX
 
@@ -50,17 +49,13 @@ body
   perspective-origin 50% 50%
   overflow visible
   position relative
-  -webkit-user-select none  /* Chrome all / Safari all */
-  -moz-user-select none     /* Firefox all */
-  -ms-user-select none      /* IE 10+ */
-  -o-user-select none
   user-select none
   svg
     rect 0
 
 particleSize = 150/2
 .particle
-  circle 2*particleSize*PX
+  rect 2*particleSize*PX
   position absolute
   nw 0
   text-align center
@@ -70,22 +65,38 @@ particleSize = 150/2
     circle 100%
     position absolute
     nw 0
-    // &:hover
-    //   transition all .25s cubic-bezier(0.19, 1, 0.22, 1)
-    //   transform scale(1.05)
-    
-  // &:hover
-  //   transition all .25s cubic-bezier(0.19, 1, 0.22, 1)
-  //   transform scale(1.15) !important
+  contentWidth = 480
+  contentHeight = 320
+  &__content
+    position absolute
+    background #ccc
+    circle contentWidth*PX
+    // height contentHeight*PX
+    display none
+    nw 50%
+    margin-left -(contentWidth/2)*PX
+    margin-top -(contentHeight/2)*PX
 
 .center
   background url('http://iconmelon.com/css/i/legomushroom.png') no-repeat center center !important
   background-size 100% !important
 
 
-
-
-
+.close
+  position fixed
+  circle 30*PX
+  background white
+  top  25%
+  left -10%
+  z-index -1
+  opacity 0
+  transition opacity .25s ease-out
+  &:hover
+    cursor pointer
+  &.is-show
+    opacity 1
+    left 75%
+    z-index 10
 
 
 
