@@ -1,53 +1,53 @@
 var Impulse   = require('impulse')
 var mojs      = require('../js/vendor/mo')
+var Iscroll   = require('../js/vendor/iscroll-probe')
 var Events    = require('./events')
 var ShowOnEl  = require('./show-on-el')
+
 
 var showOnElModule = new ShowOnEl;
 
 class Main {
   constructor(o) {
-    this.vars()//; this.initContainer()
+    this.vars(); this.initContainer()
     this.draw(); this.events()
   }
   events ()    { (new Events).add.call(this) }
   showOnEl(el) { showOnElModule.show.apply(this, [el]) }
 
-  initContainer () { setTimeout(()=> {
-      window.scrollTo(this.centerX, this.centerY);
-    },1000)
+  initContainer () {
+    this.iscroll = new Iscroll('#js-wrapper', {
+      scrollX: true, freeScroll: true, mouseWheel: true, probeType: 3
+    });
+    var x = -this.centerX + this.wWidth/2 + this.xOffset,
+        y = -this.centerY + this.wHeight/2 + this.yOffset;
+    this.iscroll.scrollTo(x, y, 10);
   }
 
   vars() {
-    this.particlesContainer = document.querySelector('#js-particles');
+    this.particlesContainer = document.querySelector('#scroller');
     this.particles = document.querySelectorAll('.particle');
-    this.close = document.querySelector('#js-close');
+
+    this.particleRadius = getComputedStyle(this.particles[0]).width;
+    this.particleRadius = parseInt(this.particleRadius, 10)/2;
+    this.closeBtn  = document.querySelector('#js-close-btn');
     this.badge = document.querySelector('#js-badge');
     this.particlesLength = this.particles.length;
     var styles     = getComputedStyle(this.particlesContainer);
     this.width     = parseInt(styles.width, 10);
-    this.height    = parseInt(styles.height,10);
+    this.height    = parseInt(styles.height,10);    
     this.radPoint = mojs.helpers.getRadialPoint;
-    this.particleBuffer = null;
-    this.blobBase = 1.6;
-    this.blob = this.blobBase;
-    this.blobShift = this.blobBase;
-    this.isOpen = false;
+    this.particleBuffer = null; this.isOpen = false;
+    this.blobBase = 1.6; this.blob = this.blobBase; this.blobShift = this.blobBase;
     this.calcDimentions()
+    this.xOffset = this.particleRadius + 25;
+    this.yOffset = 1.4*this.particleRadius;
     var i = this.particlesLength;
     while(i--) {
       var particle = this.particles[i];
       particle.x = parseInt(particle.getAttribute('data-left'), 10);
       particle.y = parseInt(particle.getAttribute('data-top'),  10);
     }
-  }
-
-  calcDimentions () {
-    this.wWidth    = window.innerWidth; this.wHeight   = window.innerHeight;
-    this.centerY   = this.height/2 - this.wHeight/2;
-    this.centerX   = this.width/2  - this.wWidth/2;
-    this.bubleCenter = { x: this.centerX, y: this.centerY }
-    this.size = 1*Math.min(Math.sqrt(this.wHeight*this.wHeight), Math.sqrt(this.wWidth*this.wWidth))
   }
 
   draw() {
@@ -58,16 +58,14 @@ class Main {
     var i = this.particlesLength;
     while(i--) {
       this.particleBuffer = this.particles[i];
-      var x = Math.abs(this.bubleCenter.x-this.particleBuffer.x)
-      var y = Math.abs(this.bubleCenter.y-this.particleBuffer.y)
+      var x = Math.abs(this.bubleCenter.x-this.particleBuffer.x),
+          y = Math.abs(this.bubleCenter.y-this.particleBuffer.y),
+          radius = Math.sqrt(x*x + y*y),
+          a = this.blob - (2*radius)/this.size,
+          b = this.blobShift - (2*radius)/this.size,
+          scaleMax = 1,
+          delta = mojs.helpers.clamp(a, 0.03, scaleMax);
 
-      // var delta = this.size/(Math.sqrt(x*x + y*y)*2.6);
-      var radius = Math.sqrt(x*x + y*y);
-      var a = this.blob - (2*radius)/this.size
-      var b = this.blobShift - (2*radius)/this.size
-      // delta = mojs.helpers.clamp(delta, 0.03, 1)
-      var scaleMax = 1
-      var delta = mojs.helpers.clamp(a, 0.03, scaleMax)
       delta = (mojs.easing.cubic.in(delta))
       delta = mojs.helpers.clamp(delta, 0.03, scaleMax)
 
@@ -80,20 +78,28 @@ class Main {
       var isDeltaChanged = this.particleBuffer.prevDelta !== delta
       if (isDeltaChanged || this.particleBuffer.prevDeltaShift !== deltaShift) {
         cnt++;
-        var nDelta = mojs.easing.expo.in(1-delta);
-        var nDeltaShift = mojs.easing.cubic.in(1-deltaShift);
-        var translateZ = -150*(nDeltaShift);
-        var transform = `scale(${delta}) translateZ(${translateZ}px)`;
+        var nDelta = mojs.easing.expo.in(1-delta),
+            nDeltaShift = mojs.easing.cubic.in(1-deltaShift),
+            translateZ = -150*(nDeltaShift),
+            transform = `scale(${delta}) translateZ(${translateZ}px)`;
         mojs.helpers.setPrefixedStyle(this.particleBuffer, 'transform', transform);
         this.particleBuffer.prevDelta = delta
         this.particleBuffer.prevDeltaShift = deltaShift
         this.particleBuffer.translateZ = translateZ
-        this.particleBuffer.delta  = delta
-        this.particleBuffer.nDelta = nDelta
+        this.particleBuffer.delta  = delta; this.particleBuffer.nDelta = nDelta
       }
-      // this.badge.textContent = cnt;
     }
     requestAnimationFrame(this.draw.bind(this));
+  }
+
+  calcDimentions () {
+    this.wWidth    = window.innerWidth; this.wHeight = window.innerHeight;
+    this.centerY = this.height/2 - this.wHeight/2;
+    this.centerX = this.width/2  - this.wWidth/2;
+    this.bubleCenter = { x: this.centerX, y: this.centerY }
+    var x = Math.sqrt(this.wHeight*this.wHeight),
+        y = Math.sqrt(this.wWidth*this.wWidth);
+    this.size = 1*Math.min(x, y)
   }
 }
 

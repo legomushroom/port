@@ -2,14 +2,16 @@ var mojs      = require('../js/vendor/mo')
 
 class ShowOnEl {
   show (el) {
-    var x = el.x - this.wWidth/2 + 75
-    var y = el.y - this.wHeight/2 + 75
-    var currX = document.body.scrollLeft
-    var currY = document.body.scrollTop
+    var x = el.x - this.wWidth/2 - this.xOffset
+    var y = el.y - this.wHeight/2 - this.yOffset
     var innerEl = el.querySelector('.particle__inner')
     this.isOpen = true;
+    this.iscroll.enabled = false;
+
+    this.iscroll.scrollTo(-x,-y, 500);
 
     var burst = new mojs.Transit({
+      parent: this.particlesContainer,
       type: 'circle',
       stroke: 'white',
       fill: 'transparent',
@@ -18,6 +20,7 @@ class ShowOnEl {
       opacity: {.5:0},
       x: el.x+75, y: el.y+75,
       radius: {0:this.size},
+      isRunLess: true,
       childOptions: {
         radius: {
           15: 0
@@ -25,13 +28,8 @@ class ShowOnEl {
       }
     });
 
-    var timeline = new mojs.Timeline({
-      duration: 700,
-      easing: 'cubic.out',
-      onUpdate: (p)=> {
-        window.scrollTo(x + (currX-x)*(1-p), y + (currY-y)*(1-p));
-      }
-    });
+    burst.el.style['z-index'] = 1
+    burst.run()
 
     var timeline2 = new mojs.Timeline({
       duration: 300,
@@ -42,7 +40,6 @@ class ShowOnEl {
       }
     });
     var tween = new mojs.Tween;
-    tween.add(timeline);
     tween.add(timeline2);
     tween.start();
     var innerEl = el.querySelector('.particle__inner')
@@ -68,9 +65,7 @@ class ShowOnEl {
         mojs.h.setPrefixedStyle(innerEl, 'transform', scale)
         innerEl.style.opacity = .75 + .25*mojs.easing.cubic.out(p)
       },
-      onComplete:()=> {
-        this.close.classList.add('is-show')
-      }
+      onComplete:()=> { this.closeBtn.classList.add('is-show'); }
     });
     var tween = new mojs.Tween;
     tween.add(timeline);

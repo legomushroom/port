@@ -25,33 +25,46 @@ body
   font-size 16px
   margin  0
   padding 0
-  // rect 320*PX
-  // overflow hidden
-  -webkit-user-select none  /* Chrome all / Safari all */
-  -moz-user-select none     /* Firefox all */
-  -ms-user-select none      /* IE 10+ */
-  -o-user-select none
-  user-select none 
-  &::-webkit-scrollbar
-    overflow -moz-scrollbars-none !important
-    display none !important
-    -ms-overflow-style none !important
-    width 0 !important
+  user-select none
+  overflow hidden
+  // &::-webkit-scrollbar
+  //   overflow -moz-scrollbars-none !important
+  //   display none !important
+  //   -ms-overflow-style none !important
+  //   width 0 !important
     
 .badge
   position fixed
   nw 0
   z-index 10
   color white
-  
+    
+
+.wrapper
+  position    absolute
+  z-index     1
+  top         0
+  bottom      0
+  left        0
+  right       0
+  width       100%
+  overflow    hidden
+    
 .particles
   perspective 500px
   perspective-origin 50% 50%
   overflow visible
   position relative
   user-select none
-  svg
-    rect 0
+  
+  position absolute
+  z-index 1
+  tap-highlight-color rgba(0,0,0,0)
+  // width 2000px
+  transform translateZ(0)
+  user-select none
+  text-size-adjust none
+  // background #fff
 
 particleSize = 150/2
 .particle

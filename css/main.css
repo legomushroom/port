@@ -6,14 +6,8 @@ body {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  -o-user-select: none;
   user-select: none;
-}
-body::-webkit-scrollbar {
-  overflow: -moz-scrollbars-none !important;
-  display: none !important;
-  -ms-overflow-style: none !important;
-  width: 0 !important;
+  overflow: hidden;
 }
 .badge {
   position: fixed;
@@ -21,6 +15,16 @@ body::-webkit-scrollbar {
   left: 0;
   z-index: 10;
   color: #fff;
+}
+.wrapper {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  overflow: hidden;
 }
 .particles {
   -webkit-perspective: 500px;
@@ -35,10 +39,17 @@ body::-webkit-scrollbar {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-}
-.particles svg {
-  width: 0;
-  height: 0;
+  position: absolute;
+  z-index: 1;
+  tap-highlight-color: rgba(0,0,0,0);
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  text-size-adjust: none;
 }
 .particle {
   width: 9.375rem;

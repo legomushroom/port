@@ -10,23 +10,24 @@ html
   - var size = 150, gap = 25;
   - var columnCnt = 25;
   body
-    .close#js-close
+    .close#js-close-btn
     .badge#js-badge
-    .particles#js-particles(style="width:#{(size+gap)*(columnCnt) - size/2 - 2*gap}px; height:#{(size)*(columnCnt)-size-2*gap}px")
-      //- .center
-      - for (var j=0; j < columnCnt; j++)
-        - for (var i=0; i < columnCnt-1; i++)
-          - var color = colors[Math.round((colors.length-1)*Math.random())]
-          - var shift = (j % 2) ? -(size+gap)/2: 0;
-          - var left = i*(size+gap)-shift;
-          - var top  = j*(size-gap/2);
-          - var middle = ~~(columnCnt/2)
-          - var className = (j === middle && i === middle) ? 'center1': '';
-          .particle( class="#{className}", id="js-particle-#{i}",
-                         data-left="#{left}", data-top="#{top}"
-                         style="left: #{left}px; top: #{top}px" )
-            .particle__inner(style="background: #{color}")
-              .particle__content
+    .wrapper#js-wrapper
+      .particles#scroller(style="margin-left: #{-(size+gap)*1}px; margin-top: #{-(size+gap)*1}px; width:#{(size+gap)*(columnCnt-2.2) - size/2 - 2*gap}px; height:#{(size)*(columnCnt-4.5)-size-2*gap}px")
+          //- .center
+          - for (var j=0; j < columnCnt; j++)
+            - for (var i=0; i < columnCnt-1; i++)
+              - var color = colors[Math.round((colors.length-1)*Math.random())]
+              - var shift = (j % 2) ? -(size+gap)/2: 0;
+              - var left = i*(size+gap)-shift;
+              - var top  = j*(size-gap/2);
+              - var middle = ~~(columnCnt/2)
+              - var className = (j === middle && i === middle) ? 'center1': '';
+              .particle( class="#{className}", id="js-particle-#{i}",
+                             data-left="#{left}", data-top="#{top}"
+                             style="left: #{left}px; top: #{top}px" )
+                .particle__inner(style="background: #{color}")
+                  .particle__content
 
 
 
