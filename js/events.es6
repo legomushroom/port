@@ -11,7 +11,11 @@ class Events {
     hammerDoc.on('tap', (e) => {
       var el = e.target.parentNode;
       if (this.isOpen) { return e.preventDefault() }
-      el.classList.contains('particle') && this.showOnEl(el);
+      if (el.classList.contains('particle')) {
+        this.showOnEl(el);
+      } else if (el.parentNode.classList.contains('particle')) {
+        this.showOnEl(el.parentNode);
+      }
     });
     (new Hammer(this.closeBtn)).on('tap', (e) => { this.closeEl() });
 

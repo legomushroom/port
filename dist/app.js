@@ -6279,7 +6279,11 @@
 	          if (_this.isOpen) {
 	            return e.preventDefault();
 	          }
-	          el.classList.contains("particle") && _this.showOnEl(el);
+	          if (el.classList.contains("particle")) {
+	            _this.showOnEl(el);
+	          } else if (el.parentNode.classList.contains("particle")) {
+	            _this.showOnEl(el.parentNode);
+	          }
 	        });
 	        new Hammer(this.closeBtn).on("tap", function (e) {
 	          _this.closeEl();
@@ -6404,8 +6408,10 @@
 	          onUpdate: function (p) {
 	            var scaleSize = 15 * mojs.easing.cubic["in"](p);
 	            scaleSize = Math.max(0.75, scaleSize);
-	            var scale = "scale(" + scaleSize + ") translateZ(0)";
+	            var scale = "scale(" + scaleSize + ") translateZ(0)",
+	                contentScale = "scale(" + 1 / scaleSize + ") translateZ(0)";
 	            mojs.h.setPrefixedStyle(innerEl, "transform", scale);
+	            mojs.h.setPrefixedStyle(contentEl, "transform", contentScale);
 	            innerEl.style.opacity = 0.75 + 0.25 * mojs.easing.cubic.out(p);
 	          },
 	          onComplete: function () {

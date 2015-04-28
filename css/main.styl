@@ -38,7 +38,6 @@ body
   nw 0
   z-index 10
   color white
-    
 
 .wrapper
   position    absolute
@@ -83,8 +82,8 @@ particleSize = 150/2
   &__content
     position absolute
     background #ccc
-    circle contentWidth*PX
-    // height contentHeight*PX
+    rect contentWidth*PX
+    height contentHeight*PX
     display none
     nw 50%
     margin-left -(contentWidth/2)*PX
@@ -99,7 +98,7 @@ particleSize = 150/2
   position fixed
   circle 30*PX
   background white
-  top  25%
+  top  20%
   left -10%
   z-index -1
   opacity 0
