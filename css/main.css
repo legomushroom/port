@@ -81,10 +81,6 @@ body {
   margin-left: -15rem;
   margin-top: -10rem;
 }
-.center {
-  background: url("http://iconmelon.com/css/i/legomushroom.png") no-repeat center center !important;
-  background-size: 100% !important;
-}
 .close {
   position: fixed;
   width: 1.875rem;

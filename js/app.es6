@@ -28,11 +28,10 @@ class Main {
   vars() {
     this.particlesContainer = document.querySelector('#scroller');
     this.particles = document.querySelectorAll('.particle');
-
+    this.S = 1;
     this.openSound = new Howl({ urls: ['sounds/open-bubble-2.wav'] });
     this.openSound2 = new Howl({
-      urls: ['sounds/open-bubble-3.wav'],
-      rate: .15
+      urls: ['sounds/open-bubble-3.wav'], rate: .15
     });
 
     this.particleRadius = getComputedStyle(this.particles[0]).width;

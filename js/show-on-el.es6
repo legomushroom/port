@@ -2,70 +2,57 @@ var mojs      = require('../js/vendor/mo')
 
 class ShowOnEl {
   show (el) {
-    var x = el.x - this.wWidth/2 - this.xOffset
-    var y = el.y - this.wHeight/2 - this.yOffset
-    var innerEl = el.querySelector('.particle__inner')
-    this.isOpen = true;
-    this.iscroll.enabled = false;
+    var x = el.x - this.wWidth/2 - this.xOffset,
+        y = el.y - this.wHeight/2 - this.yOffset,
+        innerEl   = el.querySelector('.particle__inner'),
+        contentEl = el.querySelector('.particle__content');
+    var tween = new mojs.Tween;
 
-    this.iscroll.scrollTo(-x,-y, 500);
+    this.isOpen = true;
+    el.style['z-index']  = 20
+    this.iscroll.enabled = false;
+    this.iscroll.scrollTo(-x,-y, 500*this.S);
 
     var burst = new mojs.Transit({
-      parent: this.particlesContainer,
-      type: 'circle',
-      stroke: 'white',
-      fill: 'transparent',
-      strokeWidth: {40: 0},
-      count: 12,
-      opacity: {.5:0},
-      x: el.x+75, y: el.y+75,
-      radius: {0:this.size},
-      isRunLess: true,
-      onStart:() => {this.openSound.play();},
-      childOptions: {
-        radius: {
-          15: 0
-        }
-      }
+      parent:       this.particlesContainer,
+      x: el.x+75,   y: el.y+75,
+      type:         'circle',
+      stroke:       'white',
+      fill:         'transparent',
+      strokeWidth:  {40: 0},
+      count:        12,
+      opacity:      {.5:0},
+      radius:       {0:this.size},
+      isRunLess:    true,
+      childOptions: { radius: { 15: 0 } },
+      duration:     500*this.S,
+      onStart:() => {this.openSound.play();}
     });
-
-    burst.el.style['z-index'] = 1
-    burst.run()
-
+    burst.el.style['z-index'] = 1;
+    burst.run();
 
     var soundTimeline = new mojs.Timeline({
-      delay: 50,
-      onStart: () => { this.openSound2.play(); }
-    })
+      delay: 50*this.S, onStart: () => { this.openSound2.play(); }
+    });
 
-    var timeline2 = new mojs.Timeline({
-      duration: 300,
-      easing: 'expo.out',
+    var scaleDownTween = new mojs.Timeline({
+      duration: 300*this.S, easing: 'expo.out',
       onUpdate: (p)=> {
-        mojs.h.setPrefixedStyle(innerEl, 'transform', `scale(${1-.25*p}) translateZ(0)`)
-        innerEl.style.opacity = 1-.25*p
+        mojs.h.setPrefixedStyle(innerEl, 'transform', `scale(${1-.25*p}) translateZ(0)`);
+        innerEl.style.opacity = 1-.25*p;
       }
     });
-    var tween = new mojs.Tween;
-    tween.add(timeline2);
-    tween.add(soundTimeline);
-    tween.start();
-    var innerEl = el.querySelector('.particle__inner')
-    var contentEl = el.querySelector('.particle__content')
-    el.style['z-index'] = 20
-    var timeline = new mojs.Timeline({
-      duration: 600,
-      delay: 100,
-      // easing: 'cubic.out',
+
+    var blobTimeline = new mojs.Timeline({
+      duration: 600*this.S, delay: 100*this.S,
       onUpdate: (p)=> {
         this.blob = this.blobBase + .3*(mojs.easing.cubic.out(p));
         this.blobShift = this.blobBase + 1*(p);
       }
     });
 
-    var timeline2 = new mojs.Timeline({
-      duration: 600,
-      delay: 350,
+    var scaleUpTimeline = new mojs.Timeline({
+      duration: 600*this.S, delay: 350*this.S,
       onUpdate: (p)=> {
         var scaleSize = 15*mojs.easing.cubic.in(p)
         scaleSize = Math.max(.75, scaleSize)
@@ -77,9 +64,8 @@ class ShowOnEl {
       },
       onComplete:()=> { this.closeBtn.classList.add('is-show'); }
     });
-    var tween = new mojs.Tween;
-    tween.add(timeline);
-    tween.add(timeline2);
+    
+    tween.add(scaleDownTween, soundTimeline, blobTimeline, scaleUpTimeline);
     tween.start();
   }
 }

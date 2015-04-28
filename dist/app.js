@@ -114,11 +114,10 @@
 	      value: function vars() {
 	        this.particlesContainer = document.querySelector("#scroller");
 	        this.particles = document.querySelectorAll(".particle");
-
+	        this.S = 1;
 	        this.openSound = new Howl({ urls: ["sounds/open-bubble-2.wav"] });
 	        this.openSound2 = new Howl({
-	          urls: ["sounds/open-bubble-3.wav"],
-	          rate: 0.15
+	          urls: ["sounds/open-bubble-3.wav"], rate: 0.15
 	        });
 
 	        this.particleRadius = getComputedStyle(this.particles[0]).width;
@@ -6337,74 +6336,61 @@
 	    show: {
 	      value: function show(el) {
 	        var _this = this;
-	        var x = el.x - this.wWidth / 2 - this.xOffset;
-	        var y = el.y - this.wHeight / 2 - this.yOffset;
-	        var innerEl = el.querySelector(".particle__inner");
-	        this.isOpen = true;
-	        this.iscroll.enabled = false;
+	        var x = el.x - this.wWidth / 2 - this.xOffset,
+	            y = el.y - this.wHeight / 2 - this.yOffset,
+	            innerEl = el.querySelector(".particle__inner"),
+	            contentEl = el.querySelector(".particle__content");
+	        var tween = new mojs.Tween();
 
-	        this.iscroll.scrollTo(-x, -y, 500);
+	        this.isOpen = true;
+	        el.style["z-index"] = 20;
+	        this.iscroll.enabled = false;
+	        this.iscroll.scrollTo(-x, -y, 500 * this.S);
 
 	        var burst = new mojs.Transit({
 	          parent: this.particlesContainer,
+	          x: el.x + 75, y: el.y + 75,
 	          type: "circle",
 	          stroke: "white",
 	          fill: "transparent",
 	          strokeWidth: { 40: 0 },
 	          count: 12,
 	          opacity: { 0.5: 0 },
-	          x: el.x + 75, y: el.y + 75,
 	          radius: { 0: this.size },
 	          isRunLess: true,
+	          childOptions: { radius: { 15: 0 } },
+	          duration: 500 * this.S,
 	          onStart: function () {
 	            _this.openSound.play();
-	          },
-	          childOptions: {
-	            radius: {
-	              15: 0
-	            }
 	          }
 	        });
-
 	        burst.el.style["z-index"] = 1;
 	        burst.run();
 
-
 	        var soundTimeline = new mojs.Timeline({
-	          delay: 50,
-	          onStart: function () {
+	          delay: 50 * this.S, onStart: function () {
 	            _this.openSound2.play();
 	          }
 	        });
 
-	        var timeline2 = new mojs.Timeline({
-	          duration: 300,
-	          easing: "expo.out",
+	        var scaleDownTween = new mojs.Timeline({
+	          duration: 300 * this.S, easing: "expo.out",
 	          onUpdate: function (p) {
 	            mojs.h.setPrefixedStyle(innerEl, "transform", "scale(" + (1 - 0.25 * p) + ") translateZ(0)");
 	            innerEl.style.opacity = 1 - 0.25 * p;
 	          }
 	        });
-	        var tween = new mojs.Tween();
-	        tween.add(timeline2);
-	        tween.add(soundTimeline);
-	        tween.start();
-	        var innerEl = el.querySelector(".particle__inner");
-	        var contentEl = el.querySelector(".particle__content");
-	        el.style["z-index"] = 20;
-	        var timeline = new mojs.Timeline({
-	          duration: 600,
-	          delay: 100,
-	          // easing: 'cubic.out',
+
+	        var blobTimeline = new mojs.Timeline({
+	          duration: 600 * this.S, delay: 100 * this.S,
 	          onUpdate: function (p) {
 	            _this.blob = _this.blobBase + 0.3 * mojs.easing.cubic.out(p);
 	            _this.blobShift = _this.blobBase + 1 * p;
 	          }
 	        });
 
-	        var timeline2 = new mojs.Timeline({
-	          duration: 600,
-	          delay: 350,
+	        var scaleUpTimeline = new mojs.Timeline({
+	          duration: 600 * this.S, delay: 350 * this.S,
 	          onUpdate: function (p) {
 	            var scaleSize = 15 * mojs.easing.cubic["in"](p);
 	            scaleSize = Math.max(0.75, scaleSize);
@@ -6418,9 +6404,8 @@
 	            _this.closeBtn.classList.add("is-show");
 	          }
 	        });
-	        var tween = new mojs.Tween();
-	        tween.add(timeline);
-	        tween.add(timeline2);
+
+	        tween.add(scaleDownTween, soundTimeline, blobTimeline, scaleUpTimeline);
 	        tween.start();
 	      },
 	      writable: true,
