@@ -22,7 +22,6 @@ class ShowOnEl {
       radius: {0:this.size},
       isRunLess: true,
       onStart:() => {this.openSound.play();},
-      onComplete: () => { this.openSound2.play(); },
       childOptions: {
         radius: {
           15: 0
@@ -32,6 +31,12 @@ class ShowOnEl {
 
     burst.el.style['z-index'] = 1
     burst.run()
+
+
+    var soundTimeline = new mojs.Timeline({
+      delay: 50,
+      onStart: () => { this.openSound2.play(); }
+    })
 
     var timeline2 = new mojs.Timeline({
       duration: 300,
@@ -43,6 +48,7 @@ class ShowOnEl {
     });
     var tween = new mojs.Tween;
     tween.add(timeline2);
+    tween.add(soundTimeline);
     tween.start();
     var innerEl = el.querySelector('.particle__inner')
     var contentEl = el.querySelector('.particle__content')

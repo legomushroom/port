@@ -118,7 +118,7 @@
 	        this.openSound = new Howl({ urls: ["sounds/open-bubble-2.wav"] });
 	        this.openSound2 = new Howl({
 	          urls: ["sounds/open-bubble-3.wav"],
-	          rate: 0.25
+	          rate: 0.15
 	        });
 
 	        this.particleRadius = getComputedStyle(this.particles[0]).width;
@@ -6355,9 +6355,6 @@
 	          onStart: function () {
 	            _this.openSound.play();
 	          },
-	          onComplete: function () {
-	            _this.openSound2.play();
-	          },
 	          childOptions: {
 	            radius: {
 	              15: 0
@@ -6367,6 +6364,14 @@
 
 	        burst.el.style["z-index"] = 1;
 	        burst.run();
+
+
+	        var soundTimeline = new mojs.Timeline({
+	          delay: 50,
+	          onStart: function () {
+	            _this.openSound2.play();
+	          }
+	        });
 
 	        var timeline2 = new mojs.Timeline({
 	          duration: 300,
@@ -6378,6 +6383,7 @@
 	        });
 	        var tween = new mojs.Tween();
 	        tween.add(timeline2);
+	        tween.add(soundTimeline);
 	        tween.start();
 	        var innerEl = el.querySelector(".particle__inner");
 	        var contentEl = el.querySelector(".particle__content");
