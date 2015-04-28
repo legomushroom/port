@@ -4,6 +4,7 @@ var Iscroll   = require('../js/vendor/iscroll-probe')
 var Events    = require('./events')
 var ShowOnEl  = require('./show-on-el')
 
+var Howl      = require('howler').Howl
 
 var showOnElModule = new ShowOnEl;
 
@@ -27,6 +28,12 @@ class Main {
   vars() {
     this.particlesContainer = document.querySelector('#scroller');
     this.particles = document.querySelectorAll('.particle');
+
+    this.openSound = new Howl({ urls: ['sounds/open-bubble-2.wav'] });
+    this.openSound2 = new Howl({
+      urls: ['sounds/open-bubble-3.wav'],
+      rate: .25
+    });
 
     this.particleRadius = getComputedStyle(this.particles[0]).width;
     this.particleRadius = parseInt(this.particleRadius, 10)/2;

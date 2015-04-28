@@ -62,14 +62,15 @@
 	  return obj && (obj["default"] || obj);
 	};
 
-	var _core = _interopRequire(__webpack_require__(5));
+	var _core = _interopRequire(__webpack_require__(6));
 
-	var Impulse = __webpack_require__(6);
+	var Impulse = __webpack_require__(7);
 	var mojs = __webpack_require__(2);
-	var Iscroll = __webpack_require__(38);
-	var Events = __webpack_require__(3);
-	var ShowOnEl = __webpack_require__(4);
+	var Iscroll = __webpack_require__(3);
+	var Events = __webpack_require__(4);
+	var ShowOnEl = __webpack_require__(5);
 
+	var Howl = __webpack_require__(38).Howl;
 
 	var showOnElModule = new ShowOnEl();
 
@@ -113,6 +114,12 @@
 	      value: function vars() {
 	        this.particlesContainer = document.querySelector("#scroller");
 	        this.particles = document.querySelectorAll(".particle");
+
+	        this.openSound = new Howl({ urls: ["sounds/open-bubble-2.wav"] });
+	        this.openSound2 = new Howl({
+	          urls: ["sounds/open-bubble-3.wav"],
+	          rate: 0.25
+	        });
 
 	        this.particleRadius = getComputedStyle(this.particles[0]).width;
 	        this.particleRadius = parseInt(this.particleRadius, 10) / 2;
@@ -4196,6 +4203,2049 @@
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+	(function (window, document, Math) {
+	var rAF = window.requestAnimationFrame	||
+		window.webkitRequestAnimationFrame	||
+		window.mozRequestAnimationFrame		||
+		window.oRequestAnimationFrame		||
+		window.msRequestAnimationFrame		||
+		function (callback) { window.setTimeout(callback, 1000 / 60); };
+
+	var utils = (function () {
+		var me = {};
+
+		var _elementStyle = document.createElement('div').style;
+		var _vendor = (function () {
+			var vendors = ['t', 'webkitT', 'MozT', 'msT', 'OT'],
+				transform,
+				i = 0,
+				l = vendors.length;
+
+			for ( ; i < l; i++ ) {
+				transform = vendors[i] + 'ransform';
+				if ( transform in _elementStyle ) return vendors[i].substr(0, vendors[i].length-1);
+			}
+
+			return false;
+		})();
+
+		function _prefixStyle (style) {
+			if ( _vendor === false ) return false;
+			if ( _vendor === '' ) return style;
+			return _vendor + style.charAt(0).toUpperCase() + style.substr(1);
+		}
+
+		me.getTime = Date.now || function getTime () { return new Date().getTime(); };
+
+		me.extend = function (target, obj) {
+			for ( var i in obj ) {
+				target[i] = obj[i];
+			}
+		};
+
+		me.addEvent = function (el, type, fn, capture) {
+			el.addEventListener(type, fn, !!capture);
+		};
+
+		me.removeEvent = function (el, type, fn, capture) {
+			el.removeEventListener(type, fn, !!capture);
+		};
+
+		me.prefixPointerEvent = function (pointerEvent) {
+			return window.MSPointerEvent ? 
+				'MSPointer' + pointerEvent.charAt(9).toUpperCase() + pointerEvent.substr(10):
+				pointerEvent;
+		};
+
+		me.momentum = function (current, start, time, lowerMargin, wrapperSize, deceleration) {
+			var distance = current - start,
+				speed = Math.abs(distance) / time,
+				destination,
+				duration;
+
+			deceleration = deceleration === undefined ? 0.0006 : deceleration;
+
+			destination = current + ( speed * speed ) / ( 2 * deceleration ) * ( distance < 0 ? -1 : 1 );
+			duration = speed / deceleration;
+
+			if ( destination < lowerMargin ) {
+				destination = wrapperSize ? lowerMargin - ( wrapperSize / 2.5 * ( speed / 8 ) ) : lowerMargin;
+				distance = Math.abs(destination - current);
+				duration = distance / speed;
+			} else if ( destination > 0 ) {
+				destination = wrapperSize ? wrapperSize / 2.5 * ( speed / 8 ) : 0;
+				distance = Math.abs(current) + destination;
+				duration = distance / speed;
+			}
+
+			return {
+				destination: Math.round(destination),
+				duration: duration
+			};
+		};
+
+		var _transform = _prefixStyle('transform');
+
+		me.extend(me, {
+			hasTransform: _transform !== false,
+			hasPerspective: _prefixStyle('perspective') in _elementStyle,
+			hasTouch: 'ontouchstart' in window,
+			hasPointer: window.PointerEvent || window.MSPointerEvent, // IE10 is prefixed
+			hasTransition: _prefixStyle('transition') in _elementStyle
+		});
+
+		// This should find all Android browsers lower than build 535.19 (both stock browser and webview)
+		me.isBadAndroid = /Android /.test(window.navigator.appVersion) && !(/Chrome\/\d/.test(window.navigator.appVersion));
+
+		me.extend(me.style = {}, {
+			transform: _transform,
+			transitionTimingFunction: _prefixStyle('transitionTimingFunction'),
+			transitionDuration: _prefixStyle('transitionDuration'),
+			transitionDelay: _prefixStyle('transitionDelay'),
+			transformOrigin: _prefixStyle('transformOrigin')
+		});
+
+		me.hasClass = function (e, c) {
+			var re = new RegExp("(^|\\s)" + c + "(\\s|$)");
+			return re.test(e.className);
+		};
+
+		me.addClass = function (e, c) {
+			if ( me.hasClass(e, c) ) {
+				return;
+			}
+
+			var newclass = e.className.split(' ');
+			newclass.push(c);
+			e.className = newclass.join(' ');
+		};
+
+		me.removeClass = function (e, c) {
+			if ( !me.hasClass(e, c) ) {
+				return;
+			}
+
+			var re = new RegExp("(^|\\s)" + c + "(\\s|$)", 'g');
+			e.className = e.className.replace(re, ' ');
+		};
+
+		me.offset = function (el) {
+			var left = -el.offsetLeft,
+				top = -el.offsetTop;
+
+			// jshint -W084
+			while (el = el.offsetParent) {
+				left -= el.offsetLeft;
+				top -= el.offsetTop;
+			}
+			// jshint +W084
+
+			return {
+				left: left,
+				top: top
+			};
+		};
+
+		me.preventDefaultException = function (el, exceptions) {
+			for ( var i in exceptions ) {
+				if ( exceptions[i].test(el[i]) ) {
+					return true;
+				}
+			}
+
+			return false;
+		};
+
+		me.extend(me.eventType = {}, {
+			touchstart: 1,
+			touchmove: 1,
+			touchend: 1,
+
+			mousedown: 2,
+			mousemove: 2,
+			mouseup: 2,
+
+			pointerdown: 3,
+			pointermove: 3,
+			pointerup: 3,
+
+			MSPointerDown: 3,
+			MSPointerMove: 3,
+			MSPointerUp: 3
+		});
+
+		me.extend(me.ease = {}, {
+			quadratic: {
+				style: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+				fn: function (k) {
+					return k * ( 2 - k );
+				}
+			},
+			circular: {
+				style: 'cubic-bezier(0.1, 0.57, 0.1, 1)',	// Not properly "circular" but this looks better, it should be (0.075, 0.82, 0.165, 1)
+				fn: function (k) {
+					return Math.sqrt( 1 - ( --k * k ) );
+				}
+			},
+			back: {
+				style: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+				fn: function (k) {
+					var b = 4;
+					return ( k = k - 1 ) * k * ( ( b + 1 ) * k + b ) + 1;
+				}
+			},
+			bounce: {
+				style: '',
+				fn: function (k) {
+					if ( ( k /= 1 ) < ( 1 / 2.75 ) ) {
+						return 7.5625 * k * k;
+					} else if ( k < ( 2 / 2.75 ) ) {
+						return 7.5625 * ( k -= ( 1.5 / 2.75 ) ) * k + 0.75;
+					} else if ( k < ( 2.5 / 2.75 ) ) {
+						return 7.5625 * ( k -= ( 2.25 / 2.75 ) ) * k + 0.9375;
+					} else {
+						return 7.5625 * ( k -= ( 2.625 / 2.75 ) ) * k + 0.984375;
+					}
+				}
+			},
+			elastic: {
+				style: '',
+				fn: function (k) {
+					var f = 0.22,
+						e = 0.4;
+
+					if ( k === 0 ) { return 0; }
+					if ( k == 1 ) { return 1; }
+
+					return ( e * Math.pow( 2, - 10 * k ) * Math.sin( ( k - f / 4 ) * ( 2 * Math.PI ) / f ) + 1 );
+				}
+			}
+		});
+
+		me.tap = function (e, eventName) {
+			var ev = document.createEvent('Event');
+			ev.initEvent(eventName, true, true);
+			ev.pageX = e.pageX;
+			ev.pageY = e.pageY;
+			e.target.dispatchEvent(ev);
+		};
+
+		me.click = function (e) {
+			var target = e.target,
+				ev;
+
+			if ( !(/(SELECT|INPUT|TEXTAREA)/i).test(target.tagName) ) {
+				ev = document.createEvent('MouseEvents');
+				ev.initMouseEvent('click', true, true, e.view, 1,
+					target.screenX, target.screenY, target.clientX, target.clientY,
+					e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
+					0, null);
+
+				ev._constructed = true;
+				target.dispatchEvent(ev);
+			}
+		};
+
+		return me;
+	})();
+
+	function IScroll (el, options) {
+		this.wrapper = typeof el == 'string' ? document.querySelector(el) : el;
+		this.scroller = this.wrapper.children[0];
+		this.scrollerStyle = this.scroller.style;		// cache style for better performance
+
+		this.options = {
+
+			resizeScrollbars: true,
+
+			mouseWheelSpeed: 20,
+
+			snapThreshold: 0.334,
+
+	// INSERT POINT: OPTIONS 
+
+			startX: 0,
+			startY: 0,
+			scrollY: true,
+			directionLockThreshold: 5,
+			momentum: true,
+
+			bounce: true,
+			bounceTime: 600,
+			bounceEasing: '',
+
+			preventDefault: true,
+			preventDefaultException: { tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ },
+
+			HWCompositing: true,
+			useTransition: true,
+			useTransform: true
+		};
+
+		for ( var i in options ) {
+			this.options[i] = options[i];
+		}
+
+		// Normalize options
+		this.translateZ = this.options.HWCompositing && utils.hasPerspective ? ' translateZ(0)' : '';
+
+		this.options.useTransition = utils.hasTransition && this.options.useTransition;
+		this.options.useTransform = utils.hasTransform && this.options.useTransform;
+
+		this.options.eventPassthrough = this.options.eventPassthrough === true ? 'vertical' : this.options.eventPassthrough;
+		this.options.preventDefault = !this.options.eventPassthrough && this.options.preventDefault;
+
+		// If you want eventPassthrough I have to lock one of the axes
+		this.options.scrollY = this.options.eventPassthrough == 'vertical' ? false : this.options.scrollY;
+		this.options.scrollX = this.options.eventPassthrough == 'horizontal' ? false : this.options.scrollX;
+
+		// With eventPassthrough we also need lockDirection mechanism
+		this.options.freeScroll = this.options.freeScroll && !this.options.eventPassthrough;
+		this.options.directionLockThreshold = this.options.eventPassthrough ? 0 : this.options.directionLockThreshold;
+
+		this.options.bounceEasing = typeof this.options.bounceEasing == 'string' ? utils.ease[this.options.bounceEasing] || utils.ease.circular : this.options.bounceEasing;
+
+		this.options.resizePolling = this.options.resizePolling === undefined ? 60 : this.options.resizePolling;
+
+		if ( this.options.tap === true ) {
+			this.options.tap = 'tap';
+		}
+
+		if ( this.options.shrinkScrollbars == 'scale' ) {
+			this.options.useTransition = false;
+		}
+
+		this.options.invertWheelDirection = this.options.invertWheelDirection ? -1 : 1;
+
+		if ( this.options.probeType == 3 ) {
+			this.options.useTransition = false;	}
+
+	// INSERT POINT: NORMALIZATION
+
+		// Some defaults	
+		this.x = 0;
+		this.y = 0;
+		this.directionX = 0;
+		this.directionY = 0;
+		this._events = {};
+
+	// INSERT POINT: DEFAULTS
+
+		this._init();
+		this.refresh();
+
+		this.scrollTo(this.options.startX, this.options.startY);
+		this.enable();
+	}
+
+	IScroll.prototype = {
+		version: '5.1.3',
+
+		_init: function () {
+			this._initEvents();
+
+			if ( this.options.scrollbars || this.options.indicators ) {
+				this._initIndicators();
+			}
+
+			if ( this.options.mouseWheel ) {
+				this._initWheel();
+			}
+
+			if ( this.options.snap ) {
+				this._initSnap();
+			}
+
+			if ( this.options.keyBindings ) {
+				this._initKeys();
+			}
+
+	// INSERT POINT: _init
+
+		},
+
+		destroy: function () {
+			this._initEvents(true);
+
+			this._execEvent('destroy');
+		},
+
+		_transitionEnd: function (e) {
+			if ( e.target != this.scroller || !this.isInTransition ) {
+				return;
+			}
+
+			this._transitionTime();
+			if ( !this.resetPosition(this.options.bounceTime) ) {
+				this.isInTransition = false;
+				this._execEvent('scrollEnd');
+			}
+		},
+
+		_start: function (e) {
+			// React to left mouse button only
+			if ( utils.eventType[e.type] != 1 ) {
+				if ( e.button !== 0 ) {
+					return;
+				}
+			}
+
+			if ( !this.enabled || (this.initiated && utils.eventType[e.type] !== this.initiated) ) {
+				return;
+			}
+
+			if ( this.options.preventDefault && !utils.isBadAndroid && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
+				e.preventDefault();
+			}
+
+			var point = e.touches ? e.touches[0] : e,
+				pos;
+
+			this.initiated	= utils.eventType[e.type];
+			this.moved		= false;
+			this.distX		= 0;
+			this.distY		= 0;
+			this.directionX = 0;
+			this.directionY = 0;
+			this.directionLocked = 0;
+
+			this._transitionTime();
+
+			this.startTime = utils.getTime();
+
+			if ( this.options.useTransition && this.isInTransition ) {
+				this.isInTransition = false;
+				pos = this.getComputedPosition();
+				this._translate(Math.round(pos.x), Math.round(pos.y));
+				this._execEvent('scrollEnd');
+			} else if ( !this.options.useTransition && this.isAnimating ) {
+				this.isAnimating = false;
+				this._execEvent('scrollEnd');
+			}
+
+			this.startX    = this.x;
+			this.startY    = this.y;
+			this.absStartX = this.x;
+			this.absStartY = this.y;
+			this.pointX    = point.pageX;
+			this.pointY    = point.pageY;
+
+			this._execEvent('beforeScrollStart');
+		},
+
+		_move: function (e) {
+			if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
+				return;
+			}
+
+			if ( this.options.preventDefault ) {	// increases performance on Android? TODO: check!
+				e.preventDefault();
+			}
+
+			var point		= e.touches ? e.touches[0] : e,
+				deltaX		= point.pageX - this.pointX,
+				deltaY		= point.pageY - this.pointY,
+				timestamp	= utils.getTime(),
+				newX, newY,
+				absDistX, absDistY;
+
+			this.pointX		= point.pageX;
+			this.pointY		= point.pageY;
+
+			this.distX		+= deltaX;
+			this.distY		+= deltaY;
+			absDistX		= Math.abs(this.distX);
+			absDistY		= Math.abs(this.distY);
+
+			// We need to move at least 10 pixels for the scrolling to initiate
+			if ( timestamp - this.endTime > 300 && (absDistX < 10 && absDistY < 10) ) {
+				return;
+			}
+
+			// If you are scrolling in one direction lock the other
+			if ( !this.directionLocked && !this.options.freeScroll ) {
+				if ( absDistX > absDistY + this.options.directionLockThreshold ) {
+					this.directionLocked = 'h';		// lock horizontally
+				} else if ( absDistY >= absDistX + this.options.directionLockThreshold ) {
+					this.directionLocked = 'v';		// lock vertically
+				} else {
+					this.directionLocked = 'n';		// no lock
+				}
+			}
+
+			if ( this.directionLocked == 'h' ) {
+				if ( this.options.eventPassthrough == 'vertical' ) {
+					e.preventDefault();
+				} else if ( this.options.eventPassthrough == 'horizontal' ) {
+					this.initiated = false;
+					return;
+				}
+
+				deltaY = 0;
+			} else if ( this.directionLocked == 'v' ) {
+				if ( this.options.eventPassthrough == 'horizontal' ) {
+					e.preventDefault();
+				} else if ( this.options.eventPassthrough == 'vertical' ) {
+					this.initiated = false;
+					return;
+				}
+
+				deltaX = 0;
+			}
+
+			deltaX = this.hasHorizontalScroll ? deltaX : 0;
+			deltaY = this.hasVerticalScroll ? deltaY : 0;
+
+			newX = this.x + deltaX;
+			newY = this.y + deltaY;
+
+			// Slow down if outside of the boundaries
+			if ( newX > 0 || newX < this.maxScrollX ) {
+				newX = this.options.bounce ? this.x + deltaX / 3 : newX > 0 ? 0 : this.maxScrollX;
+			}
+			if ( newY > 0 || newY < this.maxScrollY ) {
+				newY = this.options.bounce ? this.y + deltaY / 3 : newY > 0 ? 0 : this.maxScrollY;
+			}
+
+			this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
+			this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
+
+			if ( !this.moved ) {
+				this._execEvent('scrollStart');
+			}
+
+			this.moved = true;
+
+			this._translate(newX, newY);
+
+	/* REPLACE START: _move */
+			if ( timestamp - this.startTime > 300 ) {
+				this.startTime = timestamp;
+				this.startX = this.x;
+				this.startY = this.y;
+
+				if ( this.options.probeType == 1 ) {
+					this._execEvent('scroll');
+				}
+			}
+
+			if ( this.options.probeType > 1 ) {
+				this._execEvent('scroll');
+			}
+	/* REPLACE END: _move */
+
+		},
+
+		_end: function (e) {
+			if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
+				return;
+			}
+
+			if ( this.options.preventDefault && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
+				e.preventDefault();
+			}
+
+			var point = e.changedTouches ? e.changedTouches[0] : e,
+				momentumX,
+				momentumY,
+				duration = utils.getTime() - this.startTime,
+				newX = Math.round(this.x),
+				newY = Math.round(this.y),
+				distanceX = Math.abs(newX - this.startX),
+				distanceY = Math.abs(newY - this.startY),
+				time = 0,
+				easing = '';
+
+			this.isInTransition = 0;
+			this.initiated = 0;
+			this.endTime = utils.getTime();
+
+			// reset if we are outside of the boundaries
+			if ( this.resetPosition(this.options.bounceTime) ) {
+				return;
+			}
+
+			this.scrollTo(newX, newY);	// ensures that the last position is rounded
+
+			// we scrolled less than 10 pixels
+			if ( !this.moved ) {
+				if ( this.options.tap ) {
+					utils.tap(e, this.options.tap);
+				}
+
+				if ( this.options.click ) {
+					utils.click(e);
+				}
+
+				this._execEvent('scrollCancel');
+				return;
+			}
+
+			if ( this._events.flick && duration < 200 && distanceX < 100 && distanceY < 100 ) {
+				this._execEvent('flick');
+				return;
+			}
+
+			// start momentum animation if needed
+			if ( this.options.momentum && duration < 300 ) {
+				momentumX = this.hasHorizontalScroll ? utils.momentum(this.x, this.startX, duration, this.maxScrollX, this.options.bounce ? this.wrapperWidth : 0, this.options.deceleration) : { destination: newX, duration: 0 };
+				momentumY = this.hasVerticalScroll ? utils.momentum(this.y, this.startY, duration, this.maxScrollY, this.options.bounce ? this.wrapperHeight : 0, this.options.deceleration) : { destination: newY, duration: 0 };
+				newX = momentumX.destination;
+				newY = momentumY.destination;
+				time = Math.max(momentumX.duration, momentumY.duration);
+				this.isInTransition = 1;
+			}
+
+
+			if ( this.options.snap ) {
+				var snap = this._nearestSnap(newX, newY);
+				this.currentPage = snap;
+				time = this.options.snapSpeed || Math.max(
+						Math.max(
+							Math.min(Math.abs(newX - snap.x), 1000),
+							Math.min(Math.abs(newY - snap.y), 1000)
+						), 300);
+				newX = snap.x;
+				newY = snap.y;
+
+				this.directionX = 0;
+				this.directionY = 0;
+				easing = this.options.bounceEasing;
+			}
+
+	// INSERT POINT: _end
+
+			if ( newX != this.x || newY != this.y ) {
+				// change easing function when scroller goes out of the boundaries
+				if ( newX > 0 || newX < this.maxScrollX || newY > 0 || newY < this.maxScrollY ) {
+					easing = utils.ease.quadratic;
+				}
+
+				this.scrollTo(newX, newY, time, easing);
+				return;
+			}
+
+			this._execEvent('scrollEnd');
+		},
+
+		_resize: function () {
+			var that = this;
+
+			clearTimeout(this.resizeTimeout);
+
+			this.resizeTimeout = setTimeout(function () {
+				that.refresh();
+			}, this.options.resizePolling);
+		},
+
+		resetPosition: function (time) {
+			var x = this.x,
+				y = this.y;
+
+			time = time || 0;
+
+			if ( !this.hasHorizontalScroll || this.x > 0 ) {
+				x = 0;
+			} else if ( this.x < this.maxScrollX ) {
+				x = this.maxScrollX;
+			}
+
+			if ( !this.hasVerticalScroll || this.y > 0 ) {
+				y = 0;
+			} else if ( this.y < this.maxScrollY ) {
+				y = this.maxScrollY;
+			}
+
+			if ( x == this.x && y == this.y ) {
+				return false;
+			}
+
+			this.scrollTo(x, y, time, this.options.bounceEasing);
+
+			return true;
+		},
+
+		disable: function () {
+			this.enabled = false;
+		},
+
+		enable: function () {
+			this.enabled = true;
+		},
+
+		refresh: function () {
+			var rf = this.wrapper.offsetHeight;		// Force reflow
+
+			this.wrapperWidth	= this.wrapper.clientWidth;
+			this.wrapperHeight	= this.wrapper.clientHeight;
+
+	/* REPLACE START: refresh */
+
+			this.scrollerWidth	= this.scroller.offsetWidth;
+			this.scrollerHeight	= this.scroller.offsetHeight;
+
+			this.maxScrollX		= this.wrapperWidth - this.scrollerWidth;
+			this.maxScrollY		= this.wrapperHeight - this.scrollerHeight;
+
+	/* REPLACE END: refresh */
+
+			this.hasHorizontalScroll	= this.options.scrollX && this.maxScrollX < 0;
+			this.hasVerticalScroll		= this.options.scrollY && this.maxScrollY < 0;
+
+			if ( !this.hasHorizontalScroll ) {
+				this.maxScrollX = 0;
+				this.scrollerWidth = this.wrapperWidth;
+			}
+
+			if ( !this.hasVerticalScroll ) {
+				this.maxScrollY = 0;
+				this.scrollerHeight = this.wrapperHeight;
+			}
+
+			this.endTime = 0;
+			this.directionX = 0;
+			this.directionY = 0;
+
+			this.wrapperOffset = utils.offset(this.wrapper);
+
+			this._execEvent('refresh');
+
+			this.resetPosition();
+
+	// INSERT POINT: _refresh
+
+		},
+
+		on: function (type, fn) {
+			if ( !this._events[type] ) {
+				this._events[type] = [];
+			}
+
+			this._events[type].push(fn);
+		},
+
+		off: function (type, fn) {
+			if ( !this._events[type] ) {
+				return;
+			}
+
+			var index = this._events[type].indexOf(fn);
+
+			if ( index > -1 ) {
+				this._events[type].splice(index, 1);
+			}
+		},
+
+		_execEvent: function (type) {
+			if ( !this._events[type] ) {
+				return;
+			}
+
+			var i = 0,
+				l = this._events[type].length;
+
+			if ( !l ) {
+				return;
+			}
+
+			for ( ; i < l; i++ ) {
+				this._events[type][i].apply(this, [].slice.call(arguments, 1));
+			}
+		},
+
+		scrollBy: function (x, y, time, easing) {
+			x = this.x + x;
+			y = this.y + y;
+			time = time || 0;
+
+			this.scrollTo(x, y, time, easing);
+		},
+
+		scrollTo: function (x, y, time, easing) {
+			easing = easing || utils.ease.circular;
+
+			this.isInTransition = this.options.useTransition && time > 0;
+
+			if ( !time || (this.options.useTransition && easing.style) ) {
+				this._transitionTimingFunction(easing.style);
+				this._transitionTime(time);
+				this._translate(x, y);
+			} else {
+				this._animate(x, y, time, easing.fn);
+			}
+		},
+
+		scrollToElement: function (el, time, offsetX, offsetY, easing) {
+			el = el.nodeType ? el : this.scroller.querySelector(el);
+
+			if ( !el ) {
+				return;
+			}
+
+			var pos = utils.offset(el);
+
+			pos.left -= this.wrapperOffset.left;
+			pos.top  -= this.wrapperOffset.top;
+
+			// if offsetX/Y are true we center the element to the screen
+			if ( offsetX === true ) {
+				offsetX = Math.round(el.offsetWidth / 2 - this.wrapper.offsetWidth / 2);
+			}
+			if ( offsetY === true ) {
+				offsetY = Math.round(el.offsetHeight / 2 - this.wrapper.offsetHeight / 2);
+			}
+
+			pos.left -= offsetX || 0;
+			pos.top  -= offsetY || 0;
+
+			pos.left = pos.left > 0 ? 0 : pos.left < this.maxScrollX ? this.maxScrollX : pos.left;
+			pos.top  = pos.top  > 0 ? 0 : pos.top  < this.maxScrollY ? this.maxScrollY : pos.top;
+
+			time = time === undefined || time === null || time === 'auto' ? Math.max(Math.abs(this.x-pos.left), Math.abs(this.y-pos.top)) : time;
+
+			this.scrollTo(pos.left, pos.top, time, easing);
+		},
+
+		_transitionTime: function (time) {
+			time = time || 0;
+
+			this.scrollerStyle[utils.style.transitionDuration] = time + 'ms';
+
+			if ( !time && utils.isBadAndroid ) {
+				this.scrollerStyle[utils.style.transitionDuration] = '0.001s';
+			}
+
+
+			if ( this.indicators ) {
+				for ( var i = this.indicators.length; i--; ) {
+					this.indicators[i].transitionTime(time);
+				}
+			}
+
+
+	// INSERT POINT: _transitionTime
+
+		},
+
+		_transitionTimingFunction: function (easing) {
+			this.scrollerStyle[utils.style.transitionTimingFunction] = easing;
+
+
+			if ( this.indicators ) {
+				for ( var i = this.indicators.length; i--; ) {
+					this.indicators[i].transitionTimingFunction(easing);
+				}
+			}
+
+
+	// INSERT POINT: _transitionTimingFunction
+
+		},
+
+		_translate: function (x, y) {
+			if ( this.options.useTransform ) {
+
+	/* REPLACE START: _translate */
+
+				this.scrollerStyle[utils.style.transform] = 'translate(' + x + 'px,' + y + 'px)' + this.translateZ;
+
+	/* REPLACE END: _translate */
+
+			} else {
+				x = Math.round(x);
+				y = Math.round(y);
+				this.scrollerStyle.left = x + 'px';
+				this.scrollerStyle.top = y + 'px';
+			}
+
+			this.x = x;
+			this.y = y;
+
+
+		if ( this.indicators ) {
+			for ( var i = this.indicators.length; i--; ) {
+				this.indicators[i].updatePosition();
+			}
+		}
+
+
+	// INSERT POINT: _translate
+
+		},
+
+		_initEvents: function (remove) {
+			var eventType = remove ? utils.removeEvent : utils.addEvent,
+				target = this.options.bindToWrapper ? this.wrapper : window;
+
+			eventType(window, 'orientationchange', this);
+			eventType(window, 'resize', this);
+
+			if ( this.options.click ) {
+				eventType(this.wrapper, 'click', this, true);
+			}
+
+			if ( !this.options.disableMouse ) {
+				eventType(this.wrapper, 'mousedown', this);
+				eventType(target, 'mousemove', this);
+				eventType(target, 'mousecancel', this);
+				eventType(target, 'mouseup', this);
+			}
+
+			if ( utils.hasPointer && !this.options.disablePointer ) {
+				eventType(this.wrapper, utils.prefixPointerEvent('pointerdown'), this);
+				eventType(target, utils.prefixPointerEvent('pointermove'), this);
+				eventType(target, utils.prefixPointerEvent('pointercancel'), this);
+				eventType(target, utils.prefixPointerEvent('pointerup'), this);
+			}
+
+			if ( utils.hasTouch && !this.options.disableTouch ) {
+				eventType(this.wrapper, 'touchstart', this);
+				eventType(target, 'touchmove', this);
+				eventType(target, 'touchcancel', this);
+				eventType(target, 'touchend', this);
+			}
+
+			eventType(this.scroller, 'transitionend', this);
+			eventType(this.scroller, 'webkitTransitionEnd', this);
+			eventType(this.scroller, 'oTransitionEnd', this);
+			eventType(this.scroller, 'MSTransitionEnd', this);
+		},
+
+		getComputedPosition: function () {
+			var matrix = window.getComputedStyle(this.scroller, null),
+				x, y;
+
+			if ( this.options.useTransform ) {
+				matrix = matrix[utils.style.transform].split(')')[0].split(', ');
+				x = +(matrix[12] || matrix[4]);
+				y = +(matrix[13] || matrix[5]);
+			} else {
+				x = +matrix.left.replace(/[^-\d.]/g, '');
+				y = +matrix.top.replace(/[^-\d.]/g, '');
+			}
+
+			return { x: x, y: y };
+		},
+
+		_initIndicators: function () {
+			var interactive = this.options.interactiveScrollbars,
+				customStyle = typeof this.options.scrollbars != 'string',
+				indicators = [],
+				indicator;
+
+			var that = this;
+
+			this.indicators = [];
+
+			if ( this.options.scrollbars ) {
+				// Vertical scrollbar
+				if ( this.options.scrollY ) {
+					indicator = {
+						el: createDefaultScrollbar('v', interactive, this.options.scrollbars),
+						interactive: interactive,
+						defaultScrollbars: true,
+						customStyle: customStyle,
+						resize: this.options.resizeScrollbars,
+						shrink: this.options.shrinkScrollbars,
+						fade: this.options.fadeScrollbars,
+						listenX: false
+					};
+
+					this.wrapper.appendChild(indicator.el);
+					indicators.push(indicator);
+				}
+
+				// Horizontal scrollbar
+				if ( this.options.scrollX ) {
+					indicator = {
+						el: createDefaultScrollbar('h', interactive, this.options.scrollbars),
+						interactive: interactive,
+						defaultScrollbars: true,
+						customStyle: customStyle,
+						resize: this.options.resizeScrollbars,
+						shrink: this.options.shrinkScrollbars,
+						fade: this.options.fadeScrollbars,
+						listenY: false
+					};
+
+					this.wrapper.appendChild(indicator.el);
+					indicators.push(indicator);
+				}
+			}
+
+			if ( this.options.indicators ) {
+				// TODO: check concat compatibility
+				indicators = indicators.concat(this.options.indicators);
+			}
+
+			for ( var i = indicators.length; i--; ) {
+				this.indicators.push( new Indicator(this, indicators[i]) );
+			}
+
+			// TODO: check if we can use array.map (wide compatibility and performance issues)
+			function _indicatorsMap (fn) {
+				for ( var i = that.indicators.length; i--; ) {
+					fn.call(that.indicators[i]);
+				}
+			}
+
+			if ( this.options.fadeScrollbars ) {
+				this.on('scrollEnd', function () {
+					_indicatorsMap(function () {
+						this.fade();
+					});
+				});
+
+				this.on('scrollCancel', function () {
+					_indicatorsMap(function () {
+						this.fade();
+					});
+				});
+
+				this.on('scrollStart', function () {
+					_indicatorsMap(function () {
+						this.fade(1);
+					});
+				});
+
+				this.on('beforeScrollStart', function () {
+					_indicatorsMap(function () {
+						this.fade(1, true);
+					});
+				});
+			}
+
+
+			this.on('refresh', function () {
+				_indicatorsMap(function () {
+					this.refresh();
+				});
+			});
+
+			this.on('destroy', function () {
+				_indicatorsMap(function () {
+					this.destroy();
+				});
+
+				delete this.indicators;
+			});
+		},
+
+		_initWheel: function () {
+			utils.addEvent(this.wrapper, 'wheel', this);
+			utils.addEvent(this.wrapper, 'mousewheel', this);
+			utils.addEvent(this.wrapper, 'DOMMouseScroll', this);
+
+			this.on('destroy', function () {
+				utils.removeEvent(this.wrapper, 'wheel', this);
+				utils.removeEvent(this.wrapper, 'mousewheel', this);
+				utils.removeEvent(this.wrapper, 'DOMMouseScroll', this);
+			});
+		},
+
+		_wheel: function (e) {
+			if ( !this.enabled ) {
+				return;
+			}
+
+			e.preventDefault();
+			e.stopPropagation();
+
+			var wheelDeltaX, wheelDeltaY,
+				newX, newY,
+				that = this;
+
+			if ( this.wheelTimeout === undefined ) {
+				that._execEvent('scrollStart');
+			}
+
+			// Execute the scrollEnd event after 400ms the wheel stopped scrolling
+			clearTimeout(this.wheelTimeout);
+			this.wheelTimeout = setTimeout(function () {
+				that._execEvent('scrollEnd');
+				that.wheelTimeout = undefined;
+			}, 400);
+
+			if ( 'deltaX' in e ) {
+				if (e.deltaMode === 1) {
+					wheelDeltaX = -e.deltaX * this.options.mouseWheelSpeed;
+					wheelDeltaY = -e.deltaY * this.options.mouseWheelSpeed;
+				} else {
+					wheelDeltaX = -e.deltaX;
+					wheelDeltaY = -e.deltaY;
+				}
+			} else if ( 'wheelDeltaX' in e ) {
+				wheelDeltaX = e.wheelDeltaX / 120 * this.options.mouseWheelSpeed;
+				wheelDeltaY = e.wheelDeltaY / 120 * this.options.mouseWheelSpeed;
+			} else if ( 'wheelDelta' in e ) {
+				wheelDeltaX = wheelDeltaY = e.wheelDelta / 120 * this.options.mouseWheelSpeed;
+			} else if ( 'detail' in e ) {
+				wheelDeltaX = wheelDeltaY = -e.detail / 3 * this.options.mouseWheelSpeed;
+			} else {
+				return;
+			}
+
+			wheelDeltaX *= this.options.invertWheelDirection;
+			wheelDeltaY *= this.options.invertWheelDirection;
+
+			if ( !this.hasVerticalScroll ) {
+				wheelDeltaX = wheelDeltaY;
+				wheelDeltaY = 0;
+			}
+
+			if ( this.options.snap ) {
+				newX = this.currentPage.pageX;
+				newY = this.currentPage.pageY;
+
+				if ( wheelDeltaX > 0 ) {
+					newX--;
+				} else if ( wheelDeltaX < 0 ) {
+					newX++;
+				}
+
+				if ( wheelDeltaY > 0 ) {
+					newY--;
+				} else if ( wheelDeltaY < 0 ) {
+					newY++;
+				}
+
+				this.goToPage(newX, newY);
+
+				return;
+			}
+
+			newX = this.x + Math.round(this.hasHorizontalScroll ? wheelDeltaX : 0);
+			newY = this.y + Math.round(this.hasVerticalScroll ? wheelDeltaY : 0);
+
+			if ( newX > 0 ) {
+				newX = 0;
+			} else if ( newX < this.maxScrollX ) {
+				newX = this.maxScrollX;
+			}
+
+			if ( newY > 0 ) {
+				newY = 0;
+			} else if ( newY < this.maxScrollY ) {
+				newY = this.maxScrollY;
+			}
+
+			this.scrollTo(newX, newY, 0);
+
+			if ( this.options.probeType > 1 ) {
+				this._execEvent('scroll');
+			}
+
+	// INSERT POINT: _wheel
+		},
+
+		_initSnap: function () {
+			this.currentPage = {};
+
+			if ( typeof this.options.snap == 'string' ) {
+				this.options.snap = this.scroller.querySelectorAll(this.options.snap);
+			}
+
+			this.on('refresh', function () {
+				var i = 0, l,
+					m = 0, n,
+					cx, cy,
+					x = 0, y,
+					stepX = this.options.snapStepX || this.wrapperWidth,
+					stepY = this.options.snapStepY || this.wrapperHeight,
+					el;
+
+				this.pages = [];
+
+				if ( !this.wrapperWidth || !this.wrapperHeight || !this.scrollerWidth || !this.scrollerHeight ) {
+					return;
+				}
+
+				if ( this.options.snap === true ) {
+					cx = Math.round( stepX / 2 );
+					cy = Math.round( stepY / 2 );
+
+					while ( x > -this.scrollerWidth ) {
+						this.pages[i] = [];
+						l = 0;
+						y = 0;
+
+						while ( y > -this.scrollerHeight ) {
+							this.pages[i][l] = {
+								x: Math.max(x, this.maxScrollX),
+								y: Math.max(y, this.maxScrollY),
+								width: stepX,
+								height: stepY,
+								cx: x - cx,
+								cy: y - cy
+							};
+
+							y -= stepY;
+							l++;
+						}
+
+						x -= stepX;
+						i++;
+					}
+				} else {
+					el = this.options.snap;
+					l = el.length;
+					n = -1;
+
+					for ( ; i < l; i++ ) {
+						if ( i === 0 || el[i].offsetLeft <= el[i-1].offsetLeft ) {
+							m = 0;
+							n++;
+						}
+
+						if ( !this.pages[m] ) {
+							this.pages[m] = [];
+						}
+
+						x = Math.max(-el[i].offsetLeft, this.maxScrollX);
+						y = Math.max(-el[i].offsetTop, this.maxScrollY);
+						cx = x - Math.round(el[i].offsetWidth / 2);
+						cy = y - Math.round(el[i].offsetHeight / 2);
+
+						this.pages[m][n] = {
+							x: x,
+							y: y,
+							width: el[i].offsetWidth,
+							height: el[i].offsetHeight,
+							cx: cx,
+							cy: cy
+						};
+
+						if ( x > this.maxScrollX ) {
+							m++;
+						}
+					}
+				}
+
+				this.goToPage(this.currentPage.pageX || 0, this.currentPage.pageY || 0, 0);
+
+				// Update snap threshold if needed
+				if ( this.options.snapThreshold % 1 === 0 ) {
+					this.snapThresholdX = this.options.snapThreshold;
+					this.snapThresholdY = this.options.snapThreshold;
+				} else {
+					this.snapThresholdX = Math.round(this.pages[this.currentPage.pageX][this.currentPage.pageY].width * this.options.snapThreshold);
+					this.snapThresholdY = Math.round(this.pages[this.currentPage.pageX][this.currentPage.pageY].height * this.options.snapThreshold);
+				}
+			});
+
+			this.on('flick', function () {
+				var time = this.options.snapSpeed || Math.max(
+						Math.max(
+							Math.min(Math.abs(this.x - this.startX), 1000),
+							Math.min(Math.abs(this.y - this.startY), 1000)
+						), 300);
+
+				this.goToPage(
+					this.currentPage.pageX + this.directionX,
+					this.currentPage.pageY + this.directionY,
+					time
+				);
+			});
+		},
+
+		_nearestSnap: function (x, y) {
+			if ( !this.pages.length ) {
+				return { x: 0, y: 0, pageX: 0, pageY: 0 };
+			}
+
+			var i = 0,
+				l = this.pages.length,
+				m = 0;
+
+			// Check if we exceeded the snap threshold
+			if ( Math.abs(x - this.absStartX) < this.snapThresholdX &&
+				Math.abs(y - this.absStartY) < this.snapThresholdY ) {
+				return this.currentPage;
+			}
+
+			if ( x > 0 ) {
+				x = 0;
+			} else if ( x < this.maxScrollX ) {
+				x = this.maxScrollX;
+			}
+
+			if ( y > 0 ) {
+				y = 0;
+			} else if ( y < this.maxScrollY ) {
+				y = this.maxScrollY;
+			}
+
+			for ( ; i < l; i++ ) {
+				if ( x >= this.pages[i][0].cx ) {
+					x = this.pages[i][0].x;
+					break;
+				}
+			}
+
+			l = this.pages[i].length;
+
+			for ( ; m < l; m++ ) {
+				if ( y >= this.pages[0][m].cy ) {
+					y = this.pages[0][m].y;
+					break;
+				}
+			}
+
+			if ( i == this.currentPage.pageX ) {
+				i += this.directionX;
+
+				if ( i < 0 ) {
+					i = 0;
+				} else if ( i >= this.pages.length ) {
+					i = this.pages.length - 1;
+				}
+
+				x = this.pages[i][0].x;
+			}
+
+			if ( m == this.currentPage.pageY ) {
+				m += this.directionY;
+
+				if ( m < 0 ) {
+					m = 0;
+				} else if ( m >= this.pages[0].length ) {
+					m = this.pages[0].length - 1;
+				}
+
+				y = this.pages[0][m].y;
+			}
+
+			return {
+				x: x,
+				y: y,
+				pageX: i,
+				pageY: m
+			};
+		},
+
+		goToPage: function (x, y, time, easing) {
+			easing = easing || this.options.bounceEasing;
+
+			if ( x >= this.pages.length ) {
+				x = this.pages.length - 1;
+			} else if ( x < 0 ) {
+				x = 0;
+			}
+
+			if ( y >= this.pages[x].length ) {
+				y = this.pages[x].length - 1;
+			} else if ( y < 0 ) {
+				y = 0;
+			}
+
+			var posX = this.pages[x][y].x,
+				posY = this.pages[x][y].y;
+
+			time = time === undefined ? this.options.snapSpeed || Math.max(
+				Math.max(
+					Math.min(Math.abs(posX - this.x), 1000),
+					Math.min(Math.abs(posY - this.y), 1000)
+				), 300) : time;
+
+			this.currentPage = {
+				x: posX,
+				y: posY,
+				pageX: x,
+				pageY: y
+			};
+
+			this.scrollTo(posX, posY, time, easing);
+		},
+
+		next: function (time, easing) {
+			var x = this.currentPage.pageX,
+				y = this.currentPage.pageY;
+
+			x++;
+
+			if ( x >= this.pages.length && this.hasVerticalScroll ) {
+				x = 0;
+				y++;
+			}
+
+			this.goToPage(x, y, time, easing);
+		},
+
+		prev: function (time, easing) {
+			var x = this.currentPage.pageX,
+				y = this.currentPage.pageY;
+
+			x--;
+
+			if ( x < 0 && this.hasVerticalScroll ) {
+				x = 0;
+				y--;
+			}
+
+			this.goToPage(x, y, time, easing);
+		},
+
+		_initKeys: function (e) {
+			// default key bindings
+			var keys = {
+				pageUp: 33,
+				pageDown: 34,
+				end: 35,
+				home: 36,
+				left: 37,
+				up: 38,
+				right: 39,
+				down: 40
+			};
+			var i;
+
+			// if you give me characters I give you keycode
+			if ( typeof this.options.keyBindings == 'object' ) {
+				for ( i in this.options.keyBindings ) {
+					if ( typeof this.options.keyBindings[i] == 'string' ) {
+						this.options.keyBindings[i] = this.options.keyBindings[i].toUpperCase().charCodeAt(0);
+					}
+				}
+			} else {
+				this.options.keyBindings = {};
+			}
+
+			for ( i in keys ) {
+				this.options.keyBindings[i] = this.options.keyBindings[i] || keys[i];
+			}
+
+			utils.addEvent(window, 'keydown', this);
+
+			this.on('destroy', function () {
+				utils.removeEvent(window, 'keydown', this);
+			});
+		},
+
+		_key: function (e) {
+			if ( !this.enabled ) {
+				return;
+			}
+
+			var snap = this.options.snap,	// we are using this alot, better to cache it
+				newX = snap ? this.currentPage.pageX : this.x,
+				newY = snap ? this.currentPage.pageY : this.y,
+				now = utils.getTime(),
+				prevTime = this.keyTime || 0,
+				acceleration = 0.250,
+				pos;
+
+			if ( this.options.useTransition && this.isInTransition ) {
+				pos = this.getComputedPosition();
+
+				this._translate(Math.round(pos.x), Math.round(pos.y));
+				this.isInTransition = false;
+			}
+
+			this.keyAcceleration = now - prevTime < 200 ? Math.min(this.keyAcceleration + acceleration, 50) : 0;
+
+			switch ( e.keyCode ) {
+				case this.options.keyBindings.pageUp:
+					if ( this.hasHorizontalScroll && !this.hasVerticalScroll ) {
+						newX += snap ? 1 : this.wrapperWidth;
+					} else {
+						newY += snap ? 1 : this.wrapperHeight;
+					}
+					break;
+				case this.options.keyBindings.pageDown:
+					if ( this.hasHorizontalScroll && !this.hasVerticalScroll ) {
+						newX -= snap ? 1 : this.wrapperWidth;
+					} else {
+						newY -= snap ? 1 : this.wrapperHeight;
+					}
+					break;
+				case this.options.keyBindings.end:
+					newX = snap ? this.pages.length-1 : this.maxScrollX;
+					newY = snap ? this.pages[0].length-1 : this.maxScrollY;
+					break;
+				case this.options.keyBindings.home:
+					newX = 0;
+					newY = 0;
+					break;
+				case this.options.keyBindings.left:
+					newX += snap ? -1 : 5 + this.keyAcceleration>>0;
+					break;
+				case this.options.keyBindings.up:
+					newY += snap ? 1 : 5 + this.keyAcceleration>>0;
+					break;
+				case this.options.keyBindings.right:
+					newX -= snap ? -1 : 5 + this.keyAcceleration>>0;
+					break;
+				case this.options.keyBindings.down:
+					newY -= snap ? 1 : 5 + this.keyAcceleration>>0;
+					break;
+				default:
+					return;
+			}
+
+			if ( snap ) {
+				this.goToPage(newX, newY);
+				return;
+			}
+
+			if ( newX > 0 ) {
+				newX = 0;
+				this.keyAcceleration = 0;
+			} else if ( newX < this.maxScrollX ) {
+				newX = this.maxScrollX;
+				this.keyAcceleration = 0;
+			}
+
+			if ( newY > 0 ) {
+				newY = 0;
+				this.keyAcceleration = 0;
+			} else if ( newY < this.maxScrollY ) {
+				newY = this.maxScrollY;
+				this.keyAcceleration = 0;
+			}
+
+			this.scrollTo(newX, newY, 0);
+
+			this.keyTime = now;
+		},
+
+		_animate: function (destX, destY, duration, easingFn) {
+			var that = this,
+				startX = this.x,
+				startY = this.y,
+				startTime = utils.getTime(),
+				destTime = startTime + duration;
+
+			function step () {
+				var now = utils.getTime(),
+					newX, newY,
+					easing;
+
+				if ( now >= destTime ) {
+					that.isAnimating = false;
+					that._translate(destX, destY);
+					
+					if ( !that.resetPosition(that.options.bounceTime) ) {
+						that._execEvent('scrollEnd');
+					}
+
+					return;
+				}
+
+				now = ( now - startTime ) / duration;
+				easing = easingFn(now);
+				newX = ( destX - startX ) * easing + startX;
+				newY = ( destY - startY ) * easing + startY;
+				that._translate(newX, newY);
+
+				if ( that.isAnimating ) {
+					rAF(step);
+				}
+
+				if ( that.options.probeType == 3 ) {
+					that._execEvent('scroll');
+				}
+			}
+
+			this.isAnimating = true;
+			step();
+		},
+
+		handleEvent: function (e) {
+			switch ( e.type ) {
+				case 'touchstart':
+				case 'pointerdown':
+				case 'MSPointerDown':
+				case 'mousedown':
+					this._start(e);
+					break;
+				case 'touchmove':
+				case 'pointermove':
+				case 'MSPointerMove':
+				case 'mousemove':
+					this._move(e);
+					break;
+				case 'touchend':
+				case 'pointerup':
+				case 'MSPointerUp':
+				case 'mouseup':
+				case 'touchcancel':
+				case 'pointercancel':
+				case 'MSPointerCancel':
+				case 'mousecancel':
+					this._end(e);
+					break;
+				case 'orientationchange':
+				case 'resize':
+					this._resize();
+					break;
+				case 'transitionend':
+				case 'webkitTransitionEnd':
+				case 'oTransitionEnd':
+				case 'MSTransitionEnd':
+					this._transitionEnd(e);
+					break;
+				case 'wheel':
+				case 'DOMMouseScroll':
+				case 'mousewheel':
+					this._wheel(e);
+					break;
+				case 'keydown':
+					this._key(e);
+					break;
+				case 'click':
+					if ( !e._constructed ) {
+						e.preventDefault();
+						e.stopPropagation();
+					}
+					break;
+			}
+		}
+	};
+	function createDefaultScrollbar (direction, interactive, type) {
+		var scrollbar = document.createElement('div'),
+			indicator = document.createElement('div');
+
+		if ( type === true ) {
+			scrollbar.style.cssText = 'position:absolute;z-index:9999';
+			indicator.style.cssText = '-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;position:absolute;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.9);border-radius:3px';
+		}
+
+		indicator.className = 'iScrollIndicator';
+
+		if ( direction == 'h' ) {
+			if ( type === true ) {
+				scrollbar.style.cssText += ';height:7px;left:2px;right:2px;bottom:0';
+				indicator.style.height = '100%';
+			}
+			scrollbar.className = 'iScrollHorizontalScrollbar';
+		} else {
+			if ( type === true ) {
+				scrollbar.style.cssText += ';width:7px;bottom:2px;top:2px;right:1px';
+				indicator.style.width = '100%';
+			}
+			scrollbar.className = 'iScrollVerticalScrollbar';
+		}
+
+		scrollbar.style.cssText += ';overflow:hidden';
+
+		if ( !interactive ) {
+			scrollbar.style.pointerEvents = 'none';
+		}
+
+		scrollbar.appendChild(indicator);
+
+		return scrollbar;
+	}
+
+	function Indicator (scroller, options) {
+		this.wrapper = typeof options.el == 'string' ? document.querySelector(options.el) : options.el;
+		this.wrapperStyle = this.wrapper.style;
+		this.indicator = this.wrapper.children[0];
+		this.indicatorStyle = this.indicator.style;
+		this.scroller = scroller;
+
+		this.options = {
+			listenX: true,
+			listenY: true,
+			interactive: false,
+			resize: true,
+			defaultScrollbars: false,
+			shrink: false,
+			fade: false,
+			speedRatioX: 0,
+			speedRatioY: 0
+		};
+
+		for ( var i in options ) {
+			this.options[i] = options[i];
+		}
+
+		this.sizeRatioX = 1;
+		this.sizeRatioY = 1;
+		this.maxPosX = 0;
+		this.maxPosY = 0;
+
+		if ( this.options.interactive ) {
+			if ( !this.options.disableTouch ) {
+				utils.addEvent(this.indicator, 'touchstart', this);
+				utils.addEvent(window, 'touchend', this);
+			}
+			if ( !this.options.disablePointer ) {
+				utils.addEvent(this.indicator, utils.prefixPointerEvent('pointerdown'), this);
+				utils.addEvent(window, utils.prefixPointerEvent('pointerup'), this);
+			}
+			if ( !this.options.disableMouse ) {
+				utils.addEvent(this.indicator, 'mousedown', this);
+				utils.addEvent(window, 'mouseup', this);
+			}
+		}
+
+		if ( this.options.fade ) {
+			this.wrapperStyle[utils.style.transform] = this.scroller.translateZ;
+			this.wrapperStyle[utils.style.transitionDuration] = utils.isBadAndroid ? '0.001s' : '0ms';
+			this.wrapperStyle.opacity = '0';
+		}
+	}
+
+	Indicator.prototype = {
+		handleEvent: function (e) {
+			switch ( e.type ) {
+				case 'touchstart':
+				case 'pointerdown':
+				case 'MSPointerDown':
+				case 'mousedown':
+					this._start(e);
+					break;
+				case 'touchmove':
+				case 'pointermove':
+				case 'MSPointerMove':
+				case 'mousemove':
+					this._move(e);
+					break;
+				case 'touchend':
+				case 'pointerup':
+				case 'MSPointerUp':
+				case 'mouseup':
+				case 'touchcancel':
+				case 'pointercancel':
+				case 'MSPointerCancel':
+				case 'mousecancel':
+					this._end(e);
+					break;
+			}
+		},
+
+		destroy: function () {
+			if ( this.options.interactive ) {
+				utils.removeEvent(this.indicator, 'touchstart', this);
+				utils.removeEvent(this.indicator, utils.prefixPointerEvent('pointerdown'), this);
+				utils.removeEvent(this.indicator, 'mousedown', this);
+
+				utils.removeEvent(window, 'touchmove', this);
+				utils.removeEvent(window, utils.prefixPointerEvent('pointermove'), this);
+				utils.removeEvent(window, 'mousemove', this);
+
+				utils.removeEvent(window, 'touchend', this);
+				utils.removeEvent(window, utils.prefixPointerEvent('pointerup'), this);
+				utils.removeEvent(window, 'mouseup', this);
+			}
+
+			if ( this.options.defaultScrollbars ) {
+				this.wrapper.parentNode.removeChild(this.wrapper);
+			}
+		},
+
+		_start: function (e) {
+			var point = e.touches ? e.touches[0] : e;
+
+			e.preventDefault();
+			e.stopPropagation();
+
+			this.transitionTime();
+
+			this.initiated = true;
+			this.moved = false;
+			this.lastPointX	= point.pageX;
+			this.lastPointY	= point.pageY;
+
+			this.startTime	= utils.getTime();
+
+			if ( !this.options.disableTouch ) {
+				utils.addEvent(window, 'touchmove', this);
+			}
+			if ( !this.options.disablePointer ) {
+				utils.addEvent(window, utils.prefixPointerEvent('pointermove'), this);
+			}
+			if ( !this.options.disableMouse ) {
+				utils.addEvent(window, 'mousemove', this);
+			}
+
+			this.scroller._execEvent('beforeScrollStart');
+		},
+
+		_move: function (e) {
+			var point = e.touches ? e.touches[0] : e,
+				deltaX, deltaY,
+				newX, newY,
+				timestamp = utils.getTime();
+
+			if ( !this.moved ) {
+				this.scroller._execEvent('scrollStart');
+			}
+
+			this.moved = true;
+
+			deltaX = point.pageX - this.lastPointX;
+			this.lastPointX = point.pageX;
+
+			deltaY = point.pageY - this.lastPointY;
+			this.lastPointY = point.pageY;
+
+			newX = this.x + deltaX;
+			newY = this.y + deltaY;
+
+			this._pos(newX, newY);
+
+
+			if ( this.scroller.options.probeType == 1 && timestamp - this.startTime > 300 ) {
+				this.startTime = timestamp;
+				this.scroller._execEvent('scroll');
+			} else if ( this.scroller.options.probeType > 1 ) {
+				this.scroller._execEvent('scroll');
+			}
+
+
+	// INSERT POINT: indicator._move
+
+			e.preventDefault();
+			e.stopPropagation();
+		},
+
+		_end: function (e) {
+			if ( !this.initiated ) {
+				return;
+			}
+
+			this.initiated = false;
+
+			e.preventDefault();
+			e.stopPropagation();
+
+			utils.removeEvent(window, 'touchmove', this);
+			utils.removeEvent(window, utils.prefixPointerEvent('pointermove'), this);
+			utils.removeEvent(window, 'mousemove', this);
+
+			if ( this.scroller.options.snap ) {
+				var snap = this.scroller._nearestSnap(this.scroller.x, this.scroller.y);
+
+				var time = this.options.snapSpeed || Math.max(
+						Math.max(
+							Math.min(Math.abs(this.scroller.x - snap.x), 1000),
+							Math.min(Math.abs(this.scroller.y - snap.y), 1000)
+						), 300);
+
+				if ( this.scroller.x != snap.x || this.scroller.y != snap.y ) {
+					this.scroller.directionX = 0;
+					this.scroller.directionY = 0;
+					this.scroller.currentPage = snap;
+					this.scroller.scrollTo(snap.x, snap.y, time, this.scroller.options.bounceEasing);
+				}
+			}
+
+			if ( this.moved ) {
+				this.scroller._execEvent('scrollEnd');
+			}
+		},
+
+		transitionTime: function (time) {
+			time = time || 0;
+			this.indicatorStyle[utils.style.transitionDuration] = time + 'ms';
+
+			if ( !time && utils.isBadAndroid ) {
+				this.indicatorStyle[utils.style.transitionDuration] = '0.001s';
+			}
+		},
+
+		transitionTimingFunction: function (easing) {
+			this.indicatorStyle[utils.style.transitionTimingFunction] = easing;
+		},
+
+		refresh: function () {
+			this.transitionTime();
+
+			if ( this.options.listenX && !this.options.listenY ) {
+				this.indicatorStyle.display = this.scroller.hasHorizontalScroll ? 'block' : 'none';
+			} else if ( this.options.listenY && !this.options.listenX ) {
+				this.indicatorStyle.display = this.scroller.hasVerticalScroll ? 'block' : 'none';
+			} else {
+				this.indicatorStyle.display = this.scroller.hasHorizontalScroll || this.scroller.hasVerticalScroll ? 'block' : 'none';
+			}
+
+			if ( this.scroller.hasHorizontalScroll && this.scroller.hasVerticalScroll ) {
+				utils.addClass(this.wrapper, 'iScrollBothScrollbars');
+				utils.removeClass(this.wrapper, 'iScrollLoneScrollbar');
+
+				if ( this.options.defaultScrollbars && this.options.customStyle ) {
+					if ( this.options.listenX ) {
+						this.wrapper.style.right = '8px';
+					} else {
+						this.wrapper.style.bottom = '8px';
+					}
+				}
+			} else {
+				utils.removeClass(this.wrapper, 'iScrollBothScrollbars');
+				utils.addClass(this.wrapper, 'iScrollLoneScrollbar');
+
+				if ( this.options.defaultScrollbars && this.options.customStyle ) {
+					if ( this.options.listenX ) {
+						this.wrapper.style.right = '2px';
+					} else {
+						this.wrapper.style.bottom = '2px';
+					}
+				}
+			}
+
+			var r = this.wrapper.offsetHeight;	// force refresh
+
+			if ( this.options.listenX ) {
+				this.wrapperWidth = this.wrapper.clientWidth;
+				if ( this.options.resize ) {
+					this.indicatorWidth = Math.max(Math.round(this.wrapperWidth * this.wrapperWidth / (this.scroller.scrollerWidth || this.wrapperWidth || 1)), 8);
+					this.indicatorStyle.width = this.indicatorWidth + 'px';
+				} else {
+					this.indicatorWidth = this.indicator.clientWidth;
+				}
+
+				this.maxPosX = this.wrapperWidth - this.indicatorWidth;
+
+				if ( this.options.shrink == 'clip' ) {
+					this.minBoundaryX = -this.indicatorWidth + 8;
+					this.maxBoundaryX = this.wrapperWidth - 8;
+				} else {
+					this.minBoundaryX = 0;
+					this.maxBoundaryX = this.maxPosX;
+				}
+
+				this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));	
+			}
+
+			if ( this.options.listenY ) {
+				this.wrapperHeight = this.wrapper.clientHeight;
+				if ( this.options.resize ) {
+					this.indicatorHeight = Math.max(Math.round(this.wrapperHeight * this.wrapperHeight / (this.scroller.scrollerHeight || this.wrapperHeight || 1)), 8);
+					this.indicatorStyle.height = this.indicatorHeight + 'px';
+				} else {
+					this.indicatorHeight = this.indicator.clientHeight;
+				}
+
+				this.maxPosY = this.wrapperHeight - this.indicatorHeight;
+
+				if ( this.options.shrink == 'clip' ) {
+					this.minBoundaryY = -this.indicatorHeight + 8;
+					this.maxBoundaryY = this.wrapperHeight - 8;
+				} else {
+					this.minBoundaryY = 0;
+					this.maxBoundaryY = this.maxPosY;
+				}
+
+				this.maxPosY = this.wrapperHeight - this.indicatorHeight;
+				this.sizeRatioY = this.options.speedRatioY || (this.scroller.maxScrollY && (this.maxPosY / this.scroller.maxScrollY));
+			}
+
+			this.updatePosition();
+		},
+
+		updatePosition: function () {
+			var x = this.options.listenX && Math.round(this.sizeRatioX * this.scroller.x) || 0,
+				y = this.options.listenY && Math.round(this.sizeRatioY * this.scroller.y) || 0;
+
+			if ( !this.options.ignoreBoundaries ) {
+				if ( x < this.minBoundaryX ) {
+					if ( this.options.shrink == 'scale' ) {
+						this.width = Math.max(this.indicatorWidth + x, 8);
+						this.indicatorStyle.width = this.width + 'px';
+					}
+					x = this.minBoundaryX;
+				} else if ( x > this.maxBoundaryX ) {
+					if ( this.options.shrink == 'scale' ) {
+						this.width = Math.max(this.indicatorWidth - (x - this.maxPosX), 8);
+						this.indicatorStyle.width = this.width + 'px';
+						x = this.maxPosX + this.indicatorWidth - this.width;
+					} else {
+						x = this.maxBoundaryX;
+					}
+				} else if ( this.options.shrink == 'scale' && this.width != this.indicatorWidth ) {
+					this.width = this.indicatorWidth;
+					this.indicatorStyle.width = this.width + 'px';
+				}
+
+				if ( y < this.minBoundaryY ) {
+					if ( this.options.shrink == 'scale' ) {
+						this.height = Math.max(this.indicatorHeight + y * 3, 8);
+						this.indicatorStyle.height = this.height + 'px';
+					}
+					y = this.minBoundaryY;
+				} else if ( y > this.maxBoundaryY ) {
+					if ( this.options.shrink == 'scale' ) {
+						this.height = Math.max(this.indicatorHeight - (y - this.maxPosY) * 3, 8);
+						this.indicatorStyle.height = this.height + 'px';
+						y = this.maxPosY + this.indicatorHeight - this.height;
+					} else {
+						y = this.maxBoundaryY;
+					}
+				} else if ( this.options.shrink == 'scale' && this.height != this.indicatorHeight ) {
+					this.height = this.indicatorHeight;
+					this.indicatorStyle.height = this.height + 'px';
+				}
+			}
+
+			this.x = x;
+			this.y = y;
+
+			if ( this.scroller.options.useTransform ) {
+				this.indicatorStyle[utils.style.transform] = 'translate(' + x + 'px,' + y + 'px)' + this.scroller.translateZ;
+			} else {
+				this.indicatorStyle.left = x + 'px';
+				this.indicatorStyle.top = y + 'px';
+			}
+		},
+
+		_pos: function (x, y) {
+			if ( x < 0 ) {
+				x = 0;
+			} else if ( x > this.maxPosX ) {
+				x = this.maxPosX;
+			}
+
+			if ( y < 0 ) {
+				y = 0;
+			} else if ( y > this.maxPosY ) {
+				y = this.maxPosY;
+			}
+
+			x = this.options.listenX ? Math.round(x / this.sizeRatioX) : this.scroller.x;
+			y = this.options.listenY ? Math.round(y / this.sizeRatioY) : this.scroller.y;
+
+			this.scroller.scrollTo(x, y);
+		},
+
+		fade: function (val, hold) {
+			if ( hold && !this.visible ) {
+				return;
+			}
+
+			clearTimeout(this.fadeTimeout);
+			this.fadeTimeout = null;
+
+			var time = val ? 250 : 500,
+				delay = val ? 0 : 300;
+
+			val = val ? '1' : '0';
+
+			this.wrapperStyle[utils.style.transitionDuration] = time + 'ms';
+
+			this.fadeTimeout = setTimeout((function (val) {
+				this.wrapperStyle.opacity = val;
+				this.visible = +val;
+			}).bind(this, val), delay);
+		}
+	};
+
+	IScroll.utils = utils;
+
+	if ( typeof module != 'undefined' && module.exports ) {
+		module.exports = IScroll;
+	} else {
+		window.IScroll = IScroll;
+	}
+
+	})(window, document, Math);
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
 	"use strict";
 
 	var _prototypeProperties = function (child, staticProps, instanceProps) {
@@ -4207,9 +6257,9 @@
 	  return obj && (obj["default"] || obj);
 	};
 
-	var _core = _interopRequire(__webpack_require__(5));
+	var _core = _interopRequire(__webpack_require__(6));
 
-	var Hammer = __webpack_require__(17);
+	var Hammer = __webpack_require__(8);
 
 	var Events = (function () {
 	  function Events() {}
@@ -4258,7 +6308,7 @@
 	module.exports = Events;
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -4272,7 +6322,7 @@
 	  return obj && (obj["default"] || obj);
 	};
 
-	var _core = _interopRequire(__webpack_require__(5));
+	var _core = _interopRequire(__webpack_require__(6));
 
 	var mojs = __webpack_require__(2);
 
@@ -4302,6 +6352,12 @@
 	          x: el.x + 75, y: el.y + 75,
 	          radius: { 0: this.size },
 	          isRunLess: true,
+	          onStart: function () {
+	            _this.openSound.play();
+	          },
+	          onComplete: function () {
+	            _this.openSound2.play();
+	          },
 	          childOptions: {
 	            radius: {
 	              15: 0
@@ -4367,7 +6423,7 @@
 	module.exports = ShowOnEl;
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -6564,21 +8620,21 @@
 	}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), false);
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var simulation = __webpack_require__(7)
-	var Vector = __webpack_require__(8)
-	var Renderer = __webpack_require__(9)
-	var defaults = __webpack_require__(18)
-	var Spring = __webpack_require__(10)
-	var AttachSpring = __webpack_require__(11)
-	var Decelerate = __webpack_require__(12)
-	var Accelerate = __webpack_require__(13)
-	var Drag = __webpack_require__(14)
-	var Interact = __webpack_require__(15)
-	var Boundary = __webpack_require__(16)
-	var Promise = window.Promise || __webpack_require__(19)
+	var simulation = __webpack_require__(9)
+	var Vector = __webpack_require__(10)
+	var Renderer = __webpack_require__(11)
+	var defaults = __webpack_require__(19)
+	var Spring = __webpack_require__(12)
+	var AttachSpring = __webpack_require__(13)
+	var Decelerate = __webpack_require__(14)
+	var Accelerate = __webpack_require__(15)
+	var Drag = __webpack_require__(16)
+	var Interact = __webpack_require__(17)
+	var Boundary = __webpack_require__(18)
+	var Promise = window.Promise || __webpack_require__(20)
 
 	module.exports = Physics
 
@@ -6690,927 +8746,7 @@
 
 
 /***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Vector = __webpack_require__(8)
-	  , bodies = []
-	  , raf = __webpack_require__(23)
-
-	function increment(a, b, c, d) {
-	  var vec = Vector(0, 0)
-	  vec.selfAdd(a)
-	  vec.selfAdd(b.add(c).selfMult(2))
-	  vec.selfAdd(d)
-	  vec.selfMult(1/6)
-	  return vec
-	}
-
-	var positionVec = Vector(0, 0)
-	var velocityVec = Vector(0, 0)
-
-	function evaluate(initial, t, dt, d) {
-	  var state = {}
-
-	  state.position = positionVec.setv(d.dx).selfMult(dt).selfAdd(initial.position)
-	  state.velocity = velocityVec.setv(d.dv).selfMult(dt).selfAdd(initial.velocity)
-
-	  var next = {
-	    dx: state.velocity.clone(),
-	    dv: initial.accelerate(state, t).clone()
-	  }
-	  return next
-	}
-
-	var der = { dx: Vector(0, 0), dv: Vector(0, 0) }
-	function integrate(state, t, dt) {
-	    var a = evaluate( state, t, 0, der )
-	    var b = evaluate( state, t, dt*0.5, a )
-	    var c = evaluate( state, t, dt*0.5, b )
-	    var d = evaluate( state, t, dt, c )
-
-	    var dxdt = increment(a.dx,b.dx,c.dx,d.dx)
-	      , dvdt = increment(a.dv,b.dv,c.dv,d.dv)
-
-	    state.position.selfAdd(dxdt.selfMult(dt));
-	    state.velocity.selfAdd(dvdt.selfMult(dt));
-	}
-
-	var currentTime = Date.now() / 1000
-	  , accumulator = 0
-	  , t = 0
-	  , dt = 0.015
-
-	function simulate() {
-	  raf(function() {
-	    simulate()
-	    var newTime = Date.now() / 1000
-	    var frameTime = newTime - currentTime
-	    currentTime = newTime
-
-	    if(frameTime > 0.05)
-	      frameTime = 0.05
-
-
-	    accumulator += frameTime
-
-	    var j = 0
-
-	    while(accumulator >= dt) {
-	      for(var i = 0 ; i < bodies.length ; i++) {
-	        bodies[i].previousPosition = bodies[i].position.clone()
-	        integrate(bodies[i], t, dt)
-	      }
-	      t += dt
-	      accumulator -= dt
-	    }
-
-	    for(var i = 0 ; i < bodies.length ; i++) {
-	      bodies[i].update(accumulator / dt)
-	    }
-	  }, 16)
-	}
-	simulate()
-
-	module.exports.addBody = function(body) {
-	  bodies.push(body)
-	  return body
-	}
-
-	module.exports.removeBody = function(body) {
-	  var index = bodies.indexOf(body)
-	  if(index >= 0)
-	    bodies.splice(index, 1)
-	}
-
-
-/***/ },
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = Vector
-
-	function Vector(x, y) {
-	  if(!(this instanceof Vector))
-	    return new Vector(x, y)
-
-	  if(typeof x.x !== 'undefined') {
-	    this.x = x.x
-	    this.y = x.y
-	  } else {
-	    this.x = x || 0
-	    this.y = y || 0
-	  }
-	}
-
-	Vector.prototype.equals = function(vec) {
-	  return vec.x === this.x && vec.y === this.y
-	}
-
-	Vector.prototype.directionEqual = function(vec) {
-	  return vec.x > 0 === this.x > 0 && this.y > 0 === vec.y > 0
-	}
-
-	Vector.prototype.dot = function (vec) {
-	  return this.x * vec.x + this.y * vec.y;
-	}
-
-	Vector.prototype.negate = function() {
-	  return Vector(this.x, this.y).mult(-1)
-	}
-
-	Vector.prototype.norm = function() {
-	  return Math.sqrt(this.normsq())
-	}
-
-	Vector.prototype.clone = function() {
-	  return Vector(this.x, this.y)
-	}
-
-	Vector.prototype.normsq = function() {
-	  return this.x * this.x + this.y * this.y
-	}
-
-	Vector.prototype.normalize = function() {
-	    var magnitude = this.norm()
-
-	    if(magnitude === 0) {
-	        return this
-	    }
-
-	    magnitude = 1 / magnitude
-
-	    this.x *= magnitude
-	    this.y *= magnitude
-
-	    return this
-	}
-
-	Vector.prototype.mult = function(x, y) {
-	  if(x instanceof Vector) {
-	    return new Vector(x.x * this.x, x.y * this.y)
-	  }
-	  if(typeof y === 'undefined') { //scalar
-	    return new Vector(x * this.x, x * this.y)
-	  }
-	  return new Vector(x * this.x, y * this.y)
-	}
-
-	Vector.prototype.selfMult = function(x, y) {
-	  if(x instanceof Vector) {
-	    this.x *= x.x
-	    this.y *= x.y
-	    return this
-	  }
-	  if(typeof y === 'undefined') { //scalar
-	    this.x *= x
-	    this.y *= x
-	    return this
-	  }
-	  this.x *= x
-	  this.y *= y
-	  return this
-	}
-
-	Vector.prototype.selfAdd = function(x, y) {
-	  if(typeof x.x !== 'undefined') {
-	    this.x += x.x
-	    this.y += x.y
-	    return this
-	  }
-	  if(typeof y === 'undefined') { //scalar
-	    this.x += x
-	    this.y += x
-	    return this
-	  }
-	  this.x += x
-	  this.y += y
-	  return this
-	}
-
-	Vector.prototype.selfSub = function(x, y) {
-	  if(typeof x.x !== 'undefined') {
-	    this.x -= x.x
-	    this.y -= x.y
-	    return this
-	  }
-	  if(typeof y === 'undefined') { //scalar
-	    this.x -= x
-	    this.y -= x
-	    return this
-	  }
-	  this.x -= x
-	  this.y -= y
-
-	  return this
-	}
-
-	Vector.prototype.sub = function(x, y) {
-
-	  if(typeof x.x !== 'undefined')
-	    return new Vector(this.x - x.x, this.y - x.y)
-
-	  if(typeof y === 'undefined')//scalar
-	    return new Vector(this.x - x, this.y - x)
-
-	  return new Vector(this.x - x, this.y - y)
-	}
-
-	Vector.prototype.add = function(x, y) {
-	  if(typeof x.x !== 'undefined') {
-	    return new Vector(this.x + x.x, this.y + x.y)
-	  }
-	  if(typeof y === 'undefined') { //scalar
-	    return new Vector(this.x + x, this.y + x)
-	  }
-	  return new Vector(this.x + x, this.y + y)
-	}
-
-	Vector.prototype.setv = function(vec) {
-	  this.x = vec.x
-	  this.y = vec.y
-	  return this
-	}
-
-	Vector.prototype.lerp = function(vector, alpha) {
-	  return this.mult(1-alpha).add(vector.mult(alpha))
-	}
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var prefixes = ['Webkit', 'Moz', 'Ms', 'ms']
-	var calls = []
-	var transformProp
-	var raf = __webpack_require__(23)
-	var floatEqual = __webpack_require__(20).floatEqual
-
-	function loop() {
-	  raf(function() {
-	    loop()
-	    for(var i = calls.length - 1; i >= 0; i--) {
-	      calls[i]()
-	    }
-	  })
-	}
-	loop()
-
-	function prefixed(prop) {
-	  var prefixed
-	  for (var i = 0; i < prefixes.length; i++) {
-	    prefixed = prefixes[i] + prop[0].toUpperCase() + prop.slice(1)
-	    if(typeof document.body.style[prefixed] !== 'undefined')
-	      return prefixed
-	  }
-	  return prop
-	}
-
-	var transformsProperties = ['translate', 'translateX', 'translateY', 'translateZ',
-	                  'rotate', 'rotateX', 'rotateY', 'rotate3d', 'rotateZ',
-	                  'scale', 'scaleX', 'scaleY', 'scaleZ',
-	                  'skew', 'skewX', 'skewY', 'skewZ']
-
-	module.exports = Renderer
-
-	function Renderer(els) {
-	  if(typeof els.length === 'undefined')
-	    els = [els]
-	  this.els = els
-	  this.styles = {}
-	  this.invisibleEls = []
-	  this.changed = false
-	  calls.push(this.render.bind(this))
-	}
-
-	Renderer.prototype.render = function() {
-	  if(!this.changed) return
-
-	  if(!transformProp)
-	    transformProp = prefixed('transform')
-	  var transformsToApply
-	    , els = this.els
-	    , position = this.currentPosition
-	    , styles = this.styles
-	    , value
-	    , props = Object.keys(styles)
-	    , elsLength = els.length
-	    , propsLength = props.length
-	    , i, j
-	    , transforms
-
-	  this.changed = false
-
-	  for(i = 0 ; i < elsLength ; i++) {
-	    transformsToApply = []
-	    if(this.visibleFn && !this.visibleFn(position, i)) {
-	      if(!this.invisibleEls[i]) {
-	        els[i].style.webkitTransform = 'translate3d(0, -99999px, 0)'
-	      }
-	      this.invisibleEls[i] = true
-	    } else {
-	      this.invisibleEls[i] = false
-	      for (j = 0; j < propsLength; j++) {
-	        prop = props[j]
-	        value = (typeof styles[prop] === 'function') ? styles[prop](position.x, position.y, i) : styles[prop]
-
-	        if(transformsProperties.indexOf(prop) !== -1) {
-	          transformsToApply.push(prop + '(' + value + ')')
-	        } else {
-	          els[i].style[prop] = value
-	        }
-	      }
-	      transforms = transformsToApply.join(' ')
-	      transforms += ' translateZ(0)'
-	      els[i].style[transformProp] = transforms
-	    }
-	  }
-	}
-
-	Renderer.prototype.style = function(property, value) {
-	  if(typeof property === 'object') {
-	    for(prop in property) {
-	      if(property.hasOwnProperty(prop)) {
-	        this.style(prop, property[prop])
-	      }
-	    }
-	  }
-	  this.styles[property] = value
-	  return this
-	}
-
-	Renderer.prototype.visible = function(isVisible) {
-	  this.visibleFn = isVisible
-	  return this
-	}
-
-	Renderer.prototype.update = function(x, y) {
-	  if(this.currentPosition) {
-	    var equal = floatEqual(x, this.currentPosition.x) && floatEqual(y, this.currentPosition.y)
-	    this.changed = this.changed || !equal
-	  } else {
-	    this.changed = true
-	  }
-	  this.currentPosition = { x: x, y: y }
-	}
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Body = __webpack_require__(21)
-	var simulation = __webpack_require__(7)
-	var Boundary = __webpack_require__(16)
-	var Animation = __webpack_require__(22)
-
-	var Spring = module.exports = Animation({
-	  defaultOptions: {
-	    tension: 100,
-	    damping: 10
-	  },
-	  onStart: function(velocity, from, to, opts, update) {
-	    var body = this._body = new Body(velocity, from, {
-	      accelerate: function(state, t) {
-	        return state.position.selfSub(to)
-	          .selfMult(-opts.tension)
-	          .selfSub(state.velocity.mult(opts.damping))
-	      },
-	      update: function(position, velocity) {
-	        if(body.atRest() && body.atPosition(to)) {
-	          update.done(to, { x: 0, y: 0 })
-	        } else {
-	          update.state(position, velocity)
-	        }
-	      }
-	    })
-	    simulation.addBody(this._body)
-	  },
-	  onEnd: function() {
-	    simulation.removeBody(this._body)
-	  }
-	})
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var defaults = __webpack_require__(18)
-	  , Vector = __webpack_require__(8)
-	  , simulation = __webpack_require__(7)
-	  , Body = __webpack_require__(21)
-
-	var defaultOptions = {
-	  tension: 100,
-	  damping: 10,
-	  seperation: 0,
-	  offset: { x: 0, y: 0 }
-	}
-
-	module.exports = AttachSpring
-	function AttachSpring(phys, attachment, opts) {
-	  this._phys = phys
-	  this._opts = defaults({}, opts || {}, defaultOptions)
-	  this._position = phys.position()
-	  this._velocity = phys.velocity()
-	  if(typeof attachment.position === 'function')
-	    this._attachment = attachment.position.bind(attachment)
-	  else
-	    this._attachment = attachment
-	}
-
-	AttachSpring.prototype.position = function(x, y) {
-	  if(arguments.length === 0) {
-	      return this._position
-	  }
-	  if(this._body)
-	    this._body.position = this._position = Vector(x, y)
-	  else
-	    this._position = Vector(x, y)
-	}
-
-	AttachSpring.prototype.velocity = function(x, y) {
-	  if(this._body)
-	    this._body.velocity = this._velocity = Vector(x, y)
-	  else
-	    this._velocity = Vector(x, y)
-	}
-
-	AttachSpring.prototype.cancel = function(x, y) {
-	  this._running = false
-	  simulation.removeBody(this._body)
-	}
-
-	AttachSpring.prototype.stop = function(x, y) {
-	  this._running = false
-	  simulation.removeBody(this._body)
-	}
-
-	AttachSpring.prototype.running = function(x, y) {
-	  return this._running
-	}
-
-	window.unit = 0
-	AttachSpring.prototype.start = function() {
-	  var attachment = this._attachment
-	    , opts = this._opts
-	    , phys = this._phys
-	    , velocity = this._velocity
-	    , position = this._position
-	    , that = this
-
-	  phys._startAnimation(this)
-
-	  this._running = true
-
-	  var body = this._body = Body(velocity, position, {
-	    accelerate: function(state, t) {
-	      var distVec = state.position.selfSub(attachment())
-	        , dist = distVec.norm()
-	        , distNorm = distVec.normalize()
-
-	      if(distNorm.x === 0 && distNorm.y === 0) {
-	        distNorm.x = distNorm.y = 1
-	        distNorm.normalize()
-	      }
-	      var accel = distNorm
-	        .selfMult(-opts.tension)
-	        .selfMult(dist - opts.seperation)
-	        .selfSub(state.velocity.selfMult(opts.damping))
-
-	      return accel
-	    },
-	    update: function(position, velocity) {
-	      that._position = body.position
-	      that._velocity = body.velocity
-	      if(opts.offset) {
-	        var pos = position.add(opts.offset)
-	        phys.position(pos)
-	      } else {
-	        phys.position(position)
-	      }
-	      phys.velocity(velocity)
-	    }
-	  })
-	  simulation.addBody(body)
-	  return this
-	}
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Body = __webpack_require__(21)
-	var simulation = __webpack_require__(7)
-	var Boundary = __webpack_require__(16)
-	var Animation = __webpack_require__(22)
-
-	var Decelerate = module.exports = Animation({
-	  defaultOptions: {
-	    deceleration: 400
-	  },
-	  onStart: function(velocity, from, to, opts, update, done) {
-	    var direction = to.sub(from).normalize()
-	      , deceleration = direction.mult(opts.deceleration).negate()
-	      , boundary = Boundary({
-	      left: Math.min(to.x, from.x),
-	      right: Math.max(to.x, from.x),
-	      top: Math.min(to.y, from.y),
-	      bottom: Math.max(to.y, from.y)
-	    })
-
-	    velocity = direction.mult(velocity.norm())
-
-	    this._body = Body(velocity, from, {
-	      accelerate: function(s, t) {
-	        return deceleration
-	      },
-	      update: function(position, velocity) {
-	        if(!direction.directionEqual(velocity)) {
-	          update.cancel(position, { x: 0, y: 0 })
-	        } else if(boundary.contains(position)) {
-	          update.state(position, velocity)
-	        } else {
-	          update.done(to, velocity)
-	        }
-	      }
-	    })
-	    simulation.addBody(this._body)
-	  },
-
-	  onEnd: function() {
-	    simulation.removeBody(this._body)
-	  }
-	})
-
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Body = __webpack_require__(21)
-	var simulation = __webpack_require__(7)
-	var Boundary = __webpack_require__(16)
-	var Animation = __webpack_require__(22)
-	var Vector = __webpack_require__(8)
-	var height = __webpack_require__(20).height
-
-	var Accelerate = module.exports = Animation({
-	  defaultOptions: {
-	    acceleration: 1000,
-	    bounce: false,
-	    minBounceDistance: 5,
-	    damping: 0.2,
-	    restitution: 0.2
-	  },
-
-	  onStart: function(velocity, from, to, opts, update, done) {
-	    var direction = to.sub(from).normalize()
-	    if(typeof opts.acceleration === 'number') {
-	      var acceleration = direction.mult(opts.acceleration)
-	    } else {
-	      var acceleration = Vector(opts.acceleration)
-	    }
-	    var bounceAcceleration = direction.mult(opts.bounceAcceleration || acceleration)
-	      , bouncing = false
-	      , boundary = Boundary({
-	          left: (to.x > from.x) ? -Infinity : to.x,
-	          right: (to.x > from.x) ? to.x : Infinity,
-	          top: (to.y > from.y) ? -Infinity : to.y,
-	          bottom: (to.y > from.y) ? to.y : Infinity
-	        })
-
-	    if(to.sub(from).norm() < .001 && velocity.norm() < .001) {
-	      return update.done(to, velocity)
-	    }
-
-	    var restitution = opts.restitution || opts.damping // TODO remove damping
-
-	    var body = this._body = Body(velocity, from, {
-	      accelerate: function(s, t) {
-	        if(bouncing)
-	          return bounceAcceleration
-	        else
-	          return acceleration
-	      },
-	      update: function(position, velocity) {
-	        if(boundary.contains(position)) {
-	          update.state(position, velocity)
-	        } else {
-	          if(opts.bounce &&
-	             Math.abs(height(bounceAcceleration.norm(), velocity.norm() * restitution, 0)) > opts.minBounceDistance) {
-	              bouncing = true
-	              body.position = Vector(to)
-	              body.velocity.selfMult(-opts.damping)
-	              update.state(to, body.velocity)
-	          } else {
-	            update.done(to, velocity)
-	          }
-	        }
-	      }
-	    })
-	    simulation.addBody(this._body)
-	  },
-	  onEnd: function() {
-	    simulation.removeBody(this._body)
-	  }
-	})
-
-
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Emitter = __webpack_require__(25)
-	  , defaults = __webpack_require__(18)
-
-	var defaultOpts = {}
-
-	module.exports = Drag
-
-	function Drag(phys, opts, start) {
-	  var handles
-
-	  this._phys = phys
-	  if(typeof opts === 'function') {
-	    this._startFn = opts
-	    opts = {}
-	  } else {
-	    this._startFn = start
-	  }
-
-	  this._opts = defaults({}, defaultOpts, opts)
-
-	  //Warn of deprecated option
-	  if(this._opts.boundry){
-	    console.warn("Warning: Misspelled option 'boundry' is being deprecated. Please use 'boundary' instead.");
-	    this._opts.boundary = this._opts.boundry;
-	    delete this._opts.boundry;
-	  }
-
-	  handles = this._opts.handle
-
-
-	  if(handles && !handles.length) {
-	    handles = [handles]
-	  } else if(handles && handles.length) {
-	    handles = [].slice.call(handles)
-	  } else {
-	    handles = phys.els
-	  }
-	  handles.forEach(this._setupHandle, this)
-	}
-
-	Emitter(Drag.prototype)
-
-	Drag.prototype.moved = function() {
-	  return (this._interaction.distance() > 10)
-	}
-
-	Drag.prototype._setupHandle = function(el) {
-	  //start events
-	  el.addEventListener('touchstart', this._start.bind(this))
-	  el.addEventListener('mousedown', this._start.bind(this))
-
-	  //move events
-	  el.addEventListener('touchmove', this._move.bind(this))
-	  //apply the move event to the window, so it keeps moving,
-	  //event if the handle doesn't
-	  window.addEventListener('mousemove', this._move.bind(this))
-
-	  //end events
-	  el.addEventListener('touchend', this._end.bind(this))
-	  window.addEventListener('mouseup', this._end.bind(this))
-	}
-
-	Drag.prototype._start = function(evt) {
-	  this._startTime = Date.now()
-	  evt.preventDefault()
-	  this._mousedown = true
-	  this._interaction = this._phys.interact({
-	    boundary: this._opts.boundary,
-	    damping: this._opts.damping,
-	    direction: this._opts.direction
-	  })
-	  var promise = this._interaction.start(evt)
-	  this._startFn && this._startFn(promise)
-	  this.emit('start', evt)
-	}
-
-	Drag.prototype._move = function(evt) {
-	  if(!this._mousedown) return
-	  evt.preventDefault()
-
-	  this._interaction.update(evt)
-	  this.emit('move', evt)
-	}
-
-	Drag.prototype._end = function(evt) {
-	  if(!this._mousedown) return
-	  evt.preventDefault()
-
-	  this._mousedown = false
-
-	  this._interaction.end()
-	  this.emit('end', evt)
-	}
-
-
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var defaults = __webpack_require__(18)
-	var Velocity = __webpack_require__(26)
-	var Vector = __webpack_require__(8)
-	var Promise = __webpack_require__(19)
-	var util = __webpack_require__(20)
-	var Boundary = __webpack_require__(16)
-
-	module.exports = Interact
-
-	var defaultOpts = {
-	  boundary: Boundary({}),
-	  damping: 0,
-	  direction: 'both'
-	}
-
-	function Interact(phys, opts) {
-	  this._phys = phys
-	  this._running = false
-	  this._opts = defaults({}, opts, defaultOpts)
-
-	  //Warn of deprecated option
-	  if(this._opts.boundry){
-	    console.warn("Warning: Misspelled option 'boundry' is being deprecated. Please use 'boundary' instead.");
-	    this._opts.boundary = this._opts.boundry;
-	    delete this._opts.boundry;
-	  }
-	}
-
-	Interact.prototype.position = function(x, y) {
-	  var direction = this._opts.direction
-	    , boundary = this._opts.boundary
-	    , pos = Vector(x, y)
-
-	  if(direction !== 'both' && direction !== 'horizontal') pos.x = 0
-	  if(direction !== 'both' && direction !== 'vertical') pos.y = 0
-
-	  this._veloX.updatePosition(pos.x)
-	  this._veloY.updatePosition(pos.y)
-
-	  this._phys.velocity(this._veloX.getVelocity(), this._veloY.getVelocity())
-
-	  pos = boundary.applyDamping(pos, this._opts.damping)
-
-	  this._phys.position(pos)
-
-	  return this
-	}
-
-	Interact.prototype.update = function(evt) {
-	  //for jquery and hammer.js
-	  evt = evt.originalEvent || evt
-	  var position = util.eventVector(evt).sub(this._startPosition)
-
-	  this.position(position)
-	  return this
-	}
-
-	Interact.prototype.start = function(evt) {
-	  var that = this
-	    , evtPosition = evt && util.eventVector(evt)
-	    , position = this._phys.position()
-
-	  this._running = true
-	  this._phys._startAnimation(this)
-	  this._startPosition = evt && evtPosition.sub(position)
-	  this._initialPosition = this._phys.position()
-
-	  this._veloX = new Velocity()
-	  this._veloY = new Velocity()
-
-	  this.position(position)
-
-	  return this._ended = new Promise(function(res, rej) {
-	    that._resolve = res
-	    that._reject = rej
-	  })
-	}
-
-	Interact.prototype.distance = function() {
-	  return this._initialPosition.sub(this._phys.position()).norm()
-	}
-
-	Interact.prototype.cancel = function() {
-	  this._running = false
-	  this._reject(new Error('Canceled the interaction'))
-	}
-
-	Interact.prototype.running = function() {
-	  return this._running
-	}
-
-	Interact.prototype.end = function() {
-	  this._phys.velocity(this._veloX.getVelocity(), this._veloY.getVelocity())
-	  this._resolve({ velocity: this._phys.velocity(), position: this._phys.position() })
-	  return this._ended
-	}
-
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Vector = __webpack_require__(8)
-	module.exports = Boundary
-
-	function pointBetween(p, p1, p2) {
-	  return p >= p1 && p <= p2
-	}
-
-	function yIntersect(y, point, direction) {
-	  var factor = (y - point.y) / direction.y
-	  return point.add(direction.clone().mult(factor))
-	}
-
-	function xIntersect(x, point, direction) {
-	  var factor = (x - point.x) / direction.x
-	  return point.add(direction.clone().mult(factor))
-	}
-
-	Boundary.prototype.applyDamping = function(position, damping) {
-	  var x = position.x
-	    , y = position.y
-
-	  if(x < this.left)
-	    x = this.left - (this.left - x) * damping
-
-	  if(y < this.top)
-	    y = this.top - (this.top - y) * damping
-
-	  if(x > this.right)
-	    x = this.right - (this.right - x) * damping
-
-	  if(y > this.bottom)
-	    y = this.bottom - (this.bottom - y) * damping
-
-	  return Vector(x, y)
-	}
-
-	function Boundary(boundary) {
-	  if(!(this instanceof Boundary))
-	    return new Boundary(boundary)
-
-	  this.left = (typeof boundary.left !== 'undefined') ? boundary.left : -Infinity
-	  this.right = (typeof boundary.right !== 'undefined') ? boundary.right : Infinity
-	  this.top = (typeof boundary.top !== 'undefined') ? boundary.top : -Infinity
-	  this.bottom = (typeof boundary.bottom !== 'undefined') ? boundary.bottom : Infinity
-	}
-
-	Boundary.prototype.contains = function(pt) {
-	  return pt.x >= this.left &&
-	         pt.x <= this.right &&
-	         pt.y >= this.top &&
-	         pt.y <= this.bottom
-	}
-
-	Boundary.prototype.nearestIntersect = function(point, velocity) {
-	  var direction = Vector(velocity).normalize()
-	    , point = Vector(point)
-	    , isect
-	    , distX
-	    , distY
-
-	  if(velocity.y < 0)
-	    isect = yIntersect(this.top, point, direction)
-	  if(velocity.y > 0)
-	    isect = yIntersect(this.bottom, point, direction)
-
-	  if(isect && pointBetween(isect.x, this.left, this.right))
-	    return isect
-
-	  if(velocity.x < 0)
-	    isect = xIntersect(this.left, point, direction)
-	  if(velocity.x > 0)
-	    isect = xIntersect(this.right, point, direction)
-
-	  if(isect && pointBetween(isect.y, this.top, this.bottom))
-	    return isect
-
-	  //if the velocity is zero, or it didn't intersect any lines (outside the box)
-	  //just send it it the nearest boundary
-	  distX = (Math.abs(point.x - this.left) < Math.abs(point.x - this.right)) ? this.left : this.right
-	  distY = (Math.abs(point.y - this.top) < Math.abs(point.y - this.bottom)) ? this.top : this.bottom
-
-	  return (distX < distY) ? Vector(distX, point.y) : Vector(point.x, distY)
-	}
-
-
-/***/ },
-/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.4 - 2014-09-28
@@ -10065,7 +11201,7 @@
 	    prefixed: prefixed
 	});
 
-	if ("function" == TYPE_FUNCTION && __webpack_require__(27)) {
+	if ("function" == TYPE_FUNCTION && __webpack_require__(25)) {
 	    !(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
 	        return Hammer;
 	    }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -10079,7 +11215,927 @@
 
 
 /***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Vector = __webpack_require__(10)
+	  , bodies = []
+	  , raf = __webpack_require__(24)
+
+	function increment(a, b, c, d) {
+	  var vec = Vector(0, 0)
+	  vec.selfAdd(a)
+	  vec.selfAdd(b.add(c).selfMult(2))
+	  vec.selfAdd(d)
+	  vec.selfMult(1/6)
+	  return vec
+	}
+
+	var positionVec = Vector(0, 0)
+	var velocityVec = Vector(0, 0)
+
+	function evaluate(initial, t, dt, d) {
+	  var state = {}
+
+	  state.position = positionVec.setv(d.dx).selfMult(dt).selfAdd(initial.position)
+	  state.velocity = velocityVec.setv(d.dv).selfMult(dt).selfAdd(initial.velocity)
+
+	  var next = {
+	    dx: state.velocity.clone(),
+	    dv: initial.accelerate(state, t).clone()
+	  }
+	  return next
+	}
+
+	var der = { dx: Vector(0, 0), dv: Vector(0, 0) }
+	function integrate(state, t, dt) {
+	    var a = evaluate( state, t, 0, der )
+	    var b = evaluate( state, t, dt*0.5, a )
+	    var c = evaluate( state, t, dt*0.5, b )
+	    var d = evaluate( state, t, dt, c )
+
+	    var dxdt = increment(a.dx,b.dx,c.dx,d.dx)
+	      , dvdt = increment(a.dv,b.dv,c.dv,d.dv)
+
+	    state.position.selfAdd(dxdt.selfMult(dt));
+	    state.velocity.selfAdd(dvdt.selfMult(dt));
+	}
+
+	var currentTime = Date.now() / 1000
+	  , accumulator = 0
+	  , t = 0
+	  , dt = 0.015
+
+	function simulate() {
+	  raf(function() {
+	    simulate()
+	    var newTime = Date.now() / 1000
+	    var frameTime = newTime - currentTime
+	    currentTime = newTime
+
+	    if(frameTime > 0.05)
+	      frameTime = 0.05
+
+
+	    accumulator += frameTime
+
+	    var j = 0
+
+	    while(accumulator >= dt) {
+	      for(var i = 0 ; i < bodies.length ; i++) {
+	        bodies[i].previousPosition = bodies[i].position.clone()
+	        integrate(bodies[i], t, dt)
+	      }
+	      t += dt
+	      accumulator -= dt
+	    }
+
+	    for(var i = 0 ; i < bodies.length ; i++) {
+	      bodies[i].update(accumulator / dt)
+	    }
+	  }, 16)
+	}
+	simulate()
+
+	module.exports.addBody = function(body) {
+	  bodies.push(body)
+	  return body
+	}
+
+	module.exports.removeBody = function(body) {
+	  var index = bodies.indexOf(body)
+	  if(index >= 0)
+	    bodies.splice(index, 1)
+	}
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = Vector
+
+	function Vector(x, y) {
+	  if(!(this instanceof Vector))
+	    return new Vector(x, y)
+
+	  if(typeof x.x !== 'undefined') {
+	    this.x = x.x
+	    this.y = x.y
+	  } else {
+	    this.x = x || 0
+	    this.y = y || 0
+	  }
+	}
+
+	Vector.prototype.equals = function(vec) {
+	  return vec.x === this.x && vec.y === this.y
+	}
+
+	Vector.prototype.directionEqual = function(vec) {
+	  return vec.x > 0 === this.x > 0 && this.y > 0 === vec.y > 0
+	}
+
+	Vector.prototype.dot = function (vec) {
+	  return this.x * vec.x + this.y * vec.y;
+	}
+
+	Vector.prototype.negate = function() {
+	  return Vector(this.x, this.y).mult(-1)
+	}
+
+	Vector.prototype.norm = function() {
+	  return Math.sqrt(this.normsq())
+	}
+
+	Vector.prototype.clone = function() {
+	  return Vector(this.x, this.y)
+	}
+
+	Vector.prototype.normsq = function() {
+	  return this.x * this.x + this.y * this.y
+	}
+
+	Vector.prototype.normalize = function() {
+	    var magnitude = this.norm()
+
+	    if(magnitude === 0) {
+	        return this
+	    }
+
+	    magnitude = 1 / magnitude
+
+	    this.x *= magnitude
+	    this.y *= magnitude
+
+	    return this
+	}
+
+	Vector.prototype.mult = function(x, y) {
+	  if(x instanceof Vector) {
+	    return new Vector(x.x * this.x, x.y * this.y)
+	  }
+	  if(typeof y === 'undefined') { //scalar
+	    return new Vector(x * this.x, x * this.y)
+	  }
+	  return new Vector(x * this.x, y * this.y)
+	}
+
+	Vector.prototype.selfMult = function(x, y) {
+	  if(x instanceof Vector) {
+	    this.x *= x.x
+	    this.y *= x.y
+	    return this
+	  }
+	  if(typeof y === 'undefined') { //scalar
+	    this.x *= x
+	    this.y *= x
+	    return this
+	  }
+	  this.x *= x
+	  this.y *= y
+	  return this
+	}
+
+	Vector.prototype.selfAdd = function(x, y) {
+	  if(typeof x.x !== 'undefined') {
+	    this.x += x.x
+	    this.y += x.y
+	    return this
+	  }
+	  if(typeof y === 'undefined') { //scalar
+	    this.x += x
+	    this.y += x
+	    return this
+	  }
+	  this.x += x
+	  this.y += y
+	  return this
+	}
+
+	Vector.prototype.selfSub = function(x, y) {
+	  if(typeof x.x !== 'undefined') {
+	    this.x -= x.x
+	    this.y -= x.y
+	    return this
+	  }
+	  if(typeof y === 'undefined') { //scalar
+	    this.x -= x
+	    this.y -= x
+	    return this
+	  }
+	  this.x -= x
+	  this.y -= y
+
+	  return this
+	}
+
+	Vector.prototype.sub = function(x, y) {
+
+	  if(typeof x.x !== 'undefined')
+	    return new Vector(this.x - x.x, this.y - x.y)
+
+	  if(typeof y === 'undefined')//scalar
+	    return new Vector(this.x - x, this.y - x)
+
+	  return new Vector(this.x - x, this.y - y)
+	}
+
+	Vector.prototype.add = function(x, y) {
+	  if(typeof x.x !== 'undefined') {
+	    return new Vector(this.x + x.x, this.y + x.y)
+	  }
+	  if(typeof y === 'undefined') { //scalar
+	    return new Vector(this.x + x, this.y + x)
+	  }
+	  return new Vector(this.x + x, this.y + y)
+	}
+
+	Vector.prototype.setv = function(vec) {
+	  this.x = vec.x
+	  this.y = vec.y
+	  return this
+	}
+
+	Vector.prototype.lerp = function(vector, alpha) {
+	  return this.mult(1-alpha).add(vector.mult(alpha))
+	}
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var prefixes = ['Webkit', 'Moz', 'Ms', 'ms']
+	var calls = []
+	var transformProp
+	var raf = __webpack_require__(24)
+	var floatEqual = __webpack_require__(21).floatEqual
+
+	function loop() {
+	  raf(function() {
+	    loop()
+	    for(var i = calls.length - 1; i >= 0; i--) {
+	      calls[i]()
+	    }
+	  })
+	}
+	loop()
+
+	function prefixed(prop) {
+	  var prefixed
+	  for (var i = 0; i < prefixes.length; i++) {
+	    prefixed = prefixes[i] + prop[0].toUpperCase() + prop.slice(1)
+	    if(typeof document.body.style[prefixed] !== 'undefined')
+	      return prefixed
+	  }
+	  return prop
+	}
+
+	var transformsProperties = ['translate', 'translateX', 'translateY', 'translateZ',
+	                  'rotate', 'rotateX', 'rotateY', 'rotate3d', 'rotateZ',
+	                  'scale', 'scaleX', 'scaleY', 'scaleZ',
+	                  'skew', 'skewX', 'skewY', 'skewZ']
+
+	module.exports = Renderer
+
+	function Renderer(els) {
+	  if(typeof els.length === 'undefined')
+	    els = [els]
+	  this.els = els
+	  this.styles = {}
+	  this.invisibleEls = []
+	  this.changed = false
+	  calls.push(this.render.bind(this))
+	}
+
+	Renderer.prototype.render = function() {
+	  if(!this.changed) return
+
+	  if(!transformProp)
+	    transformProp = prefixed('transform')
+	  var transformsToApply
+	    , els = this.els
+	    , position = this.currentPosition
+	    , styles = this.styles
+	    , value
+	    , props = Object.keys(styles)
+	    , elsLength = els.length
+	    , propsLength = props.length
+	    , i, j
+	    , transforms
+
+	  this.changed = false
+
+	  for(i = 0 ; i < elsLength ; i++) {
+	    transformsToApply = []
+	    if(this.visibleFn && !this.visibleFn(position, i)) {
+	      if(!this.invisibleEls[i]) {
+	        els[i].style.webkitTransform = 'translate3d(0, -99999px, 0)'
+	      }
+	      this.invisibleEls[i] = true
+	    } else {
+	      this.invisibleEls[i] = false
+	      for (j = 0; j < propsLength; j++) {
+	        prop = props[j]
+	        value = (typeof styles[prop] === 'function') ? styles[prop](position.x, position.y, i) : styles[prop]
+
+	        if(transformsProperties.indexOf(prop) !== -1) {
+	          transformsToApply.push(prop + '(' + value + ')')
+	        } else {
+	          els[i].style[prop] = value
+	        }
+	      }
+	      transforms = transformsToApply.join(' ')
+	      transforms += ' translateZ(0)'
+	      els[i].style[transformProp] = transforms
+	    }
+	  }
+	}
+
+	Renderer.prototype.style = function(property, value) {
+	  if(typeof property === 'object') {
+	    for(prop in property) {
+	      if(property.hasOwnProperty(prop)) {
+	        this.style(prop, property[prop])
+	      }
+	    }
+	  }
+	  this.styles[property] = value
+	  return this
+	}
+
+	Renderer.prototype.visible = function(isVisible) {
+	  this.visibleFn = isVisible
+	  return this
+	}
+
+	Renderer.prototype.update = function(x, y) {
+	  if(this.currentPosition) {
+	    var equal = floatEqual(x, this.currentPosition.x) && floatEqual(y, this.currentPosition.y)
+	    this.changed = this.changed || !equal
+	  } else {
+	    this.changed = true
+	  }
+	  this.currentPosition = { x: x, y: y }
+	}
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Body = __webpack_require__(22)
+	var simulation = __webpack_require__(9)
+	var Boundary = __webpack_require__(18)
+	var Animation = __webpack_require__(23)
+
+	var Spring = module.exports = Animation({
+	  defaultOptions: {
+	    tension: 100,
+	    damping: 10
+	  },
+	  onStart: function(velocity, from, to, opts, update) {
+	    var body = this._body = new Body(velocity, from, {
+	      accelerate: function(state, t) {
+	        return state.position.selfSub(to)
+	          .selfMult(-opts.tension)
+	          .selfSub(state.velocity.mult(opts.damping))
+	      },
+	      update: function(position, velocity) {
+	        if(body.atRest() && body.atPosition(to)) {
+	          update.done(to, { x: 0, y: 0 })
+	        } else {
+	          update.state(position, velocity)
+	        }
+	      }
+	    })
+	    simulation.addBody(this._body)
+	  },
+	  onEnd: function() {
+	    simulation.removeBody(this._body)
+	  }
+	})
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var defaults = __webpack_require__(19)
+	  , Vector = __webpack_require__(10)
+	  , simulation = __webpack_require__(9)
+	  , Body = __webpack_require__(22)
+
+	var defaultOptions = {
+	  tension: 100,
+	  damping: 10,
+	  seperation: 0,
+	  offset: { x: 0, y: 0 }
+	}
+
+	module.exports = AttachSpring
+	function AttachSpring(phys, attachment, opts) {
+	  this._phys = phys
+	  this._opts = defaults({}, opts || {}, defaultOptions)
+	  this._position = phys.position()
+	  this._velocity = phys.velocity()
+	  if(typeof attachment.position === 'function')
+	    this._attachment = attachment.position.bind(attachment)
+	  else
+	    this._attachment = attachment
+	}
+
+	AttachSpring.prototype.position = function(x, y) {
+	  if(arguments.length === 0) {
+	      return this._position
+	  }
+	  if(this._body)
+	    this._body.position = this._position = Vector(x, y)
+	  else
+	    this._position = Vector(x, y)
+	}
+
+	AttachSpring.prototype.velocity = function(x, y) {
+	  if(this._body)
+	    this._body.velocity = this._velocity = Vector(x, y)
+	  else
+	    this._velocity = Vector(x, y)
+	}
+
+	AttachSpring.prototype.cancel = function(x, y) {
+	  this._running = false
+	  simulation.removeBody(this._body)
+	}
+
+	AttachSpring.prototype.stop = function(x, y) {
+	  this._running = false
+	  simulation.removeBody(this._body)
+	}
+
+	AttachSpring.prototype.running = function(x, y) {
+	  return this._running
+	}
+
+	window.unit = 0
+	AttachSpring.prototype.start = function() {
+	  var attachment = this._attachment
+	    , opts = this._opts
+	    , phys = this._phys
+	    , velocity = this._velocity
+	    , position = this._position
+	    , that = this
+
+	  phys._startAnimation(this)
+
+	  this._running = true
+
+	  var body = this._body = Body(velocity, position, {
+	    accelerate: function(state, t) {
+	      var distVec = state.position.selfSub(attachment())
+	        , dist = distVec.norm()
+	        , distNorm = distVec.normalize()
+
+	      if(distNorm.x === 0 && distNorm.y === 0) {
+	        distNorm.x = distNorm.y = 1
+	        distNorm.normalize()
+	      }
+	      var accel = distNorm
+	        .selfMult(-opts.tension)
+	        .selfMult(dist - opts.seperation)
+	        .selfSub(state.velocity.selfMult(opts.damping))
+
+	      return accel
+	    },
+	    update: function(position, velocity) {
+	      that._position = body.position
+	      that._velocity = body.velocity
+	      if(opts.offset) {
+	        var pos = position.add(opts.offset)
+	        phys.position(pos)
+	      } else {
+	        phys.position(position)
+	      }
+	      phys.velocity(velocity)
+	    }
+	  })
+	  simulation.addBody(body)
+	  return this
+	}
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Body = __webpack_require__(22)
+	var simulation = __webpack_require__(9)
+	var Boundary = __webpack_require__(18)
+	var Animation = __webpack_require__(23)
+
+	var Decelerate = module.exports = Animation({
+	  defaultOptions: {
+	    deceleration: 400
+	  },
+	  onStart: function(velocity, from, to, opts, update, done) {
+	    var direction = to.sub(from).normalize()
+	      , deceleration = direction.mult(opts.deceleration).negate()
+	      , boundary = Boundary({
+	      left: Math.min(to.x, from.x),
+	      right: Math.max(to.x, from.x),
+	      top: Math.min(to.y, from.y),
+	      bottom: Math.max(to.y, from.y)
+	    })
+
+	    velocity = direction.mult(velocity.norm())
+
+	    this._body = Body(velocity, from, {
+	      accelerate: function(s, t) {
+	        return deceleration
+	      },
+	      update: function(position, velocity) {
+	        if(!direction.directionEqual(velocity)) {
+	          update.cancel(position, { x: 0, y: 0 })
+	        } else if(boundary.contains(position)) {
+	          update.state(position, velocity)
+	        } else {
+	          update.done(to, velocity)
+	        }
+	      }
+	    })
+	    simulation.addBody(this._body)
+	  },
+
+	  onEnd: function() {
+	    simulation.removeBody(this._body)
+	  }
+	})
+
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Body = __webpack_require__(22)
+	var simulation = __webpack_require__(9)
+	var Boundary = __webpack_require__(18)
+	var Animation = __webpack_require__(23)
+	var Vector = __webpack_require__(10)
+	var height = __webpack_require__(21).height
+
+	var Accelerate = module.exports = Animation({
+	  defaultOptions: {
+	    acceleration: 1000,
+	    bounce: false,
+	    minBounceDistance: 5,
+	    damping: 0.2,
+	    restitution: 0.2
+	  },
+
+	  onStart: function(velocity, from, to, opts, update, done) {
+	    var direction = to.sub(from).normalize()
+	    if(typeof opts.acceleration === 'number') {
+	      var acceleration = direction.mult(opts.acceleration)
+	    } else {
+	      var acceleration = Vector(opts.acceleration)
+	    }
+	    var bounceAcceleration = direction.mult(opts.bounceAcceleration || acceleration)
+	      , bouncing = false
+	      , boundary = Boundary({
+	          left: (to.x > from.x) ? -Infinity : to.x,
+	          right: (to.x > from.x) ? to.x : Infinity,
+	          top: (to.y > from.y) ? -Infinity : to.y,
+	          bottom: (to.y > from.y) ? to.y : Infinity
+	        })
+
+	    if(to.sub(from).norm() < .001 && velocity.norm() < .001) {
+	      return update.done(to, velocity)
+	    }
+
+	    var restitution = opts.restitution || opts.damping // TODO remove damping
+
+	    var body = this._body = Body(velocity, from, {
+	      accelerate: function(s, t) {
+	        if(bouncing)
+	          return bounceAcceleration
+	        else
+	          return acceleration
+	      },
+	      update: function(position, velocity) {
+	        if(boundary.contains(position)) {
+	          update.state(position, velocity)
+	        } else {
+	          if(opts.bounce &&
+	             Math.abs(height(bounceAcceleration.norm(), velocity.norm() * restitution, 0)) > opts.minBounceDistance) {
+	              bouncing = true
+	              body.position = Vector(to)
+	              body.velocity.selfMult(-opts.damping)
+	              update.state(to, body.velocity)
+	          } else {
+	            update.done(to, velocity)
+	          }
+	        }
+	      }
+	    })
+	    simulation.addBody(this._body)
+	  },
+	  onEnd: function() {
+	    simulation.removeBody(this._body)
+	  }
+	})
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Emitter = __webpack_require__(28)
+	  , defaults = __webpack_require__(19)
+
+	var defaultOpts = {}
+
+	module.exports = Drag
+
+	function Drag(phys, opts, start) {
+	  var handles
+
+	  this._phys = phys
+	  if(typeof opts === 'function') {
+	    this._startFn = opts
+	    opts = {}
+	  } else {
+	    this._startFn = start
+	  }
+
+	  this._opts = defaults({}, defaultOpts, opts)
+
+	  //Warn of deprecated option
+	  if(this._opts.boundry){
+	    console.warn("Warning: Misspelled option 'boundry' is being deprecated. Please use 'boundary' instead.");
+	    this._opts.boundary = this._opts.boundry;
+	    delete this._opts.boundry;
+	  }
+
+	  handles = this._opts.handle
+
+
+	  if(handles && !handles.length) {
+	    handles = [handles]
+	  } else if(handles && handles.length) {
+	    handles = [].slice.call(handles)
+	  } else {
+	    handles = phys.els
+	  }
+	  handles.forEach(this._setupHandle, this)
+	}
+
+	Emitter(Drag.prototype)
+
+	Drag.prototype.moved = function() {
+	  return (this._interaction.distance() > 10)
+	}
+
+	Drag.prototype._setupHandle = function(el) {
+	  //start events
+	  el.addEventListener('touchstart', this._start.bind(this))
+	  el.addEventListener('mousedown', this._start.bind(this))
+
+	  //move events
+	  el.addEventListener('touchmove', this._move.bind(this))
+	  //apply the move event to the window, so it keeps moving,
+	  //event if the handle doesn't
+	  window.addEventListener('mousemove', this._move.bind(this))
+
+	  //end events
+	  el.addEventListener('touchend', this._end.bind(this))
+	  window.addEventListener('mouseup', this._end.bind(this))
+	}
+
+	Drag.prototype._start = function(evt) {
+	  this._startTime = Date.now()
+	  evt.preventDefault()
+	  this._mousedown = true
+	  this._interaction = this._phys.interact({
+	    boundary: this._opts.boundary,
+	    damping: this._opts.damping,
+	    direction: this._opts.direction
+	  })
+	  var promise = this._interaction.start(evt)
+	  this._startFn && this._startFn(promise)
+	  this.emit('start', evt)
+	}
+
+	Drag.prototype._move = function(evt) {
+	  if(!this._mousedown) return
+	  evt.preventDefault()
+
+	  this._interaction.update(evt)
+	  this.emit('move', evt)
+	}
+
+	Drag.prototype._end = function(evt) {
+	  if(!this._mousedown) return
+	  evt.preventDefault()
+
+	  this._mousedown = false
+
+	  this._interaction.end()
+	  this.emit('end', evt)
+	}
+
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var defaults = __webpack_require__(19)
+	var Velocity = __webpack_require__(27)
+	var Vector = __webpack_require__(10)
+	var Promise = __webpack_require__(20)
+	var util = __webpack_require__(21)
+	var Boundary = __webpack_require__(18)
+
+	module.exports = Interact
+
+	var defaultOpts = {
+	  boundary: Boundary({}),
+	  damping: 0,
+	  direction: 'both'
+	}
+
+	function Interact(phys, opts) {
+	  this._phys = phys
+	  this._running = false
+	  this._opts = defaults({}, opts, defaultOpts)
+
+	  //Warn of deprecated option
+	  if(this._opts.boundry){
+	    console.warn("Warning: Misspelled option 'boundry' is being deprecated. Please use 'boundary' instead.");
+	    this._opts.boundary = this._opts.boundry;
+	    delete this._opts.boundry;
+	  }
+	}
+
+	Interact.prototype.position = function(x, y) {
+	  var direction = this._opts.direction
+	    , boundary = this._opts.boundary
+	    , pos = Vector(x, y)
+
+	  if(direction !== 'both' && direction !== 'horizontal') pos.x = 0
+	  if(direction !== 'both' && direction !== 'vertical') pos.y = 0
+
+	  this._veloX.updatePosition(pos.x)
+	  this._veloY.updatePosition(pos.y)
+
+	  this._phys.velocity(this._veloX.getVelocity(), this._veloY.getVelocity())
+
+	  pos = boundary.applyDamping(pos, this._opts.damping)
+
+	  this._phys.position(pos)
+
+	  return this
+	}
+
+	Interact.prototype.update = function(evt) {
+	  //for jquery and hammer.js
+	  evt = evt.originalEvent || evt
+	  var position = util.eventVector(evt).sub(this._startPosition)
+
+	  this.position(position)
+	  return this
+	}
+
+	Interact.prototype.start = function(evt) {
+	  var that = this
+	    , evtPosition = evt && util.eventVector(evt)
+	    , position = this._phys.position()
+
+	  this._running = true
+	  this._phys._startAnimation(this)
+	  this._startPosition = evt && evtPosition.sub(position)
+	  this._initialPosition = this._phys.position()
+
+	  this._veloX = new Velocity()
+	  this._veloY = new Velocity()
+
+	  this.position(position)
+
+	  return this._ended = new Promise(function(res, rej) {
+	    that._resolve = res
+	    that._reject = rej
+	  })
+	}
+
+	Interact.prototype.distance = function() {
+	  return this._initialPosition.sub(this._phys.position()).norm()
+	}
+
+	Interact.prototype.cancel = function() {
+	  this._running = false
+	  this._reject(new Error('Canceled the interaction'))
+	}
+
+	Interact.prototype.running = function() {
+	  return this._running
+	}
+
+	Interact.prototype.end = function() {
+	  this._phys.velocity(this._veloX.getVelocity(), this._veloY.getVelocity())
+	  this._resolve({ velocity: this._phys.velocity(), position: this._phys.position() })
+	  return this._ended
+	}
+
+
+/***/ },
 /* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Vector = __webpack_require__(10)
+	module.exports = Boundary
+
+	function pointBetween(p, p1, p2) {
+	  return p >= p1 && p <= p2
+	}
+
+	function yIntersect(y, point, direction) {
+	  var factor = (y - point.y) / direction.y
+	  return point.add(direction.clone().mult(factor))
+	}
+
+	function xIntersect(x, point, direction) {
+	  var factor = (x - point.x) / direction.x
+	  return point.add(direction.clone().mult(factor))
+	}
+
+	Boundary.prototype.applyDamping = function(position, damping) {
+	  var x = position.x
+	    , y = position.y
+
+	  if(x < this.left)
+	    x = this.left - (this.left - x) * damping
+
+	  if(y < this.top)
+	    y = this.top - (this.top - y) * damping
+
+	  if(x > this.right)
+	    x = this.right - (this.right - x) * damping
+
+	  if(y > this.bottom)
+	    y = this.bottom - (this.bottom - y) * damping
+
+	  return Vector(x, y)
+	}
+
+	function Boundary(boundary) {
+	  if(!(this instanceof Boundary))
+	    return new Boundary(boundary)
+
+	  this.left = (typeof boundary.left !== 'undefined') ? boundary.left : -Infinity
+	  this.right = (typeof boundary.right !== 'undefined') ? boundary.right : Infinity
+	  this.top = (typeof boundary.top !== 'undefined') ? boundary.top : -Infinity
+	  this.bottom = (typeof boundary.bottom !== 'undefined') ? boundary.bottom : Infinity
+	}
+
+	Boundary.prototype.contains = function(pt) {
+	  return pt.x >= this.left &&
+	         pt.x <= this.right &&
+	         pt.y >= this.top &&
+	         pt.y <= this.bottom
+	}
+
+	Boundary.prototype.nearestIntersect = function(point, velocity) {
+	  var direction = Vector(velocity).normalize()
+	    , point = Vector(point)
+	    , isect
+	    , distX
+	    , distY
+
+	  if(velocity.y < 0)
+	    isect = yIntersect(this.top, point, direction)
+	  if(velocity.y > 0)
+	    isect = yIntersect(this.bottom, point, direction)
+
+	  if(isect && pointBetween(isect.x, this.left, this.right))
+	    return isect
+
+	  if(velocity.x < 0)
+	    isect = xIntersect(this.left, point, direction)
+	  if(velocity.x > 0)
+	    isect = xIntersect(this.right, point, direction)
+
+	  if(isect && pointBetween(isect.y, this.top, this.bottom))
+	    return isect
+
+	  //if the velocity is zero, or it didn't intersect any lines (outside the box)
+	  //just send it it the nearest boundary
+	  distX = (Math.abs(point.x - this.left) < Math.abs(point.x - this.right)) ? this.left : this.right
+	  distY = (Math.abs(point.y - this.top) < Math.abs(point.y - this.bottom)) ? this.top : this.bottom
+
+	  return (distX < distY) ? Vector(distX, point.y) : Vector(point.x, distY)
+	}
+
+
+/***/ },
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -10090,8 +12146,8 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var keys = __webpack_require__(28),
-	    objectTypes = __webpack_require__(29);
+	var keys = __webpack_require__(29),
+	    objectTypes = __webpack_require__(30);
 
 	/**
 	 * Assigns own enumerable properties of source object(s) to the destination
@@ -10139,15 +12195,15 @@
 
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	//This file contains then/promise specific extensions to the core promise API
 
-	var Promise = __webpack_require__(24)
-	var asap = __webpack_require__(30)
+	var Promise = __webpack_require__(26)
+	var asap = __webpack_require__(31)
 
 	module.exports = Promise
 
@@ -10325,10 +12381,10 @@
 
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Vector = __webpack_require__(8)
+	var Vector = __webpack_require__(10)
 
 	function vertex(a, b) {
 	  return -b / (2 * a)
@@ -10359,10 +12415,10 @@
 
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Vector = __webpack_require__(8)
+	var Vector = __webpack_require__(10)
 
 	module.exports = Body
 
@@ -10394,14 +12450,14 @@
 
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var defaults = __webpack_require__(18)
-	  , Promise = window.Promise || __webpack_require__(19)
-	  , Boundary = __webpack_require__(16)
-	  , Vector = __webpack_require__(8)
-	  , Emitter = __webpack_require__(25)
+	var defaults = __webpack_require__(19)
+	  , Promise = window.Promise || __webpack_require__(20)
+	  , Boundary = __webpack_require__(18)
+	  , Vector = __webpack_require__(10)
+	  , Emitter = __webpack_require__(28)
 
 	var proto = {
 	  to: function(x, y) {
@@ -10503,10 +12559,10 @@
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var now = __webpack_require__(31)
+	var now = __webpack_require__(32)
 	  , global = typeof window === 'undefined' ? {} : window
 	  , vendors = ['moz', 'webkit']
 	  , suffix = 'AnimationFrame'
@@ -10589,12 +12645,20 @@
 
 
 /***/ },
-/* 24 */
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, {}))
+
+/***/ },
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var asap = __webpack_require__(30)
+	var asap = __webpack_require__(31)
 
 	module.exports = Promise
 	function Promise(fn) {
@@ -10700,7 +12764,49 @@
 
 
 /***/ },
-/* 25 */
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = Velocity
+
+	function Velocity() {
+	  this.positionQueue = []
+	  this.timeQueue = []
+	}
+
+	Velocity.prototype.reset = function() {
+	  this.positionQueue.splice(0)
+	  this.timeQueue.splice(0)
+	}
+
+	Velocity.prototype.pruneQueue = function(ms) {
+	  //pull old values off of the queue
+	  while(this.timeQueue.length && this.timeQueue[0] < (Date.now() - ms)) {
+	    this.timeQueue.shift()
+	    this.positionQueue.shift()
+	  }
+	}
+
+	Velocity.prototype.updatePosition = function(position) {
+	  this.positionQueue.push(position)
+	  this.timeQueue.push(Date.now())
+	  this.pruneQueue(50)
+	}
+
+	Velocity.prototype.getVelocity = function() {
+	  this.pruneQueue(1000)
+	  var length = this.timeQueue.length
+	  if(length < 2) return 0
+
+	  var distance = this.positionQueue[length-1] - this.positionQueue[0]
+	    , time = (this.timeQueue[length-1] - this.timeQueue[0]) / 1000
+
+	  return distance / time
+	}
+
+
+/***/ },
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -10870,57 +12976,7 @@
 
 
 /***/ },
-/* 26 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = Velocity
-
-	function Velocity() {
-	  this.positionQueue = []
-	  this.timeQueue = []
-	}
-
-	Velocity.prototype.reset = function() {
-	  this.positionQueue.splice(0)
-	  this.timeQueue.splice(0)
-	}
-
-	Velocity.prototype.pruneQueue = function(ms) {
-	  //pull old values off of the queue
-	  while(this.timeQueue.length && this.timeQueue[0] < (Date.now() - ms)) {
-	    this.timeQueue.shift()
-	    this.positionQueue.shift()
-	  }
-	}
-
-	Velocity.prototype.updatePosition = function(position) {
-	  this.positionQueue.push(position)
-	  this.timeQueue.push(Date.now())
-	  this.pruneQueue(50)
-	}
-
-	Velocity.prototype.getVelocity = function() {
-	  this.pruneQueue(1000)
-	  var length = this.timeQueue.length
-	  if(length < 2) return 0
-
-	  var distance = this.positionQueue[length-1] - this.positionQueue[0]
-	    , time = (this.timeQueue[length-1] - this.timeQueue[0]) / 1000
-
-	  return distance / time
-	}
-
-
-/***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
-
-	/* WEBPACK VAR INJECTION */}.call(exports, {}))
-
-/***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -10931,9 +12987,9 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var isNative = __webpack_require__(32),
-	    isObject = __webpack_require__(34),
-	    shimKeys = __webpack_require__(33);
+	var isNative = __webpack_require__(34),
+	    isObject = __webpack_require__(33),
+	    shimKeys = __webpack_require__(35);
 
 	/* Native method shortcuts for methods with the same name as other `lodash` methods */
 	var nativeKeys = isNative(nativeKeys = Object.keys) && nativeKeys;
@@ -10962,7 +13018,7 @@
 
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -10988,7 +13044,7 @@
 
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, setImmediate) {
@@ -11105,10 +13161,10 @@
 	module.exports = asap;
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(35), __webpack_require__(36).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37), __webpack_require__(36).setImmediate))
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Generated by CoffeeScript 1.6.3
@@ -11148,10 +13204,55 @@
 	//@ sourceMappingURL=performance-now.map
 	*/
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(35)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37)))
 
 /***/ },
-/* 32 */
+/* 33 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="npm" -o ./npm/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	var objectTypes = __webpack_require__(30);
+
+	/**
+	 * Checks if `value` is the language type of Object.
+	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Objects
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if the `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(1);
+	 * // => false
+	 */
+	function isObject(value) {
+	  // check if the value is the ECMAScript language type of Object
+	  // http://es5.github.io/#x8
+	  // and avoid a V8 bug
+	  // http://code.google.com/p/v8/issues/detail?id=2291
+	  return !!(value && objectTypes[typeof value]);
+	}
+
+	module.exports = isObject;
+
+
+/***/ },
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -11191,7 +13292,7 @@
 
 
 /***/ },
-/* 33 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -11202,7 +13303,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var objectTypes = __webpack_require__(29);
+	var objectTypes = __webpack_require__(30);
 
 	/** Used for native method references */
 	var objectProto = Object.prototype;
@@ -11235,119 +13336,10 @@
 
 
 /***/ },
-/* 34 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="npm" -o ./npm/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	var objectTypes = __webpack_require__(29);
-
-	/**
-	 * Checks if `value` is the language type of Object.
-	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Objects
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if the `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(1);
-	 * // => false
-	 */
-	function isObject(value) {
-	  // check if the value is the ECMAScript language type of Object
-	  // http://es5.github.io/#x8
-	  // and avoid a V8 bug
-	  // http://code.google.com/p/v8/issues/detail?id=2291
-	  return !!(value && objectTypes[typeof value]);
-	}
-
-	module.exports = isObject;
-
-
-/***/ },
-/* 35 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// shim for using process in browser
-
-	var process = module.exports = {};
-	var queue = [];
-	var draining = false;
-
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    draining = true;
-	    var currentQueue;
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        var i = -1;
-	        while (++i < len) {
-	            currentQueue[i]();
-	        }
-	        len = queue.length;
-	    }
-	    draining = false;
-	}
-	process.nextTick = function (fun) {
-	    queue.push(fun);
-	    if (!draining) {
-	        setTimeout(drainQueue, 0);
-	    }
-	};
-
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-
-	function noop() {}
-
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-
-	// TODO(shtylman)
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
-
-
-/***/ },
 /* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(35).nextTick;
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(37).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -11426,2048 +13418,1427 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(36).setImmediate, __webpack_require__(36).clearImmediate))
 
 /***/ },
-/* 37 */,
+/* 37 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// shim for using process in browser
+
+	var process = module.exports = {};
+	var queue = [];
+	var draining = false;
+
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    draining = true;
+	    var currentQueue;
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        var i = -1;
+	        while (++i < len) {
+	            currentQueue[i]();
+	        }
+	        len = queue.length;
+	    }
+	    draining = false;
+	}
+	process.nextTick = function (fun) {
+	    queue.push(fun);
+	    if (!draining) {
+	        setTimeout(drainQueue, 0);
+	    }
+	};
+
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+
+	function noop() {}
+
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+
+	// TODO(shtylman)
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
+
+/***/ },
 /* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
-	(function (window, document, Math) {
-	var rAF = window.requestAnimationFrame	||
-		window.webkitRequestAnimationFrame	||
-		window.mozRequestAnimationFrame		||
-		window.oRequestAnimationFrame		||
-		window.msRequestAnimationFrame		||
-		function (callback) { window.setTimeout(callback, 1000 / 60); };
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	 *  howler.js v1.1.26
+	 *  howlerjs.com
+	 *
+	 *  (c) 2013-2015, James Simpson of GoldFire Studios
+	 *  goldfirestudios.com
+	 *
+	 *  MIT License
+	 */
 
-	var utils = (function () {
-		var me = {};
+	(function() {
+	  // setup
+	  var cache = {};
 
-		var _elementStyle = document.createElement('div').style;
-		var _vendor = (function () {
-			var vendors = ['t', 'webkitT', 'MozT', 'msT', 'OT'],
-				transform,
-				i = 0,
-				l = vendors.length;
+	  // setup the audio context
+	  var ctx = null,
+	    usingWebAudio = true,
+	    noAudio = false;
+	  try {
+	    if (typeof AudioContext !== 'undefined') {
+	      ctx = new AudioContext();
+	    } else if (typeof webkitAudioContext !== 'undefined') {
+	      ctx = new webkitAudioContext();
+	    } else {
+	      usingWebAudio = false;
+	    }
+	  } catch(e) {
+	    usingWebAudio = false;
+	  }
 
-			for ( ; i < l; i++ ) {
-				transform = vendors[i] + 'ransform';
-				if ( transform in _elementStyle ) return vendors[i].substr(0, vendors[i].length-1);
-			}
+	  if (!usingWebAudio) {
+	    if (typeof Audio !== 'undefined') {
+	      try {
+	        new Audio();
+	      } catch(e) {
+	        noAudio = true;
+	      }
+	    } else {
+	      noAudio = true;
+	    }
+	  }
 
-			return false;
-		})();
+	  // create a master gain node
+	  if (usingWebAudio) {
+	    var masterGain = (typeof ctx.createGain === 'undefined') ? ctx.createGainNode() : ctx.createGain();
+	    masterGain.gain.value = 1;
+	    masterGain.connect(ctx.destination);
+	  }
 
-		function _prefixStyle (style) {
-			if ( _vendor === false ) return false;
-			if ( _vendor === '' ) return style;
-			return _vendor + style.charAt(0).toUpperCase() + style.substr(1);
-		}
+	  // create global controller
+	  var HowlerGlobal = function(codecs) {
+	    this._volume = 1;
+	    this._muted = false;
+	    this.usingWebAudio = usingWebAudio;
+	    this.ctx = ctx;
+	    this.noAudio = noAudio;
+	    this._howls = [];
+	    this._codecs = codecs;
+	    this.iOSAutoEnable = true;
+	  };
+	  HowlerGlobal.prototype = {
+	    /**
+	     * Get/set the global volume for all sounds.
+	     * @param  {Float} vol Volume from 0.0 to 1.0.
+	     * @return {Howler/Float}     Returns self or current volume.
+	     */
+	    volume: function(vol) {
+	      var self = this;
 
-		me.getTime = Date.now || function getTime () { return new Date().getTime(); };
+	      // make sure volume is a number
+	      vol = parseFloat(vol);
 
-		me.extend = function (target, obj) {
-			for ( var i in obj ) {
-				target[i] = obj[i];
-			}
-		};
+	      if (vol >= 0 && vol <= 1) {
+	        self._volume = vol;
 
-		me.addEvent = function (el, type, fn, capture) {
-			el.addEventListener(type, fn, !!capture);
-		};
+	        if (usingWebAudio) {
+	          masterGain.gain.value = vol;
+	        }
 
-		me.removeEvent = function (el, type, fn, capture) {
-			el.removeEventListener(type, fn, !!capture);
-		};
+	        // loop through cache and change volume of all nodes that are using HTML5 Audio
+	        for (var key in self._howls) {
+	          if (self._howls.hasOwnProperty(key) && self._howls[key]._webAudio === false) {
+	            // loop through the audio nodes
+	            for (var i=0; i<self._howls[key]._audioNode.length; i++) {
+	              self._howls[key]._audioNode[i].volume = self._howls[key]._volume * self._volume;
+	            }
+	          }
+	        }
 
-		me.prefixPointerEvent = function (pointerEvent) {
-			return window.MSPointerEvent ? 
-				'MSPointer' + pointerEvent.charAt(9).toUpperCase() + pointerEvent.substr(10):
-				pointerEvent;
-		};
+	        return self;
+	      }
 
-		me.momentum = function (current, start, time, lowerMargin, wrapperSize, deceleration) {
-			var distance = current - start,
-				speed = Math.abs(distance) / time,
-				destination,
-				duration;
+	      // return the current global volume
+	      return (usingWebAudio) ? masterGain.gain.value : self._volume;
+	    },
 
-			deceleration = deceleration === undefined ? 0.0006 : deceleration;
+	    /**
+	     * Mute all sounds.
+	     * @return {Howler}
+	     */
+	    mute: function() {
+	      this._setMuted(true);
 
-			destination = current + ( speed * speed ) / ( 2 * deceleration ) * ( distance < 0 ? -1 : 1 );
-			duration = speed / deceleration;
+	      return this;
+	    },
 
-			if ( destination < lowerMargin ) {
-				destination = wrapperSize ? lowerMargin - ( wrapperSize / 2.5 * ( speed / 8 ) ) : lowerMargin;
-				distance = Math.abs(destination - current);
-				duration = distance / speed;
-			} else if ( destination > 0 ) {
-				destination = wrapperSize ? wrapperSize / 2.5 * ( speed / 8 ) : 0;
-				distance = Math.abs(current) + destination;
-				duration = distance / speed;
-			}
+	    /**
+	     * Unmute all sounds.
+	     * @return {Howler}
+	     */
+	    unmute: function() {
+	      this._setMuted(false);
 
-			return {
-				destination: Math.round(destination),
-				duration: duration
-			};
-		};
+	      return this;
+	    },
 
-		var _transform = _prefixStyle('transform');
+	    /**
+	     * Handle muting and unmuting globally.
+	     * @param  {Boolean} muted Is muted or not.
+	     */
+	    _setMuted: function(muted) {
+	      var self = this;
 
-		me.extend(me, {
-			hasTransform: _transform !== false,
-			hasPerspective: _prefixStyle('perspective') in _elementStyle,
-			hasTouch: 'ontouchstart' in window,
-			hasPointer: window.PointerEvent || window.MSPointerEvent, // IE10 is prefixed
-			hasTransition: _prefixStyle('transition') in _elementStyle
-		});
+	      self._muted = muted;
 
-		// This should find all Android browsers lower than build 535.19 (both stock browser and webview)
-		me.isBadAndroid = /Android /.test(window.navigator.appVersion) && !(/Chrome\/\d/.test(window.navigator.appVersion));
+	      if (usingWebAudio) {
+	        masterGain.gain.value = muted ? 0 : self._volume;
+	      }
 
-		me.extend(me.style = {}, {
-			transform: _transform,
-			transitionTimingFunction: _prefixStyle('transitionTimingFunction'),
-			transitionDuration: _prefixStyle('transitionDuration'),
-			transitionDelay: _prefixStyle('transitionDelay'),
-			transformOrigin: _prefixStyle('transformOrigin')
-		});
+	      for (var key in self._howls) {
+	        if (self._howls.hasOwnProperty(key) && self._howls[key]._webAudio === false) {
+	          // loop through the audio nodes
+	          for (var i=0; i<self._howls[key]._audioNode.length; i++) {
+	            self._howls[key]._audioNode[i].muted = muted;
+	          }
+	        }
+	      }
+	    },
 
-		me.hasClass = function (e, c) {
-			var re = new RegExp("(^|\\s)" + c + "(\\s|$)");
-			return re.test(e.className);
-		};
+	    /**
+	     * Check for codec support.
+	     * @param  {String} ext Audio file extention.
+	     * @return {Boolean}
+	     */
+	    codecs: function(ext) {
+	      return this._codecs[ext];
+	    },
 
-		me.addClass = function (e, c) {
-			if ( me.hasClass(e, c) ) {
-				return;
-			}
+	    /**
+	     * iOS will only allow audio to be played after a user interaction.
+	     * Attempt to automatically unlock audio on the first user interaction.
+	     * Concept from: http://paulbakaus.com/tutorials/html5/web-audio-on-ios/
+	     * @return {Howler}
+	     */
+	    _enableiOSAudio: function() {
+	      var self = this;
 
-			var newclass = e.className.split(' ');
-			newclass.push(c);
-			e.className = newclass.join(' ');
-		};
+	      // only run this on iOS if audio isn't already eanbled
+	      if (ctx && (self._iOSEnabled || !/iPhone|iPad|iPod/i.test(navigator.userAgent))) {
+	        return;
+	      }
 
-		me.removeClass = function (e, c) {
-			if ( !me.hasClass(e, c) ) {
-				return;
-			}
+	      self._iOSEnabled = false;
 
-			var re = new RegExp("(^|\\s)" + c + "(\\s|$)", 'g');
-			e.className = e.className.replace(re, ' ');
-		};
+	      // call this method on touch start to create and play a buffer,
+	      // then check if the audio actually played to determine if
+	      // audio has now been unlocked on iOS
+	      var unlock = function() {
+	        // create an empty buffer
+	        var buffer = ctx.createBuffer(1, 1, 22050);
+	        var source = ctx.createBufferSource();
+	        source.buffer = buffer;
+	        source.connect(ctx.destination);
 
-		me.offset = function (el) {
-			var left = -el.offsetLeft,
-				top = -el.offsetTop;
+	        // play the empty buffer
+	        if (typeof source.start === 'undefined') {
+	          source.noteOn(0);
+	        } else {
+	          source.start(0);
+	        }
 
-			// jshint -W084
-			while (el = el.offsetParent) {
-				left -= el.offsetLeft;
-				top -= el.offsetTop;
-			}
-			// jshint +W084
+	        // setup a timeout to check that we are unlocked on the next event loop
+	        setTimeout(function() {
+	          if ((source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE)) {
+	            // update the unlocked state and prevent this check from happening again
+	            self._iOSEnabled = true;
+	            self.iOSAutoEnable = false;
 
-			return {
-				left: left,
-				top: top
-			};
-		};
+	            // remove the touch start listener
+	            window.removeEventListener('touchstart', unlock, false);
+	          }
+	        }, 0);
+	      };
 
-		me.preventDefaultException = function (el, exceptions) {
-			for ( var i in exceptions ) {
-				if ( exceptions[i].test(el[i]) ) {
-					return true;
-				}
-			}
+	      // setup a touch start listener to attempt an unlock in
+	      window.addEventListener('touchstart', unlock, false);
 
-			return false;
-		};
+	      return self;
+	    }
+	  };
 
-		me.extend(me.eventType = {}, {
-			touchstart: 1,
-			touchmove: 1,
-			touchend: 1,
+	  // check for browser codec support
+	  var audioTest = null;
+	  var codecs = {};
+	  if (!noAudio) {
+	    audioTest = new Audio();
+	    codecs = {
+	      mp3: !!audioTest.canPlayType('audio/mpeg;').replace(/^no$/, ''),
+	      opus: !!audioTest.canPlayType('audio/ogg; codecs="opus"').replace(/^no$/, ''),
+	      ogg: !!audioTest.canPlayType('audio/ogg; codecs="vorbis"').replace(/^no$/, ''),
+	      wav: !!audioTest.canPlayType('audio/wav; codecs="1"').replace(/^no$/, ''),
+	      aac: !!audioTest.canPlayType('audio/aac;').replace(/^no$/, ''),
+	      m4a: !!(audioTest.canPlayType('audio/x-m4a;') || audioTest.canPlayType('audio/m4a;') || audioTest.canPlayType('audio/aac;')).replace(/^no$/, ''),
+	      mp4: !!(audioTest.canPlayType('audio/x-mp4;') || audioTest.canPlayType('audio/mp4;') || audioTest.canPlayType('audio/aac;')).replace(/^no$/, ''),
+	      weba: !!audioTest.canPlayType('audio/webm; codecs="vorbis"').replace(/^no$/, '')
+	    };
+	  }
 
-			mousedown: 2,
-			mousemove: 2,
-			mouseup: 2,
+	  // allow access to the global audio controls
+	  var Howler = new HowlerGlobal(codecs);
 
-			pointerdown: 3,
-			pointermove: 3,
-			pointerup: 3,
+	  // setup the audio object
+	  var Howl = function(o) {
+	    var self = this;
 
-			MSPointerDown: 3,
-			MSPointerMove: 3,
-			MSPointerUp: 3
-		});
+	    // setup the defaults
+	    self._autoplay = o.autoplay || false;
+	    self._buffer = o.buffer || false;
+	    self._duration = o.duration || 0;
+	    self._format = o.format || null;
+	    self._loop = o.loop || false;
+	    self._loaded = false;
+	    self._sprite = o.sprite || {};
+	    self._src = o.src || '';
+	    self._pos3d = o.pos3d || [0, 0, -0.5];
+	    self._volume = o.volume !== undefined ? o.volume : 1;
+	    self._urls = o.urls || [];
+	    self._rate = o.rate || 1;
 
-		me.extend(me.ease = {}, {
-			quadratic: {
-				style: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-				fn: function (k) {
-					return k * ( 2 - k );
-				}
-			},
-			circular: {
-				style: 'cubic-bezier(0.1, 0.57, 0.1, 1)',	// Not properly "circular" but this looks better, it should be (0.075, 0.82, 0.165, 1)
-				fn: function (k) {
-					return Math.sqrt( 1 - ( --k * k ) );
-				}
-			},
-			back: {
-				style: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-				fn: function (k) {
-					var b = 4;
-					return ( k = k - 1 ) * k * ( ( b + 1 ) * k + b ) + 1;
-				}
-			},
-			bounce: {
-				style: '',
-				fn: function (k) {
-					if ( ( k /= 1 ) < ( 1 / 2.75 ) ) {
-						return 7.5625 * k * k;
-					} else if ( k < ( 2 / 2.75 ) ) {
-						return 7.5625 * ( k -= ( 1.5 / 2.75 ) ) * k + 0.75;
-					} else if ( k < ( 2.5 / 2.75 ) ) {
-						return 7.5625 * ( k -= ( 2.25 / 2.75 ) ) * k + 0.9375;
-					} else {
-						return 7.5625 * ( k -= ( 2.625 / 2.75 ) ) * k + 0.984375;
-					}
-				}
-			},
-			elastic: {
-				style: '',
-				fn: function (k) {
-					var f = 0.22,
-						e = 0.4;
+	    // allow forcing of a specific panningModel ('equalpower' or 'HRTF'),
+	    // if none is specified, defaults to 'equalpower' and switches to 'HRTF'
+	    // if 3d sound is used
+	    self._model = o.model || null;
 
-					if ( k === 0 ) { return 0; }
-					if ( k == 1 ) { return 1; }
+	    // setup event functions
+	    self._onload = [o.onload || function() {}];
+	    self._onloaderror = [o.onloaderror || function() {}];
+	    self._onend = [o.onend || function() {}];
+	    self._onpause = [o.onpause || function() {}];
+	    self._onplay = [o.onplay || function() {}];
 
-					return ( e * Math.pow( 2, - 10 * k ) * Math.sin( ( k - f / 4 ) * ( 2 * Math.PI ) / f ) + 1 );
-				}
-			}
-		});
+	    self._onendTimer = [];
 
-		me.tap = function (e, eventName) {
-			var ev = document.createEvent('Event');
-			ev.initEvent(eventName, true, true);
-			ev.pageX = e.pageX;
-			ev.pageY = e.pageY;
-			e.target.dispatchEvent(ev);
-		};
+	    // Web Audio or HTML5 Audio?
+	    self._webAudio = usingWebAudio && !self._buffer;
 
-		me.click = function (e) {
-			var target = e.target,
-				ev;
+	    // check if we need to fall back to HTML5 Audio
+	    self._audioNode = [];
+	    if (self._webAudio) {
+	      self._setupAudioNode();
+	    }
 
-			if ( !(/(SELECT|INPUT|TEXTAREA)/i).test(target.tagName) ) {
-				ev = document.createEvent('MouseEvents');
-				ev.initMouseEvent('click', true, true, e.view, 1,
-					target.screenX, target.screenY, target.clientX, target.clientY,
-					e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
-					0, null);
+	    // automatically try to enable audio on iOS
+	    if (typeof ctx !== 'undefined' && ctx && Howler.iOSAutoEnable) {
+	      Howler._enableiOSAudio();
+	    }
 
-				ev._constructed = true;
-				target.dispatchEvent(ev);
-			}
-		};
+	    // add this to an array of Howl's to allow global control
+	    Howler._howls.push(self);
 
-		return me;
+	    // load the track
+	    self.load();
+	  };
+
+	  // setup all of the methods
+	  Howl.prototype = {
+	    /**
+	     * Load an audio file.
+	     * @return {Howl}
+	     */
+	    load: function() {
+	      var self = this,
+	        url = null;
+
+	      // if no audio is available, quit immediately
+	      if (noAudio) {
+	        self.on('loaderror');
+	        return;
+	      }
+
+	      // loop through source URLs and pick the first one that is compatible
+	      for (var i=0; i<self._urls.length; i++) {
+	        var ext, urlItem;
+
+	        if (self._format) {
+	          // use specified audio format if available
+	          ext = self._format;
+	        } else {
+	          // figure out the filetype (whether an extension or base64 data)
+	          urlItem = self._urls[i];
+	          ext = /^data:audio\/([^;,]+);/i.exec(urlItem);
+	          if (!ext) {
+	            ext = /\.([^.]+)$/.exec(urlItem.split('?', 1)[0]);
+	          }
+
+	          if (ext) {
+	            ext = ext[1].toLowerCase();
+	          } else {
+	            self.on('loaderror');
+	            return;
+	          }
+	        }
+
+	        if (codecs[ext]) {
+	          url = self._urls[i];
+	          break;
+	        }
+	      }
+
+	      if (!url) {
+	        self.on('loaderror');
+	        return;
+	      }
+
+	      self._src = url;
+
+	      if (self._webAudio) {
+	        loadBuffer(self, url);
+	      } else {
+	        var newNode = new Audio();
+
+	        // listen for errors with HTML5 audio (http://dev.w3.org/html5/spec-author-view/spec.html#mediaerror)
+	        newNode.addEventListener('error', function () {
+	          if (newNode.error && newNode.error.code === 4) {
+	            HowlerGlobal.noAudio = true;
+	          }
+
+	          self.on('loaderror', {type: newNode.error ? newNode.error.code : 0});
+	        }, false);
+
+	        self._audioNode.push(newNode);
+
+	        // setup the new audio node
+	        newNode.src = url;
+	        newNode._pos = 0;
+	        newNode.preload = 'auto';
+	        newNode.volume = (Howler._muted) ? 0 : self._volume * Howler.volume();
+
+	        // setup the event listener to start playing the sound
+	        // as soon as it has buffered enough
+	        var listener = function() {
+	          // round up the duration when using HTML5 Audio to account for the lower precision
+	          self._duration = Math.ceil(newNode.duration * 10) / 10;
+
+	          // setup a sprite if none is defined
+	          if (Object.getOwnPropertyNames(self._sprite).length === 0) {
+	            self._sprite = {_default: [0, self._duration * 1000]};
+	          }
+
+	          if (!self._loaded) {
+	            self._loaded = true;
+	            self.on('load');
+	          }
+
+	          if (self._autoplay) {
+	            self.play();
+	          }
+
+	          // clear the event listener
+	          newNode.removeEventListener('canplaythrough', listener, false);
+	        };
+	        newNode.addEventListener('canplaythrough', listener, false);
+	        newNode.load();
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Get/set the URLs to be pulled from to play in this source.
+	     * @param  {Array} urls  Arry of URLs to load from
+	     * @return {Howl}        Returns self or the current URLs
+	     */
+	    urls: function(urls) {
+	      var self = this;
+
+	      if (urls) {
+	        self.stop();
+	        self._urls = (typeof urls === 'string') ? [urls] : urls;
+	        self._loaded = false;
+	        self.load();
+
+	        return self;
+	      } else {
+	        return self._urls;
+	      }
+	    },
+
+	    /**
+	     * Play a sound from the current time (0 by default).
+	     * @param  {String}   sprite   (optional) Plays from the specified position in the sound sprite definition.
+	     * @param  {Function} callback (optional) Returns the unique playback id for this sound instance.
+	     * @return {Howl}
+	     */
+	    play: function(sprite, callback) {
+	      var self = this;
+
+	      // if no sprite was passed but a callback was, update the variables
+	      if (typeof sprite === 'function') {
+	        callback = sprite;
+	      }
+
+	      // use the default sprite if none is passed
+	      if (!sprite || typeof sprite === 'function') {
+	        sprite = '_default';
+	      }
+
+	      // if the sound hasn't been loaded, add it to the event queue
+	      if (!self._loaded) {
+	        self.on('load', function() {
+	          self.play(sprite, callback);
+	        });
+
+	        return self;
+	      }
+
+	      // if the sprite doesn't exist, play nothing
+	      if (!self._sprite[sprite]) {
+	        if (typeof callback === 'function') callback();
+	        return self;
+	      }
+
+	      // get the node to playback
+	      self._inactiveNode(function(node) {
+	        // persist the sprite being played
+	        node._sprite = sprite;
+
+	        // determine where to start playing from
+	        var pos = (node._pos > 0) ? node._pos : self._sprite[sprite][0] / 1000;
+
+	        // determine how long to play for
+	        var duration = 0;
+	        if (self._webAudio) {
+	          duration = self._sprite[sprite][1] / 1000 - node._pos;
+	          if (node._pos > 0) {
+	            pos = self._sprite[sprite][0] / 1000 + pos;
+	          }
+	        } else {
+	          duration = self._sprite[sprite][1] / 1000 - (pos - self._sprite[sprite][0] / 1000);
+	        }
+
+	        // determine if this sound should be looped
+	        var loop = !!(self._loop || self._sprite[sprite][2]);
+
+	        // set timer to fire the 'onend' event
+	        var soundId = (typeof callback === 'string') ? callback : Math.round(Date.now() * Math.random()) + '',
+	          timerId;
+	        (function() {
+	          var data = {
+	            id: soundId,
+	            sprite: sprite,
+	            loop: loop
+	          };
+	          timerId = setTimeout(function() {
+	            // if looping, restart the track
+	            if (!self._webAudio && loop) {
+	              self.stop(data.id).play(sprite, data.id);
+	            }
+
+	            // set web audio node to paused at end
+	            if (self._webAudio && !loop) {
+	              self._nodeById(data.id).paused = true;
+	              self._nodeById(data.id)._pos = 0;
+
+	              // clear the end timer
+	              self._clearEndTimer(data.id);
+	            }
+
+	            // end the track if it is HTML audio and a sprite
+	            if (!self._webAudio && !loop) {
+	              self.stop(data.id);
+	            }
+
+	            // fire ended event
+	            self.on('end', soundId);
+	          }, duration * 1000);
+
+	          // store the reference to the timer
+	          self._onendTimer.push({timer: timerId, id: data.id});
+	        })();
+
+	        if (self._webAudio) {
+	          var loopStart = self._sprite[sprite][0] / 1000,
+	            loopEnd = self._sprite[sprite][1] / 1000;
+
+	          // set the play id to this node and load into context
+	          node.id = soundId;
+	          node.paused = false;
+	          refreshBuffer(self, [loop, loopStart, loopEnd], soundId);
+	          self._playStart = ctx.currentTime;
+	          node.gain.value = self._volume;
+
+	          if (typeof node.bufferSource.start === 'undefined') {
+	            loop ? node.bufferSource.noteGrainOn(0, pos, 86400) : node.bufferSource.noteGrainOn(0, pos, duration);
+	          } else {
+	            loop ? node.bufferSource.start(0, pos, 86400) : node.bufferSource.start(0, pos, duration);
+	          }
+	        } else {
+	          if (node.readyState === 4 || !node.readyState && navigator.isCocoonJS) {
+	            node.readyState = 4;
+	            node.id = soundId;
+	            node.currentTime = pos;
+	            node.muted = Howler._muted || node.muted;
+	            node.volume = self._volume * Howler.volume();
+	            setTimeout(function() { node.play(); }, 0);
+	          } else {
+	            self._clearEndTimer(soundId);
+
+	            (function(){
+	              var sound = self,
+	                playSprite = sprite,
+	                fn = callback,
+	                newNode = node;
+	              var listener = function() {
+	                sound.play(playSprite, fn);
+
+	                // clear the event listener
+	                newNode.removeEventListener('canplaythrough', listener, false);
+	              };
+	              newNode.addEventListener('canplaythrough', listener, false);
+	            })();
+
+	            return self;
+	          }
+	        }
+
+	        // fire the play event and send the soundId back in the callback
+	        self.on('play');
+	        if (typeof callback === 'function') callback(soundId);
+
+	        return self;
+	      });
+
+	      return self;
+	    },
+
+	    /**
+	     * Pause playback and save the current position.
+	     * @param {String} id (optional) The play instance ID.
+	     * @return {Howl}
+	     */
+	    pause: function(id) {
+	      var self = this;
+
+	      // if the sound hasn't been loaded, add it to the event queue
+	      if (!self._loaded) {
+	        self.on('play', function() {
+	          self.pause(id);
+	        });
+
+	        return self;
+	      }
+
+	      // clear 'onend' timer
+	      self._clearEndTimer(id);
+
+	      var activeNode = (id) ? self._nodeById(id) : self._activeNode();
+	      if (activeNode) {
+	        activeNode._pos = self.pos(null, id);
+
+	        if (self._webAudio) {
+	          // make sure the sound has been created
+	          if (!activeNode.bufferSource || activeNode.paused) {
+	            return self;
+	          }
+
+	          activeNode.paused = true;
+	          if (typeof activeNode.bufferSource.stop === 'undefined') {
+	            activeNode.bufferSource.noteOff(0);
+	          } else {
+	            activeNode.bufferSource.stop(0);
+	          }
+	        } else {
+	          activeNode.pause();
+	        }
+	      }
+
+	      self.on('pause');
+
+	      return self;
+	    },
+
+	    /**
+	     * Stop playback and reset to start.
+	     * @param  {String} id  (optional) The play instance ID.
+	     * @return {Howl}
+	     */
+	    stop: function(id) {
+	      var self = this;
+
+	      // if the sound hasn't been loaded, add it to the event queue
+	      if (!self._loaded) {
+	        self.on('play', function() {
+	          self.stop(id);
+	        });
+
+	        return self;
+	      }
+
+	      // clear 'onend' timer
+	      self._clearEndTimer(id);
+
+	      var activeNode = (id) ? self._nodeById(id) : self._activeNode();
+	      if (activeNode) {
+	        activeNode._pos = 0;
+
+	        if (self._webAudio) {
+	          // make sure the sound has been created
+	          if (!activeNode.bufferSource || activeNode.paused) {
+	            return self;
+	          }
+
+	          activeNode.paused = true;
+
+	          if (typeof activeNode.bufferSource.stop === 'undefined') {
+	            activeNode.bufferSource.noteOff(0);
+	          } else {
+	            activeNode.bufferSource.stop(0);
+	          }
+	        } else if (!isNaN(activeNode.duration)) {
+	          activeNode.pause();
+	          activeNode.currentTime = 0;
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Mute this sound.
+	     * @param  {String} id (optional) The play instance ID.
+	     * @return {Howl}
+	     */
+	    mute: function(id) {
+	      var self = this;
+
+	      // if the sound hasn't been loaded, add it to the event queue
+	      if (!self._loaded) {
+	        self.on('play', function() {
+	          self.mute(id);
+	        });
+
+	        return self;
+	      }
+
+	      var activeNode = (id) ? self._nodeById(id) : self._activeNode();
+	      if (activeNode) {
+	        if (self._webAudio) {
+	          activeNode.gain.value = 0;
+	        } else {
+	          activeNode.muted = true;
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Unmute this sound.
+	     * @param  {String} id (optional) The play instance ID.
+	     * @return {Howl}
+	     */
+	    unmute: function(id) {
+	      var self = this;
+
+	      // if the sound hasn't been loaded, add it to the event queue
+	      if (!self._loaded) {
+	        self.on('play', function() {
+	          self.unmute(id);
+	        });
+
+	        return self;
+	      }
+
+	      var activeNode = (id) ? self._nodeById(id) : self._activeNode();
+	      if (activeNode) {
+	        if (self._webAudio) {
+	          activeNode.gain.value = self._volume;
+	        } else {
+	          activeNode.muted = false;
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Get/set volume of this sound.
+	     * @param  {Float}  vol Volume from 0.0 to 1.0.
+	     * @param  {String} id  (optional) The play instance ID.
+	     * @return {Howl/Float}     Returns self or current volume.
+	     */
+	    volume: function(vol, id) {
+	      var self = this;
+
+	      // make sure volume is a number
+	      vol = parseFloat(vol);
+
+	      if (vol >= 0 && vol <= 1) {
+	        self._volume = vol;
+
+	        // if the sound hasn't been loaded, add it to the event queue
+	        if (!self._loaded) {
+	          self.on('play', function() {
+	            self.volume(vol, id);
+	          });
+
+	          return self;
+	        }
+
+	        var activeNode = (id) ? self._nodeById(id) : self._activeNode();
+	        if (activeNode) {
+	          if (self._webAudio) {
+	            activeNode.gain.value = vol;
+	          } else {
+	            activeNode.volume = vol * Howler.volume();
+	          }
+	        }
+
+	        return self;
+	      } else {
+	        return self._volume;
+	      }
+	    },
+
+	    /**
+	     * Get/set whether to loop the sound.
+	     * @param  {Boolean} loop To loop or not to loop, that is the question.
+	     * @return {Howl/Boolean}      Returns self or current looping value.
+	     */
+	    loop: function(loop) {
+	      var self = this;
+
+	      if (typeof loop === 'boolean') {
+	        self._loop = loop;
+
+	        return self;
+	      } else {
+	        return self._loop;
+	      }
+	    },
+
+	    /**
+	     * Get/set sound sprite definition.
+	     * @param  {Object} sprite Example: {spriteName: [offset, duration, loop]}
+	     *                @param {Integer} offset   Where to begin playback in milliseconds
+	     *                @param {Integer} duration How long to play in milliseconds
+	     *                @param {Boolean} loop     (optional) Set true to loop this sprite
+	     * @return {Howl}        Returns current sprite sheet or self.
+	     */
+	    sprite: function(sprite) {
+	      var self = this;
+
+	      if (typeof sprite === 'object') {
+	        self._sprite = sprite;
+
+	        return self;
+	      } else {
+	        return self._sprite;
+	      }
+	    },
+
+	    /**
+	     * Get/set the position of playback.
+	     * @param  {Float}  pos The position to move current playback to.
+	     * @param  {String} id  (optional) The play instance ID.
+	     * @return {Howl/Float}      Returns self or current playback position.
+	     */
+	    pos: function(pos, id) {
+	      var self = this;
+
+	      // if the sound hasn't been loaded, add it to the event queue
+	      if (!self._loaded) {
+	        self.on('load', function() {
+	          self.pos(pos);
+	        });
+
+	        return typeof pos === 'number' ? self : self._pos || 0;
+	      }
+
+	      // make sure we are dealing with a number for pos
+	      pos = parseFloat(pos);
+
+	      var activeNode = (id) ? self._nodeById(id) : self._activeNode();
+	      if (activeNode) {
+	        if (pos >= 0) {
+	          self.pause(id);
+	          activeNode._pos = pos;
+	          self.play(activeNode._sprite, id);
+
+	          return self;
+	        } else {
+	          return self._webAudio ? activeNode._pos + (ctx.currentTime - self._playStart) : activeNode.currentTime;
+	        }
+	      } else if (pos >= 0) {
+	        return self;
+	      } else {
+	        // find the first inactive node to return the pos for
+	        for (var i=0; i<self._audioNode.length; i++) {
+	          if (self._audioNode[i].paused && self._audioNode[i].readyState === 4) {
+	            return (self._webAudio) ? self._audioNode[i]._pos : self._audioNode[i].currentTime;
+	          }
+	        }
+	      }
+	    },
+
+	    /**
+	     * Get/set the 3D position of the audio source.
+	     * The most common usage is to set the 'x' position
+	     * to affect the left/right ear panning. Setting any value higher than
+	     * 1.0 will begin to decrease the volume of the sound as it moves further away.
+	     * NOTE: This only works with Web Audio API, HTML5 Audio playback
+	     * will not be affected.
+	     * @param  {Float}  x  The x-position of the playback from -1000.0 to 1000.0
+	     * @param  {Float}  y  The y-position of the playback from -1000.0 to 1000.0
+	     * @param  {Float}  z  The z-position of the playback from -1000.0 to 1000.0
+	     * @param  {String} id (optional) The play instance ID.
+	     * @return {Howl/Array}   Returns self or the current 3D position: [x, y, z]
+	     */
+	    pos3d: function(x, y, z, id) {
+	      var self = this;
+
+	      // set a default for the optional 'y' & 'z'
+	      y = (typeof y === 'undefined' || !y) ? 0 : y;
+	      z = (typeof z === 'undefined' || !z) ? -0.5 : z;
+
+	      // if the sound hasn't been loaded, add it to the event queue
+	      if (!self._loaded) {
+	        self.on('play', function() {
+	          self.pos3d(x, y, z, id);
+	        });
+
+	        return self;
+	      }
+
+	      if (x >= 0 || x < 0) {
+	        if (self._webAudio) {
+	          var activeNode = (id) ? self._nodeById(id) : self._activeNode();
+	          if (activeNode) {
+	            self._pos3d = [x, y, z];
+	            activeNode.panner.setPosition(x, y, z);
+	            activeNode.panner.panningModel = self._model || 'HRTF';
+	          }
+	        }
+	      } else {
+	        return self._pos3d;
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Fade a currently playing sound between two volumes.
+	     * @param  {Number}   from     The volume to fade from (0.0 to 1.0).
+	     * @param  {Number}   to       The volume to fade to (0.0 to 1.0).
+	     * @param  {Number}   len      Time in milliseconds to fade.
+	     * @param  {Function} callback (optional) Fired when the fade is complete.
+	     * @param  {String}   id       (optional) The play instance ID.
+	     * @return {Howl}
+	     */
+	    fade: function(from, to, len, callback, id) {
+	      var self = this,
+	        diff = Math.abs(from - to),
+	        dir = from > to ? 'down' : 'up',
+	        steps = diff / 0.01,
+	        stepTime = len / steps;
+
+	      // if the sound hasn't been loaded, add it to the event queue
+	      if (!self._loaded) {
+	        self.on('load', function() {
+	          self.fade(from, to, len, callback, id);
+	        });
+
+	        return self;
+	      }
+
+	      // set the volume to the start position
+	      self.volume(from, id);
+
+	      for (var i=1; i<=steps; i++) {
+	        (function() {
+	          var change = self._volume + (dir === 'up' ? 0.01 : -0.01) * i,
+	            vol = Math.round(1000 * change) / 1000,
+	            toVol = to;
+
+	          setTimeout(function() {
+	            self.volume(vol, id);
+
+	            if (vol === toVol) {
+	              if (callback) callback();
+	            }
+	          }, stepTime * i);
+	        })();
+	      }
+	    },
+
+	    /**
+	     * [DEPRECATED] Fade in the current sound.
+	     * @param  {Float}    to      Volume to fade to (0.0 to 1.0).
+	     * @param  {Number}   len     Time in milliseconds to fade.
+	     * @param  {Function} callback
+	     * @return {Howl}
+	     */
+	    fadeIn: function(to, len, callback) {
+	      return this.volume(0).play().fade(0, to, len, callback);
+	    },
+
+	    /**
+	     * [DEPRECATED] Fade out the current sound and pause when finished.
+	     * @param  {Float}    to       Volume to fade to (0.0 to 1.0).
+	     * @param  {Number}   len      Time in milliseconds to fade.
+	     * @param  {Function} callback
+	     * @param  {String}   id       (optional) The play instance ID.
+	     * @return {Howl}
+	     */
+	    fadeOut: function(to, len, callback, id) {
+	      var self = this;
+
+	      return self.fade(self._volume, to, len, function() {
+	        if (callback) callback();
+	        self.pause(id);
+
+	        // fire ended event
+	        self.on('end');
+	      }, id);
+	    },
+
+	    /**
+	     * Get an audio node by ID.
+	     * @return {Howl} Audio node.
+	     */
+	    _nodeById: function(id) {
+	      var self = this,
+	        node = self._audioNode[0];
+
+	      // find the node with this ID
+	      for (var i=0; i<self._audioNode.length; i++) {
+	        if (self._audioNode[i].id === id) {
+	          node = self._audioNode[i];
+	          break;
+	        }
+	      }
+
+	      return node;
+	    },
+
+	    /**
+	     * Get the first active audio node.
+	     * @return {Howl} Audio node.
+	     */
+	    _activeNode: function() {
+	      var self = this,
+	        node = null;
+
+	      // find the first playing node
+	      for (var i=0; i<self._audioNode.length; i++) {
+	        if (!self._audioNode[i].paused) {
+	          node = self._audioNode[i];
+	          break;
+	        }
+	      }
+
+	      // remove excess inactive nodes
+	      self._drainPool();
+
+	      return node;
+	    },
+
+	    /**
+	     * Get the first inactive audio node.
+	     * If there is none, create a new one and add it to the pool.
+	     * @param  {Function} callback Function to call when the audio node is ready.
+	     */
+	    _inactiveNode: function(callback) {
+	      var self = this,
+	        node = null;
+
+	      // find first inactive node to recycle
+	      for (var i=0; i<self._audioNode.length; i++) {
+	        if (self._audioNode[i].paused && self._audioNode[i].readyState === 4) {
+	          // send the node back for use by the new play instance
+	          callback(self._audioNode[i]);
+	          node = true;
+	          break;
+	        }
+	      }
+
+	      // remove excess inactive nodes
+	      self._drainPool();
+
+	      if (node) {
+	        return;
+	      }
+
+	      // create new node if there are no inactives
+	      var newNode;
+	      if (self._webAudio) {
+	        newNode = self._setupAudioNode();
+	        callback(newNode);
+	      } else {
+	        self.load();
+	        newNode = self._audioNode[self._audioNode.length - 1];
+
+	        // listen for the correct load event and fire the callback
+	        var listenerEvent = navigator.isCocoonJS ? 'canplaythrough' : 'loadedmetadata';
+	        var listener = function() {
+	          newNode.removeEventListener(listenerEvent, listener, false);
+	          callback(newNode);
+	        };
+	        newNode.addEventListener(listenerEvent, listener, false);
+	      }
+	    },
+
+	    /**
+	     * If there are more than 5 inactive audio nodes in the pool, clear out the rest.
+	     */
+	    _drainPool: function() {
+	      var self = this,
+	        inactive = 0,
+	        i;
+
+	      // count the number of inactive nodes
+	      for (i=0; i<self._audioNode.length; i++) {
+	        if (self._audioNode[i].paused) {
+	          inactive++;
+	        }
+	      }
+
+	      // remove excess inactive nodes
+	      for (i=self._audioNode.length-1; i>=0; i--) {
+	        if (inactive <= 5) {
+	          break;
+	        }
+
+	        if (self._audioNode[i].paused) {
+	          // disconnect the audio source if using Web Audio
+	          if (self._webAudio) {
+	            self._audioNode[i].disconnect(0);
+	          }
+
+	          inactive--;
+	          self._audioNode.splice(i, 1);
+	        }
+	      }
+	    },
+
+	    /**
+	     * Clear 'onend' timeout before it ends.
+	     * @param  {String} soundId  The play instance ID.
+	     */
+	    _clearEndTimer: function(soundId) {
+	      var self = this,
+	        index = 0;
+
+	      // loop through the timers to find the one associated with this sound
+	      for (var i=0; i<self._onendTimer.length; i++) {
+	        if (self._onendTimer[i].id === soundId) {
+	          index = i;
+	          break;
+	        }
+	      }
+
+	      var timer = self._onendTimer[index];
+	      if (timer) {
+	        clearTimeout(timer.timer);
+	        self._onendTimer.splice(index, 1);
+	      }
+	    },
+
+	    /**
+	     * Setup the gain node and panner for a Web Audio instance.
+	     * @return {Object} The new audio node.
+	     */
+	    _setupAudioNode: function() {
+	      var self = this,
+	        node = self._audioNode,
+	        index = self._audioNode.length;
+
+	      // create gain node
+	      node[index] = (typeof ctx.createGain === 'undefined') ? ctx.createGainNode() : ctx.createGain();
+	      node[index].gain.value = self._volume;
+	      node[index].paused = true;
+	      node[index]._pos = 0;
+	      node[index].readyState = 4;
+	      node[index].connect(masterGain);
+
+	      // create the panner
+	      node[index].panner = ctx.createPanner();
+	      node[index].panner.panningModel = self._model || 'equalpower';
+	      node[index].panner.setPosition(self._pos3d[0], self._pos3d[1], self._pos3d[2]);
+	      node[index].panner.connect(node[index]);
+
+	      return node[index];
+	    },
+
+	    /**
+	     * Call/set custom events.
+	     * @param  {String}   event Event type.
+	     * @param  {Function} fn    Function to call.
+	     * @return {Howl}
+	     */
+	    on: function(event, fn) {
+	      var self = this,
+	        events = self['_on' + event];
+
+	      if (typeof fn === 'function') {
+	        events.push(fn);
+	      } else {
+	        for (var i=0; i<events.length; i++) {
+	          if (fn) {
+	            events[i].call(self, fn);
+	          } else {
+	            events[i].call(self);
+	          }
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Remove a custom event.
+	     * @param  {String}   event Event type.
+	     * @param  {Function} fn    Listener to remove.
+	     * @return {Howl}
+	     */
+	    off: function(event, fn) {
+	      var self = this,
+	        events = self['_on' + event],
+	        fnString = fn ? fn.toString() : null;
+
+	      if (fnString) {
+	        // loop through functions in the event for comparison
+	        for (var i=0; i<events.length; i++) {
+	          if (fnString === events[i].toString()) {
+	            events.splice(i, 1);
+	            break;
+	          }
+	        }
+	      } else {
+	        self['_on' + event] = [];
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Unload and destroy the current Howl object.
+	     * This will immediately stop all play instances attached to this sound.
+	     */
+	    unload: function() {
+	      var self = this;
+
+	      // stop playing any active nodes
+	      var nodes = self._audioNode;
+	      for (var i=0; i<self._audioNode.length; i++) {
+	        // stop the sound if it is currently playing
+	        if (!nodes[i].paused) {
+	          self.stop(nodes[i].id);
+	          self.on('end', nodes[i].id);
+	        }
+
+	        if (!self._webAudio) {
+	          // remove the source if using HTML5 Audio
+	          nodes[i].src = '';
+	        } else {
+	          // disconnect the output from the master gain
+	          nodes[i].disconnect(0);
+	        }
+	      }
+
+	      // make sure all timeouts are cleared
+	      for (i=0; i<self._onendTimer.length; i++) {
+	        clearTimeout(self._onendTimer[i].timer);
+	      }
+
+	      // remove the reference in the global Howler object
+	      var index = Howler._howls.indexOf(self);
+	      if (index !== null && index >= 0) {
+	        Howler._howls.splice(index, 1);
+	      }
+
+	      // delete this sound from the cache
+	      delete cache[self._src];
+	      self = null;
+	    }
+
+	  };
+
+	  // only define these functions when using WebAudio
+	  if (usingWebAudio) {
+
+	    /**
+	     * Buffer a sound from URL (or from cache) and decode to audio source (Web Audio API).
+	     * @param  {Object} obj The Howl object for the sound to load.
+	     * @param  {String} url The path to the sound file.
+	     */
+	    var loadBuffer = function(obj, url) {
+	      // check if the buffer has already been cached
+	      if (url in cache) {
+	        // set the duration from the cache
+	        obj._duration = cache[url].duration;
+
+	        // load the sound into this object
+	        loadSound(obj);
+	        return;
+	      }
+	      
+	      if (/^data:[^;]+;base64,/.test(url)) {
+	        // Decode base64 data-URIs because some browsers cannot load data-URIs with XMLHttpRequest.
+	        var data = atob(url.split(',')[1]);
+	        var dataView = new Uint8Array(data.length);
+	        for (var i=0; i<data.length; ++i) {
+	          dataView[i] = data.charCodeAt(i);
+	        }
+	        
+	        decodeAudioData(dataView.buffer, obj, url);
+	      } else {
+	        // load the buffer from the URL
+	        var xhr = new XMLHttpRequest();
+	        xhr.open('GET', url, true);
+	        xhr.responseType = 'arraybuffer';
+	        xhr.onload = function() {
+	          decodeAudioData(xhr.response, obj, url);
+	        };
+	        xhr.onerror = function() {
+	          // if there is an error, switch the sound to HTML Audio
+	          if (obj._webAudio) {
+	            obj._buffer = true;
+	            obj._webAudio = false;
+	            obj._audioNode = [];
+	            delete obj._gainNode;
+	            delete cache[url];
+	            obj.load();
+	          }
+	        };
+	        try {
+	          xhr.send();
+	        } catch (e) {
+	          xhr.onerror();
+	        }
+	      }
+	    };
+
+	    /**
+	     * Decode audio data from an array buffer.
+	     * @param  {ArrayBuffer} arraybuffer The audio data.
+	     * @param  {Object} obj The Howl object for the sound to load.
+	     * @param  {String} url The path to the sound file.
+	     */
+	    var decodeAudioData = function(arraybuffer, obj, url) {
+	      // decode the buffer into an audio source
+	      ctx.decodeAudioData(
+	        arraybuffer,
+	        function(buffer) {
+	          if (buffer) {
+	            cache[url] = buffer;
+	            loadSound(obj, buffer);
+	          }
+	        },
+	        function(err) {
+	          obj.on('loaderror');
+	        }
+	      );
+	    };
+
+	    /**
+	     * Finishes loading the Web Audio API sound and fires the loaded event
+	     * @param  {Object}  obj    The Howl object for the sound to load.
+	     * @param  {Objecct} buffer The decoded buffer sound source.
+	     */
+	    var loadSound = function(obj, buffer) {
+	      // set the duration
+	      obj._duration = (buffer) ? buffer.duration : obj._duration;
+
+	      // setup a sprite if none is defined
+	      if (Object.getOwnPropertyNames(obj._sprite).length === 0) {
+	        obj._sprite = {_default: [0, obj._duration * 1000]};
+	      }
+
+	      // fire the loaded event
+	      if (!obj._loaded) {
+	        obj._loaded = true;
+	        obj.on('load');
+	      }
+
+	      if (obj._autoplay) {
+	        obj.play();
+	      }
+	    };
+
+	    /**
+	     * Load the sound back into the buffer source.
+	     * @param  {Object} obj   The sound to load.
+	     * @param  {Array}  loop  Loop boolean, pos, and duration.
+	     * @param  {String} id    (optional) The play instance ID.
+	     */
+	    var refreshBuffer = function(obj, loop, id) {
+	      // determine which node to connect to
+	      var node = obj._nodeById(id);
+
+	      // setup the buffer source for playback
+	      node.bufferSource = ctx.createBufferSource();
+	      node.bufferSource.buffer = cache[obj._src];
+	      node.bufferSource.connect(node.panner);
+	      node.bufferSource.loop = loop[0];
+	      if (loop[0]) {
+	        node.bufferSource.loopStart = loop[1];
+	        node.bufferSource.loopEnd = loop[1] + loop[2];
+	      }
+	      node.bufferSource.playbackRate.value = obj._rate;
+	    };
+
+	  }
+
+	  /**
+	   * Add support for AMD (Asynchronous Module Definition) libraries such as require.js.
+	   */
+	  if (true) {
+	    !(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
+	      return {
+	        Howler: Howler,
+	        Howl: Howl
+	      };
+	    }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  }
+
+	  /**
+	   * Add support for CommonJS libraries such as browserify.
+	   */
+	  if (true) {
+	    exports.Howler = Howler;
+	    exports.Howl = Howl;
+	  }
+
+	  // define globally in case AMD is not available or available but not used
+
+	  if (typeof window !== 'undefined') {
+	    window.Howler = Howler;
+	    window.Howl = Howl;
+	  }
+
 	})();
 
-	function IScroll (el, options) {
-		this.wrapper = typeof el == 'string' ? document.querySelector(el) : el;
-		this.scroller = this.wrapper.children[0];
-		this.scrollerStyle = this.scroller.style;		// cache style for better performance
-
-		this.options = {
-
-			resizeScrollbars: true,
-
-			mouseWheelSpeed: 20,
-
-			snapThreshold: 0.334,
-
-	// INSERT POINT: OPTIONS 
-
-			startX: 0,
-			startY: 0,
-			scrollY: true,
-			directionLockThreshold: 5,
-			momentum: true,
-
-			bounce: true,
-			bounceTime: 600,
-			bounceEasing: '',
-
-			preventDefault: true,
-			preventDefaultException: { tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ },
-
-			HWCompositing: true,
-			useTransition: true,
-			useTransform: true
-		};
-
-		for ( var i in options ) {
-			this.options[i] = options[i];
-		}
-
-		// Normalize options
-		this.translateZ = this.options.HWCompositing && utils.hasPerspective ? ' translateZ(0)' : '';
-
-		this.options.useTransition = utils.hasTransition && this.options.useTransition;
-		this.options.useTransform = utils.hasTransform && this.options.useTransform;
-
-		this.options.eventPassthrough = this.options.eventPassthrough === true ? 'vertical' : this.options.eventPassthrough;
-		this.options.preventDefault = !this.options.eventPassthrough && this.options.preventDefault;
-
-		// If you want eventPassthrough I have to lock one of the axes
-		this.options.scrollY = this.options.eventPassthrough == 'vertical' ? false : this.options.scrollY;
-		this.options.scrollX = this.options.eventPassthrough == 'horizontal' ? false : this.options.scrollX;
-
-		// With eventPassthrough we also need lockDirection mechanism
-		this.options.freeScroll = this.options.freeScroll && !this.options.eventPassthrough;
-		this.options.directionLockThreshold = this.options.eventPassthrough ? 0 : this.options.directionLockThreshold;
-
-		this.options.bounceEasing = typeof this.options.bounceEasing == 'string' ? utils.ease[this.options.bounceEasing] || utils.ease.circular : this.options.bounceEasing;
-
-		this.options.resizePolling = this.options.resizePolling === undefined ? 60 : this.options.resizePolling;
-
-		if ( this.options.tap === true ) {
-			this.options.tap = 'tap';
-		}
-
-		if ( this.options.shrinkScrollbars == 'scale' ) {
-			this.options.useTransition = false;
-		}
-
-		this.options.invertWheelDirection = this.options.invertWheelDirection ? -1 : 1;
-
-		if ( this.options.probeType == 3 ) {
-			this.options.useTransition = false;	}
-
-	// INSERT POINT: NORMALIZATION
-
-		// Some defaults	
-		this.x = 0;
-		this.y = 0;
-		this.directionX = 0;
-		this.directionY = 0;
-		this._events = {};
-
-	// INSERT POINT: DEFAULTS
-
-		this._init();
-		this.refresh();
-
-		this.scrollTo(this.options.startX, this.options.startY);
-		this.enable();
-	}
-
-	IScroll.prototype = {
-		version: '5.1.3',
-
-		_init: function () {
-			this._initEvents();
-
-			if ( this.options.scrollbars || this.options.indicators ) {
-				this._initIndicators();
-			}
-
-			if ( this.options.mouseWheel ) {
-				this._initWheel();
-			}
-
-			if ( this.options.snap ) {
-				this._initSnap();
-			}
-
-			if ( this.options.keyBindings ) {
-				this._initKeys();
-			}
-
-	// INSERT POINT: _init
-
-		},
-
-		destroy: function () {
-			this._initEvents(true);
-
-			this._execEvent('destroy');
-		},
-
-		_transitionEnd: function (e) {
-			if ( e.target != this.scroller || !this.isInTransition ) {
-				return;
-			}
-
-			this._transitionTime();
-			if ( !this.resetPosition(this.options.bounceTime) ) {
-				this.isInTransition = false;
-				this._execEvent('scrollEnd');
-			}
-		},
-
-		_start: function (e) {
-			// React to left mouse button only
-			if ( utils.eventType[e.type] != 1 ) {
-				if ( e.button !== 0 ) {
-					return;
-				}
-			}
-
-			if ( !this.enabled || (this.initiated && utils.eventType[e.type] !== this.initiated) ) {
-				return;
-			}
-
-			if ( this.options.preventDefault && !utils.isBadAndroid && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
-				e.preventDefault();
-			}
-
-			var point = e.touches ? e.touches[0] : e,
-				pos;
-
-			this.initiated	= utils.eventType[e.type];
-			this.moved		= false;
-			this.distX		= 0;
-			this.distY		= 0;
-			this.directionX = 0;
-			this.directionY = 0;
-			this.directionLocked = 0;
-
-			this._transitionTime();
-
-			this.startTime = utils.getTime();
-
-			if ( this.options.useTransition && this.isInTransition ) {
-				this.isInTransition = false;
-				pos = this.getComputedPosition();
-				this._translate(Math.round(pos.x), Math.round(pos.y));
-				this._execEvent('scrollEnd');
-			} else if ( !this.options.useTransition && this.isAnimating ) {
-				this.isAnimating = false;
-				this._execEvent('scrollEnd');
-			}
-
-			this.startX    = this.x;
-			this.startY    = this.y;
-			this.absStartX = this.x;
-			this.absStartY = this.y;
-			this.pointX    = point.pageX;
-			this.pointY    = point.pageY;
-
-			this._execEvent('beforeScrollStart');
-		},
-
-		_move: function (e) {
-			if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
-				return;
-			}
-
-			if ( this.options.preventDefault ) {	// increases performance on Android? TODO: check!
-				e.preventDefault();
-			}
-
-			var point		= e.touches ? e.touches[0] : e,
-				deltaX		= point.pageX - this.pointX,
-				deltaY		= point.pageY - this.pointY,
-				timestamp	= utils.getTime(),
-				newX, newY,
-				absDistX, absDistY;
-
-			this.pointX		= point.pageX;
-			this.pointY		= point.pageY;
-
-			this.distX		+= deltaX;
-			this.distY		+= deltaY;
-			absDistX		= Math.abs(this.distX);
-			absDistY		= Math.abs(this.distY);
-
-			// We need to move at least 10 pixels for the scrolling to initiate
-			if ( timestamp - this.endTime > 300 && (absDistX < 10 && absDistY < 10) ) {
-				return;
-			}
-
-			// If you are scrolling in one direction lock the other
-			if ( !this.directionLocked && !this.options.freeScroll ) {
-				if ( absDistX > absDistY + this.options.directionLockThreshold ) {
-					this.directionLocked = 'h';		// lock horizontally
-				} else if ( absDistY >= absDistX + this.options.directionLockThreshold ) {
-					this.directionLocked = 'v';		// lock vertically
-				} else {
-					this.directionLocked = 'n';		// no lock
-				}
-			}
-
-			if ( this.directionLocked == 'h' ) {
-				if ( this.options.eventPassthrough == 'vertical' ) {
-					e.preventDefault();
-				} else if ( this.options.eventPassthrough == 'horizontal' ) {
-					this.initiated = false;
-					return;
-				}
-
-				deltaY = 0;
-			} else if ( this.directionLocked == 'v' ) {
-				if ( this.options.eventPassthrough == 'horizontal' ) {
-					e.preventDefault();
-				} else if ( this.options.eventPassthrough == 'vertical' ) {
-					this.initiated = false;
-					return;
-				}
-
-				deltaX = 0;
-			}
-
-			deltaX = this.hasHorizontalScroll ? deltaX : 0;
-			deltaY = this.hasVerticalScroll ? deltaY : 0;
-
-			newX = this.x + deltaX;
-			newY = this.y + deltaY;
-
-			// Slow down if outside of the boundaries
-			if ( newX > 0 || newX < this.maxScrollX ) {
-				newX = this.options.bounce ? this.x + deltaX / 3 : newX > 0 ? 0 : this.maxScrollX;
-			}
-			if ( newY > 0 || newY < this.maxScrollY ) {
-				newY = this.options.bounce ? this.y + deltaY / 3 : newY > 0 ? 0 : this.maxScrollY;
-			}
-
-			this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
-			this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
-
-			if ( !this.moved ) {
-				this._execEvent('scrollStart');
-			}
-
-			this.moved = true;
-
-			this._translate(newX, newY);
-
-	/* REPLACE START: _move */
-			if ( timestamp - this.startTime > 300 ) {
-				this.startTime = timestamp;
-				this.startX = this.x;
-				this.startY = this.y;
-
-				if ( this.options.probeType == 1 ) {
-					this._execEvent('scroll');
-				}
-			}
-
-			if ( this.options.probeType > 1 ) {
-				this._execEvent('scroll');
-			}
-	/* REPLACE END: _move */
-
-		},
-
-		_end: function (e) {
-			if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
-				return;
-			}
-
-			if ( this.options.preventDefault && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
-				e.preventDefault();
-			}
-
-			var point = e.changedTouches ? e.changedTouches[0] : e,
-				momentumX,
-				momentumY,
-				duration = utils.getTime() - this.startTime,
-				newX = Math.round(this.x),
-				newY = Math.round(this.y),
-				distanceX = Math.abs(newX - this.startX),
-				distanceY = Math.abs(newY - this.startY),
-				time = 0,
-				easing = '';
-
-			this.isInTransition = 0;
-			this.initiated = 0;
-			this.endTime = utils.getTime();
-
-			// reset if we are outside of the boundaries
-			if ( this.resetPosition(this.options.bounceTime) ) {
-				return;
-			}
-
-			this.scrollTo(newX, newY);	// ensures that the last position is rounded
-
-			// we scrolled less than 10 pixels
-			if ( !this.moved ) {
-				if ( this.options.tap ) {
-					utils.tap(e, this.options.tap);
-				}
-
-				if ( this.options.click ) {
-					utils.click(e);
-				}
-
-				this._execEvent('scrollCancel');
-				return;
-			}
-
-			if ( this._events.flick && duration < 200 && distanceX < 100 && distanceY < 100 ) {
-				this._execEvent('flick');
-				return;
-			}
-
-			// start momentum animation if needed
-			if ( this.options.momentum && duration < 300 ) {
-				momentumX = this.hasHorizontalScroll ? utils.momentum(this.x, this.startX, duration, this.maxScrollX, this.options.bounce ? this.wrapperWidth : 0, this.options.deceleration) : { destination: newX, duration: 0 };
-				momentumY = this.hasVerticalScroll ? utils.momentum(this.y, this.startY, duration, this.maxScrollY, this.options.bounce ? this.wrapperHeight : 0, this.options.deceleration) : { destination: newY, duration: 0 };
-				newX = momentumX.destination;
-				newY = momentumY.destination;
-				time = Math.max(momentumX.duration, momentumY.duration);
-				this.isInTransition = 1;
-			}
-
-
-			if ( this.options.snap ) {
-				var snap = this._nearestSnap(newX, newY);
-				this.currentPage = snap;
-				time = this.options.snapSpeed || Math.max(
-						Math.max(
-							Math.min(Math.abs(newX - snap.x), 1000),
-							Math.min(Math.abs(newY - snap.y), 1000)
-						), 300);
-				newX = snap.x;
-				newY = snap.y;
-
-				this.directionX = 0;
-				this.directionY = 0;
-				easing = this.options.bounceEasing;
-			}
-
-	// INSERT POINT: _end
-
-			if ( newX != this.x || newY != this.y ) {
-				// change easing function when scroller goes out of the boundaries
-				if ( newX > 0 || newX < this.maxScrollX || newY > 0 || newY < this.maxScrollY ) {
-					easing = utils.ease.quadratic;
-				}
-
-				this.scrollTo(newX, newY, time, easing);
-				return;
-			}
-
-			this._execEvent('scrollEnd');
-		},
-
-		_resize: function () {
-			var that = this;
-
-			clearTimeout(this.resizeTimeout);
-
-			this.resizeTimeout = setTimeout(function () {
-				that.refresh();
-			}, this.options.resizePolling);
-		},
-
-		resetPosition: function (time) {
-			var x = this.x,
-				y = this.y;
-
-			time = time || 0;
-
-			if ( !this.hasHorizontalScroll || this.x > 0 ) {
-				x = 0;
-			} else if ( this.x < this.maxScrollX ) {
-				x = this.maxScrollX;
-			}
-
-			if ( !this.hasVerticalScroll || this.y > 0 ) {
-				y = 0;
-			} else if ( this.y < this.maxScrollY ) {
-				y = this.maxScrollY;
-			}
-
-			if ( x == this.x && y == this.y ) {
-				return false;
-			}
-
-			this.scrollTo(x, y, time, this.options.bounceEasing);
-
-			return true;
-		},
-
-		disable: function () {
-			this.enabled = false;
-		},
-
-		enable: function () {
-			this.enabled = true;
-		},
-
-		refresh: function () {
-			var rf = this.wrapper.offsetHeight;		// Force reflow
-
-			this.wrapperWidth	= this.wrapper.clientWidth;
-			this.wrapperHeight	= this.wrapper.clientHeight;
-
-	/* REPLACE START: refresh */
-
-			this.scrollerWidth	= this.scroller.offsetWidth;
-			this.scrollerHeight	= this.scroller.offsetHeight;
-
-			this.maxScrollX		= this.wrapperWidth - this.scrollerWidth;
-			this.maxScrollY		= this.wrapperHeight - this.scrollerHeight;
-
-	/* REPLACE END: refresh */
-
-			this.hasHorizontalScroll	= this.options.scrollX && this.maxScrollX < 0;
-			this.hasVerticalScroll		= this.options.scrollY && this.maxScrollY < 0;
-
-			if ( !this.hasHorizontalScroll ) {
-				this.maxScrollX = 0;
-				this.scrollerWidth = this.wrapperWidth;
-			}
-
-			if ( !this.hasVerticalScroll ) {
-				this.maxScrollY = 0;
-				this.scrollerHeight = this.wrapperHeight;
-			}
-
-			this.endTime = 0;
-			this.directionX = 0;
-			this.directionY = 0;
-
-			this.wrapperOffset = utils.offset(this.wrapper);
-
-			this._execEvent('refresh');
-
-			this.resetPosition();
-
-	// INSERT POINT: _refresh
-
-		},
-
-		on: function (type, fn) {
-			if ( !this._events[type] ) {
-				this._events[type] = [];
-			}
-
-			this._events[type].push(fn);
-		},
-
-		off: function (type, fn) {
-			if ( !this._events[type] ) {
-				return;
-			}
-
-			var index = this._events[type].indexOf(fn);
-
-			if ( index > -1 ) {
-				this._events[type].splice(index, 1);
-			}
-		},
-
-		_execEvent: function (type) {
-			if ( !this._events[type] ) {
-				return;
-			}
-
-			var i = 0,
-				l = this._events[type].length;
-
-			if ( !l ) {
-				return;
-			}
-
-			for ( ; i < l; i++ ) {
-				this._events[type][i].apply(this, [].slice.call(arguments, 1));
-			}
-		},
-
-		scrollBy: function (x, y, time, easing) {
-			x = this.x + x;
-			y = this.y + y;
-			time = time || 0;
-
-			this.scrollTo(x, y, time, easing);
-		},
-
-		scrollTo: function (x, y, time, easing) {
-			easing = easing || utils.ease.circular;
-
-			this.isInTransition = this.options.useTransition && time > 0;
-
-			if ( !time || (this.options.useTransition && easing.style) ) {
-				this._transitionTimingFunction(easing.style);
-				this._transitionTime(time);
-				this._translate(x, y);
-			} else {
-				this._animate(x, y, time, easing.fn);
-			}
-		},
-
-		scrollToElement: function (el, time, offsetX, offsetY, easing) {
-			el = el.nodeType ? el : this.scroller.querySelector(el);
-
-			if ( !el ) {
-				return;
-			}
-
-			var pos = utils.offset(el);
-
-			pos.left -= this.wrapperOffset.left;
-			pos.top  -= this.wrapperOffset.top;
-
-			// if offsetX/Y are true we center the element to the screen
-			if ( offsetX === true ) {
-				offsetX = Math.round(el.offsetWidth / 2 - this.wrapper.offsetWidth / 2);
-			}
-			if ( offsetY === true ) {
-				offsetY = Math.round(el.offsetHeight / 2 - this.wrapper.offsetHeight / 2);
-			}
-
-			pos.left -= offsetX || 0;
-			pos.top  -= offsetY || 0;
-
-			pos.left = pos.left > 0 ? 0 : pos.left < this.maxScrollX ? this.maxScrollX : pos.left;
-			pos.top  = pos.top  > 0 ? 0 : pos.top  < this.maxScrollY ? this.maxScrollY : pos.top;
-
-			time = time === undefined || time === null || time === 'auto' ? Math.max(Math.abs(this.x-pos.left), Math.abs(this.y-pos.top)) : time;
-
-			this.scrollTo(pos.left, pos.top, time, easing);
-		},
-
-		_transitionTime: function (time) {
-			time = time || 0;
-
-			this.scrollerStyle[utils.style.transitionDuration] = time + 'ms';
-
-			if ( !time && utils.isBadAndroid ) {
-				this.scrollerStyle[utils.style.transitionDuration] = '0.001s';
-			}
-
-
-			if ( this.indicators ) {
-				for ( var i = this.indicators.length; i--; ) {
-					this.indicators[i].transitionTime(time);
-				}
-			}
-
-
-	// INSERT POINT: _transitionTime
-
-		},
-
-		_transitionTimingFunction: function (easing) {
-			this.scrollerStyle[utils.style.transitionTimingFunction] = easing;
-
-
-			if ( this.indicators ) {
-				for ( var i = this.indicators.length; i--; ) {
-					this.indicators[i].transitionTimingFunction(easing);
-				}
-			}
-
-
-	// INSERT POINT: _transitionTimingFunction
-
-		},
-
-		_translate: function (x, y) {
-			if ( this.options.useTransform ) {
-
-	/* REPLACE START: _translate */
-
-				this.scrollerStyle[utils.style.transform] = 'translate(' + x + 'px,' + y + 'px)' + this.translateZ;
-
-	/* REPLACE END: _translate */
-
-			} else {
-				x = Math.round(x);
-				y = Math.round(y);
-				this.scrollerStyle.left = x + 'px';
-				this.scrollerStyle.top = y + 'px';
-			}
-
-			this.x = x;
-			this.y = y;
-
-
-		if ( this.indicators ) {
-			for ( var i = this.indicators.length; i--; ) {
-				this.indicators[i].updatePosition();
-			}
-		}
-
-
-	// INSERT POINT: _translate
-
-		},
-
-		_initEvents: function (remove) {
-			var eventType = remove ? utils.removeEvent : utils.addEvent,
-				target = this.options.bindToWrapper ? this.wrapper : window;
-
-			eventType(window, 'orientationchange', this);
-			eventType(window, 'resize', this);
-
-			if ( this.options.click ) {
-				eventType(this.wrapper, 'click', this, true);
-			}
-
-			if ( !this.options.disableMouse ) {
-				eventType(this.wrapper, 'mousedown', this);
-				eventType(target, 'mousemove', this);
-				eventType(target, 'mousecancel', this);
-				eventType(target, 'mouseup', this);
-			}
-
-			if ( utils.hasPointer && !this.options.disablePointer ) {
-				eventType(this.wrapper, utils.prefixPointerEvent('pointerdown'), this);
-				eventType(target, utils.prefixPointerEvent('pointermove'), this);
-				eventType(target, utils.prefixPointerEvent('pointercancel'), this);
-				eventType(target, utils.prefixPointerEvent('pointerup'), this);
-			}
-
-			if ( utils.hasTouch && !this.options.disableTouch ) {
-				eventType(this.wrapper, 'touchstart', this);
-				eventType(target, 'touchmove', this);
-				eventType(target, 'touchcancel', this);
-				eventType(target, 'touchend', this);
-			}
-
-			eventType(this.scroller, 'transitionend', this);
-			eventType(this.scroller, 'webkitTransitionEnd', this);
-			eventType(this.scroller, 'oTransitionEnd', this);
-			eventType(this.scroller, 'MSTransitionEnd', this);
-		},
-
-		getComputedPosition: function () {
-			var matrix = window.getComputedStyle(this.scroller, null),
-				x, y;
-
-			if ( this.options.useTransform ) {
-				matrix = matrix[utils.style.transform].split(')')[0].split(', ');
-				x = +(matrix[12] || matrix[4]);
-				y = +(matrix[13] || matrix[5]);
-			} else {
-				x = +matrix.left.replace(/[^-\d.]/g, '');
-				y = +matrix.top.replace(/[^-\d.]/g, '');
-			}
-
-			return { x: x, y: y };
-		},
-
-		_initIndicators: function () {
-			var interactive = this.options.interactiveScrollbars,
-				customStyle = typeof this.options.scrollbars != 'string',
-				indicators = [],
-				indicator;
-
-			var that = this;
-
-			this.indicators = [];
-
-			if ( this.options.scrollbars ) {
-				// Vertical scrollbar
-				if ( this.options.scrollY ) {
-					indicator = {
-						el: createDefaultScrollbar('v', interactive, this.options.scrollbars),
-						interactive: interactive,
-						defaultScrollbars: true,
-						customStyle: customStyle,
-						resize: this.options.resizeScrollbars,
-						shrink: this.options.shrinkScrollbars,
-						fade: this.options.fadeScrollbars,
-						listenX: false
-					};
-
-					this.wrapper.appendChild(indicator.el);
-					indicators.push(indicator);
-				}
-
-				// Horizontal scrollbar
-				if ( this.options.scrollX ) {
-					indicator = {
-						el: createDefaultScrollbar('h', interactive, this.options.scrollbars),
-						interactive: interactive,
-						defaultScrollbars: true,
-						customStyle: customStyle,
-						resize: this.options.resizeScrollbars,
-						shrink: this.options.shrinkScrollbars,
-						fade: this.options.fadeScrollbars,
-						listenY: false
-					};
-
-					this.wrapper.appendChild(indicator.el);
-					indicators.push(indicator);
-				}
-			}
-
-			if ( this.options.indicators ) {
-				// TODO: check concat compatibility
-				indicators = indicators.concat(this.options.indicators);
-			}
-
-			for ( var i = indicators.length; i--; ) {
-				this.indicators.push( new Indicator(this, indicators[i]) );
-			}
-
-			// TODO: check if we can use array.map (wide compatibility and performance issues)
-			function _indicatorsMap (fn) {
-				for ( var i = that.indicators.length; i--; ) {
-					fn.call(that.indicators[i]);
-				}
-			}
-
-			if ( this.options.fadeScrollbars ) {
-				this.on('scrollEnd', function () {
-					_indicatorsMap(function () {
-						this.fade();
-					});
-				});
-
-				this.on('scrollCancel', function () {
-					_indicatorsMap(function () {
-						this.fade();
-					});
-				});
-
-				this.on('scrollStart', function () {
-					_indicatorsMap(function () {
-						this.fade(1);
-					});
-				});
-
-				this.on('beforeScrollStart', function () {
-					_indicatorsMap(function () {
-						this.fade(1, true);
-					});
-				});
-			}
-
-
-			this.on('refresh', function () {
-				_indicatorsMap(function () {
-					this.refresh();
-				});
-			});
-
-			this.on('destroy', function () {
-				_indicatorsMap(function () {
-					this.destroy();
-				});
-
-				delete this.indicators;
-			});
-		},
-
-		_initWheel: function () {
-			utils.addEvent(this.wrapper, 'wheel', this);
-			utils.addEvent(this.wrapper, 'mousewheel', this);
-			utils.addEvent(this.wrapper, 'DOMMouseScroll', this);
-
-			this.on('destroy', function () {
-				utils.removeEvent(this.wrapper, 'wheel', this);
-				utils.removeEvent(this.wrapper, 'mousewheel', this);
-				utils.removeEvent(this.wrapper, 'DOMMouseScroll', this);
-			});
-		},
-
-		_wheel: function (e) {
-			if ( !this.enabled ) {
-				return;
-			}
-
-			e.preventDefault();
-			e.stopPropagation();
-
-			var wheelDeltaX, wheelDeltaY,
-				newX, newY,
-				that = this;
-
-			if ( this.wheelTimeout === undefined ) {
-				that._execEvent('scrollStart');
-			}
-
-			// Execute the scrollEnd event after 400ms the wheel stopped scrolling
-			clearTimeout(this.wheelTimeout);
-			this.wheelTimeout = setTimeout(function () {
-				that._execEvent('scrollEnd');
-				that.wheelTimeout = undefined;
-			}, 400);
-
-			if ( 'deltaX' in e ) {
-				if (e.deltaMode === 1) {
-					wheelDeltaX = -e.deltaX * this.options.mouseWheelSpeed;
-					wheelDeltaY = -e.deltaY * this.options.mouseWheelSpeed;
-				} else {
-					wheelDeltaX = -e.deltaX;
-					wheelDeltaY = -e.deltaY;
-				}
-			} else if ( 'wheelDeltaX' in e ) {
-				wheelDeltaX = e.wheelDeltaX / 120 * this.options.mouseWheelSpeed;
-				wheelDeltaY = e.wheelDeltaY / 120 * this.options.mouseWheelSpeed;
-			} else if ( 'wheelDelta' in e ) {
-				wheelDeltaX = wheelDeltaY = e.wheelDelta / 120 * this.options.mouseWheelSpeed;
-			} else if ( 'detail' in e ) {
-				wheelDeltaX = wheelDeltaY = -e.detail / 3 * this.options.mouseWheelSpeed;
-			} else {
-				return;
-			}
-
-			wheelDeltaX *= this.options.invertWheelDirection;
-			wheelDeltaY *= this.options.invertWheelDirection;
-
-			if ( !this.hasVerticalScroll ) {
-				wheelDeltaX = wheelDeltaY;
-				wheelDeltaY = 0;
-			}
-
-			if ( this.options.snap ) {
-				newX = this.currentPage.pageX;
-				newY = this.currentPage.pageY;
-
-				if ( wheelDeltaX > 0 ) {
-					newX--;
-				} else if ( wheelDeltaX < 0 ) {
-					newX++;
-				}
-
-				if ( wheelDeltaY > 0 ) {
-					newY--;
-				} else if ( wheelDeltaY < 0 ) {
-					newY++;
-				}
-
-				this.goToPage(newX, newY);
-
-				return;
-			}
-
-			newX = this.x + Math.round(this.hasHorizontalScroll ? wheelDeltaX : 0);
-			newY = this.y + Math.round(this.hasVerticalScroll ? wheelDeltaY : 0);
-
-			if ( newX > 0 ) {
-				newX = 0;
-			} else if ( newX < this.maxScrollX ) {
-				newX = this.maxScrollX;
-			}
-
-			if ( newY > 0 ) {
-				newY = 0;
-			} else if ( newY < this.maxScrollY ) {
-				newY = this.maxScrollY;
-			}
-
-			this.scrollTo(newX, newY, 0);
-
-			if ( this.options.probeType > 1 ) {
-				this._execEvent('scroll');
-			}
-
-	// INSERT POINT: _wheel
-		},
-
-		_initSnap: function () {
-			this.currentPage = {};
-
-			if ( typeof this.options.snap == 'string' ) {
-				this.options.snap = this.scroller.querySelectorAll(this.options.snap);
-			}
-
-			this.on('refresh', function () {
-				var i = 0, l,
-					m = 0, n,
-					cx, cy,
-					x = 0, y,
-					stepX = this.options.snapStepX || this.wrapperWidth,
-					stepY = this.options.snapStepY || this.wrapperHeight,
-					el;
-
-				this.pages = [];
-
-				if ( !this.wrapperWidth || !this.wrapperHeight || !this.scrollerWidth || !this.scrollerHeight ) {
-					return;
-				}
-
-				if ( this.options.snap === true ) {
-					cx = Math.round( stepX / 2 );
-					cy = Math.round( stepY / 2 );
-
-					while ( x > -this.scrollerWidth ) {
-						this.pages[i] = [];
-						l = 0;
-						y = 0;
-
-						while ( y > -this.scrollerHeight ) {
-							this.pages[i][l] = {
-								x: Math.max(x, this.maxScrollX),
-								y: Math.max(y, this.maxScrollY),
-								width: stepX,
-								height: stepY,
-								cx: x - cx,
-								cy: y - cy
-							};
-
-							y -= stepY;
-							l++;
-						}
-
-						x -= stepX;
-						i++;
-					}
-				} else {
-					el = this.options.snap;
-					l = el.length;
-					n = -1;
-
-					for ( ; i < l; i++ ) {
-						if ( i === 0 || el[i].offsetLeft <= el[i-1].offsetLeft ) {
-							m = 0;
-							n++;
-						}
-
-						if ( !this.pages[m] ) {
-							this.pages[m] = [];
-						}
-
-						x = Math.max(-el[i].offsetLeft, this.maxScrollX);
-						y = Math.max(-el[i].offsetTop, this.maxScrollY);
-						cx = x - Math.round(el[i].offsetWidth / 2);
-						cy = y - Math.round(el[i].offsetHeight / 2);
-
-						this.pages[m][n] = {
-							x: x,
-							y: y,
-							width: el[i].offsetWidth,
-							height: el[i].offsetHeight,
-							cx: cx,
-							cy: cy
-						};
-
-						if ( x > this.maxScrollX ) {
-							m++;
-						}
-					}
-				}
-
-				this.goToPage(this.currentPage.pageX || 0, this.currentPage.pageY || 0, 0);
-
-				// Update snap threshold if needed
-				if ( this.options.snapThreshold % 1 === 0 ) {
-					this.snapThresholdX = this.options.snapThreshold;
-					this.snapThresholdY = this.options.snapThreshold;
-				} else {
-					this.snapThresholdX = Math.round(this.pages[this.currentPage.pageX][this.currentPage.pageY].width * this.options.snapThreshold);
-					this.snapThresholdY = Math.round(this.pages[this.currentPage.pageX][this.currentPage.pageY].height * this.options.snapThreshold);
-				}
-			});
-
-			this.on('flick', function () {
-				var time = this.options.snapSpeed || Math.max(
-						Math.max(
-							Math.min(Math.abs(this.x - this.startX), 1000),
-							Math.min(Math.abs(this.y - this.startY), 1000)
-						), 300);
-
-				this.goToPage(
-					this.currentPage.pageX + this.directionX,
-					this.currentPage.pageY + this.directionY,
-					time
-				);
-			});
-		},
-
-		_nearestSnap: function (x, y) {
-			if ( !this.pages.length ) {
-				return { x: 0, y: 0, pageX: 0, pageY: 0 };
-			}
-
-			var i = 0,
-				l = this.pages.length,
-				m = 0;
-
-			// Check if we exceeded the snap threshold
-			if ( Math.abs(x - this.absStartX) < this.snapThresholdX &&
-				Math.abs(y - this.absStartY) < this.snapThresholdY ) {
-				return this.currentPage;
-			}
-
-			if ( x > 0 ) {
-				x = 0;
-			} else if ( x < this.maxScrollX ) {
-				x = this.maxScrollX;
-			}
-
-			if ( y > 0 ) {
-				y = 0;
-			} else if ( y < this.maxScrollY ) {
-				y = this.maxScrollY;
-			}
-
-			for ( ; i < l; i++ ) {
-				if ( x >= this.pages[i][0].cx ) {
-					x = this.pages[i][0].x;
-					break;
-				}
-			}
-
-			l = this.pages[i].length;
-
-			for ( ; m < l; m++ ) {
-				if ( y >= this.pages[0][m].cy ) {
-					y = this.pages[0][m].y;
-					break;
-				}
-			}
-
-			if ( i == this.currentPage.pageX ) {
-				i += this.directionX;
-
-				if ( i < 0 ) {
-					i = 0;
-				} else if ( i >= this.pages.length ) {
-					i = this.pages.length - 1;
-				}
-
-				x = this.pages[i][0].x;
-			}
-
-			if ( m == this.currentPage.pageY ) {
-				m += this.directionY;
-
-				if ( m < 0 ) {
-					m = 0;
-				} else if ( m >= this.pages[0].length ) {
-					m = this.pages[0].length - 1;
-				}
-
-				y = this.pages[0][m].y;
-			}
-
-			return {
-				x: x,
-				y: y,
-				pageX: i,
-				pageY: m
-			};
-		},
-
-		goToPage: function (x, y, time, easing) {
-			easing = easing || this.options.bounceEasing;
-
-			if ( x >= this.pages.length ) {
-				x = this.pages.length - 1;
-			} else if ( x < 0 ) {
-				x = 0;
-			}
-
-			if ( y >= this.pages[x].length ) {
-				y = this.pages[x].length - 1;
-			} else if ( y < 0 ) {
-				y = 0;
-			}
-
-			var posX = this.pages[x][y].x,
-				posY = this.pages[x][y].y;
-
-			time = time === undefined ? this.options.snapSpeed || Math.max(
-				Math.max(
-					Math.min(Math.abs(posX - this.x), 1000),
-					Math.min(Math.abs(posY - this.y), 1000)
-				), 300) : time;
-
-			this.currentPage = {
-				x: posX,
-				y: posY,
-				pageX: x,
-				pageY: y
-			};
-
-			this.scrollTo(posX, posY, time, easing);
-		},
-
-		next: function (time, easing) {
-			var x = this.currentPage.pageX,
-				y = this.currentPage.pageY;
-
-			x++;
-
-			if ( x >= this.pages.length && this.hasVerticalScroll ) {
-				x = 0;
-				y++;
-			}
-
-			this.goToPage(x, y, time, easing);
-		},
-
-		prev: function (time, easing) {
-			var x = this.currentPage.pageX,
-				y = this.currentPage.pageY;
-
-			x--;
-
-			if ( x < 0 && this.hasVerticalScroll ) {
-				x = 0;
-				y--;
-			}
-
-			this.goToPage(x, y, time, easing);
-		},
-
-		_initKeys: function (e) {
-			// default key bindings
-			var keys = {
-				pageUp: 33,
-				pageDown: 34,
-				end: 35,
-				home: 36,
-				left: 37,
-				up: 38,
-				right: 39,
-				down: 40
-			};
-			var i;
-
-			// if you give me characters I give you keycode
-			if ( typeof this.options.keyBindings == 'object' ) {
-				for ( i in this.options.keyBindings ) {
-					if ( typeof this.options.keyBindings[i] == 'string' ) {
-						this.options.keyBindings[i] = this.options.keyBindings[i].toUpperCase().charCodeAt(0);
-					}
-				}
-			} else {
-				this.options.keyBindings = {};
-			}
-
-			for ( i in keys ) {
-				this.options.keyBindings[i] = this.options.keyBindings[i] || keys[i];
-			}
-
-			utils.addEvent(window, 'keydown', this);
-
-			this.on('destroy', function () {
-				utils.removeEvent(window, 'keydown', this);
-			});
-		},
-
-		_key: function (e) {
-			if ( !this.enabled ) {
-				return;
-			}
-
-			var snap = this.options.snap,	// we are using this alot, better to cache it
-				newX = snap ? this.currentPage.pageX : this.x,
-				newY = snap ? this.currentPage.pageY : this.y,
-				now = utils.getTime(),
-				prevTime = this.keyTime || 0,
-				acceleration = 0.250,
-				pos;
-
-			if ( this.options.useTransition && this.isInTransition ) {
-				pos = this.getComputedPosition();
-
-				this._translate(Math.round(pos.x), Math.round(pos.y));
-				this.isInTransition = false;
-			}
-
-			this.keyAcceleration = now - prevTime < 200 ? Math.min(this.keyAcceleration + acceleration, 50) : 0;
-
-			switch ( e.keyCode ) {
-				case this.options.keyBindings.pageUp:
-					if ( this.hasHorizontalScroll && !this.hasVerticalScroll ) {
-						newX += snap ? 1 : this.wrapperWidth;
-					} else {
-						newY += snap ? 1 : this.wrapperHeight;
-					}
-					break;
-				case this.options.keyBindings.pageDown:
-					if ( this.hasHorizontalScroll && !this.hasVerticalScroll ) {
-						newX -= snap ? 1 : this.wrapperWidth;
-					} else {
-						newY -= snap ? 1 : this.wrapperHeight;
-					}
-					break;
-				case this.options.keyBindings.end:
-					newX = snap ? this.pages.length-1 : this.maxScrollX;
-					newY = snap ? this.pages[0].length-1 : this.maxScrollY;
-					break;
-				case this.options.keyBindings.home:
-					newX = 0;
-					newY = 0;
-					break;
-				case this.options.keyBindings.left:
-					newX += snap ? -1 : 5 + this.keyAcceleration>>0;
-					break;
-				case this.options.keyBindings.up:
-					newY += snap ? 1 : 5 + this.keyAcceleration>>0;
-					break;
-				case this.options.keyBindings.right:
-					newX -= snap ? -1 : 5 + this.keyAcceleration>>0;
-					break;
-				case this.options.keyBindings.down:
-					newY -= snap ? 1 : 5 + this.keyAcceleration>>0;
-					break;
-				default:
-					return;
-			}
-
-			if ( snap ) {
-				this.goToPage(newX, newY);
-				return;
-			}
-
-			if ( newX > 0 ) {
-				newX = 0;
-				this.keyAcceleration = 0;
-			} else if ( newX < this.maxScrollX ) {
-				newX = this.maxScrollX;
-				this.keyAcceleration = 0;
-			}
-
-			if ( newY > 0 ) {
-				newY = 0;
-				this.keyAcceleration = 0;
-			} else if ( newY < this.maxScrollY ) {
-				newY = this.maxScrollY;
-				this.keyAcceleration = 0;
-			}
-
-			this.scrollTo(newX, newY, 0);
-
-			this.keyTime = now;
-		},
-
-		_animate: function (destX, destY, duration, easingFn) {
-			var that = this,
-				startX = this.x,
-				startY = this.y,
-				startTime = utils.getTime(),
-				destTime = startTime + duration;
-
-			function step () {
-				var now = utils.getTime(),
-					newX, newY,
-					easing;
-
-				if ( now >= destTime ) {
-					that.isAnimating = false;
-					that._translate(destX, destY);
-					
-					if ( !that.resetPosition(that.options.bounceTime) ) {
-						that._execEvent('scrollEnd');
-					}
-
-					return;
-				}
-
-				now = ( now - startTime ) / duration;
-				easing = easingFn(now);
-				newX = ( destX - startX ) * easing + startX;
-				newY = ( destY - startY ) * easing + startY;
-				that._translate(newX, newY);
-
-				if ( that.isAnimating ) {
-					rAF(step);
-				}
-
-				if ( that.options.probeType == 3 ) {
-					that._execEvent('scroll');
-				}
-			}
-
-			this.isAnimating = true;
-			step();
-		},
-
-		handleEvent: function (e) {
-			switch ( e.type ) {
-				case 'touchstart':
-				case 'pointerdown':
-				case 'MSPointerDown':
-				case 'mousedown':
-					this._start(e);
-					break;
-				case 'touchmove':
-				case 'pointermove':
-				case 'MSPointerMove':
-				case 'mousemove':
-					this._move(e);
-					break;
-				case 'touchend':
-				case 'pointerup':
-				case 'MSPointerUp':
-				case 'mouseup':
-				case 'touchcancel':
-				case 'pointercancel':
-				case 'MSPointerCancel':
-				case 'mousecancel':
-					this._end(e);
-					break;
-				case 'orientationchange':
-				case 'resize':
-					this._resize();
-					break;
-				case 'transitionend':
-				case 'webkitTransitionEnd':
-				case 'oTransitionEnd':
-				case 'MSTransitionEnd':
-					this._transitionEnd(e);
-					break;
-				case 'wheel':
-				case 'DOMMouseScroll':
-				case 'mousewheel':
-					this._wheel(e);
-					break;
-				case 'keydown':
-					this._key(e);
-					break;
-				case 'click':
-					if ( !e._constructed ) {
-						e.preventDefault();
-						e.stopPropagation();
-					}
-					break;
-			}
-		}
-	};
-	function createDefaultScrollbar (direction, interactive, type) {
-		var scrollbar = document.createElement('div'),
-			indicator = document.createElement('div');
-
-		if ( type === true ) {
-			scrollbar.style.cssText = 'position:absolute;z-index:9999';
-			indicator.style.cssText = '-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;position:absolute;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.9);border-radius:3px';
-		}
-
-		indicator.className = 'iScrollIndicator';
-
-		if ( direction == 'h' ) {
-			if ( type === true ) {
-				scrollbar.style.cssText += ';height:7px;left:2px;right:2px;bottom:0';
-				indicator.style.height = '100%';
-			}
-			scrollbar.className = 'iScrollHorizontalScrollbar';
-		} else {
-			if ( type === true ) {
-				scrollbar.style.cssText += ';width:7px;bottom:2px;top:2px;right:1px';
-				indicator.style.width = '100%';
-			}
-			scrollbar.className = 'iScrollVerticalScrollbar';
-		}
-
-		scrollbar.style.cssText += ';overflow:hidden';
-
-		if ( !interactive ) {
-			scrollbar.style.pointerEvents = 'none';
-		}
-
-		scrollbar.appendChild(indicator);
-
-		return scrollbar;
-	}
-
-	function Indicator (scroller, options) {
-		this.wrapper = typeof options.el == 'string' ? document.querySelector(options.el) : options.el;
-		this.wrapperStyle = this.wrapper.style;
-		this.indicator = this.wrapper.children[0];
-		this.indicatorStyle = this.indicator.style;
-		this.scroller = scroller;
-
-		this.options = {
-			listenX: true,
-			listenY: true,
-			interactive: false,
-			resize: true,
-			defaultScrollbars: false,
-			shrink: false,
-			fade: false,
-			speedRatioX: 0,
-			speedRatioY: 0
-		};
-
-		for ( var i in options ) {
-			this.options[i] = options[i];
-		}
-
-		this.sizeRatioX = 1;
-		this.sizeRatioY = 1;
-		this.maxPosX = 0;
-		this.maxPosY = 0;
-
-		if ( this.options.interactive ) {
-			if ( !this.options.disableTouch ) {
-				utils.addEvent(this.indicator, 'touchstart', this);
-				utils.addEvent(window, 'touchend', this);
-			}
-			if ( !this.options.disablePointer ) {
-				utils.addEvent(this.indicator, utils.prefixPointerEvent('pointerdown'), this);
-				utils.addEvent(window, utils.prefixPointerEvent('pointerup'), this);
-			}
-			if ( !this.options.disableMouse ) {
-				utils.addEvent(this.indicator, 'mousedown', this);
-				utils.addEvent(window, 'mouseup', this);
-			}
-		}
-
-		if ( this.options.fade ) {
-			this.wrapperStyle[utils.style.transform] = this.scroller.translateZ;
-			this.wrapperStyle[utils.style.transitionDuration] = utils.isBadAndroid ? '0.001s' : '0ms';
-			this.wrapperStyle.opacity = '0';
-		}
-	}
-
-	Indicator.prototype = {
-		handleEvent: function (e) {
-			switch ( e.type ) {
-				case 'touchstart':
-				case 'pointerdown':
-				case 'MSPointerDown':
-				case 'mousedown':
-					this._start(e);
-					break;
-				case 'touchmove':
-				case 'pointermove':
-				case 'MSPointerMove':
-				case 'mousemove':
-					this._move(e);
-					break;
-				case 'touchend':
-				case 'pointerup':
-				case 'MSPointerUp':
-				case 'mouseup':
-				case 'touchcancel':
-				case 'pointercancel':
-				case 'MSPointerCancel':
-				case 'mousecancel':
-					this._end(e);
-					break;
-			}
-		},
-
-		destroy: function () {
-			if ( this.options.interactive ) {
-				utils.removeEvent(this.indicator, 'touchstart', this);
-				utils.removeEvent(this.indicator, utils.prefixPointerEvent('pointerdown'), this);
-				utils.removeEvent(this.indicator, 'mousedown', this);
-
-				utils.removeEvent(window, 'touchmove', this);
-				utils.removeEvent(window, utils.prefixPointerEvent('pointermove'), this);
-				utils.removeEvent(window, 'mousemove', this);
-
-				utils.removeEvent(window, 'touchend', this);
-				utils.removeEvent(window, utils.prefixPointerEvent('pointerup'), this);
-				utils.removeEvent(window, 'mouseup', this);
-			}
-
-			if ( this.options.defaultScrollbars ) {
-				this.wrapper.parentNode.removeChild(this.wrapper);
-			}
-		},
-
-		_start: function (e) {
-			var point = e.touches ? e.touches[0] : e;
-
-			e.preventDefault();
-			e.stopPropagation();
-
-			this.transitionTime();
-
-			this.initiated = true;
-			this.moved = false;
-			this.lastPointX	= point.pageX;
-			this.lastPointY	= point.pageY;
-
-			this.startTime	= utils.getTime();
-
-			if ( !this.options.disableTouch ) {
-				utils.addEvent(window, 'touchmove', this);
-			}
-			if ( !this.options.disablePointer ) {
-				utils.addEvent(window, utils.prefixPointerEvent('pointermove'), this);
-			}
-			if ( !this.options.disableMouse ) {
-				utils.addEvent(window, 'mousemove', this);
-			}
-
-			this.scroller._execEvent('beforeScrollStart');
-		},
-
-		_move: function (e) {
-			var point = e.touches ? e.touches[0] : e,
-				deltaX, deltaY,
-				newX, newY,
-				timestamp = utils.getTime();
-
-			if ( !this.moved ) {
-				this.scroller._execEvent('scrollStart');
-			}
-
-			this.moved = true;
-
-			deltaX = point.pageX - this.lastPointX;
-			this.lastPointX = point.pageX;
-
-			deltaY = point.pageY - this.lastPointY;
-			this.lastPointY = point.pageY;
-
-			newX = this.x + deltaX;
-			newY = this.y + deltaY;
-
-			this._pos(newX, newY);
-
-
-			if ( this.scroller.options.probeType == 1 && timestamp - this.startTime > 300 ) {
-				this.startTime = timestamp;
-				this.scroller._execEvent('scroll');
-			} else if ( this.scroller.options.probeType > 1 ) {
-				this.scroller._execEvent('scroll');
-			}
-
-
-	// INSERT POINT: indicator._move
-
-			e.preventDefault();
-			e.stopPropagation();
-		},
-
-		_end: function (e) {
-			if ( !this.initiated ) {
-				return;
-			}
-
-			this.initiated = false;
-
-			e.preventDefault();
-			e.stopPropagation();
-
-			utils.removeEvent(window, 'touchmove', this);
-			utils.removeEvent(window, utils.prefixPointerEvent('pointermove'), this);
-			utils.removeEvent(window, 'mousemove', this);
-
-			if ( this.scroller.options.snap ) {
-				var snap = this.scroller._nearestSnap(this.scroller.x, this.scroller.y);
-
-				var time = this.options.snapSpeed || Math.max(
-						Math.max(
-							Math.min(Math.abs(this.scroller.x - snap.x), 1000),
-							Math.min(Math.abs(this.scroller.y - snap.y), 1000)
-						), 300);
-
-				if ( this.scroller.x != snap.x || this.scroller.y != snap.y ) {
-					this.scroller.directionX = 0;
-					this.scroller.directionY = 0;
-					this.scroller.currentPage = snap;
-					this.scroller.scrollTo(snap.x, snap.y, time, this.scroller.options.bounceEasing);
-				}
-			}
-
-			if ( this.moved ) {
-				this.scroller._execEvent('scrollEnd');
-			}
-		},
-
-		transitionTime: function (time) {
-			time = time || 0;
-			this.indicatorStyle[utils.style.transitionDuration] = time + 'ms';
-
-			if ( !time && utils.isBadAndroid ) {
-				this.indicatorStyle[utils.style.transitionDuration] = '0.001s';
-			}
-		},
-
-		transitionTimingFunction: function (easing) {
-			this.indicatorStyle[utils.style.transitionTimingFunction] = easing;
-		},
-
-		refresh: function () {
-			this.transitionTime();
-
-			if ( this.options.listenX && !this.options.listenY ) {
-				this.indicatorStyle.display = this.scroller.hasHorizontalScroll ? 'block' : 'none';
-			} else if ( this.options.listenY && !this.options.listenX ) {
-				this.indicatorStyle.display = this.scroller.hasVerticalScroll ? 'block' : 'none';
-			} else {
-				this.indicatorStyle.display = this.scroller.hasHorizontalScroll || this.scroller.hasVerticalScroll ? 'block' : 'none';
-			}
-
-			if ( this.scroller.hasHorizontalScroll && this.scroller.hasVerticalScroll ) {
-				utils.addClass(this.wrapper, 'iScrollBothScrollbars');
-				utils.removeClass(this.wrapper, 'iScrollLoneScrollbar');
-
-				if ( this.options.defaultScrollbars && this.options.customStyle ) {
-					if ( this.options.listenX ) {
-						this.wrapper.style.right = '8px';
-					} else {
-						this.wrapper.style.bottom = '8px';
-					}
-				}
-			} else {
-				utils.removeClass(this.wrapper, 'iScrollBothScrollbars');
-				utils.addClass(this.wrapper, 'iScrollLoneScrollbar');
-
-				if ( this.options.defaultScrollbars && this.options.customStyle ) {
-					if ( this.options.listenX ) {
-						this.wrapper.style.right = '2px';
-					} else {
-						this.wrapper.style.bottom = '2px';
-					}
-				}
-			}
-
-			var r = this.wrapper.offsetHeight;	// force refresh
-
-			if ( this.options.listenX ) {
-				this.wrapperWidth = this.wrapper.clientWidth;
-				if ( this.options.resize ) {
-					this.indicatorWidth = Math.max(Math.round(this.wrapperWidth * this.wrapperWidth / (this.scroller.scrollerWidth || this.wrapperWidth || 1)), 8);
-					this.indicatorStyle.width = this.indicatorWidth + 'px';
-				} else {
-					this.indicatorWidth = this.indicator.clientWidth;
-				}
-
-				this.maxPosX = this.wrapperWidth - this.indicatorWidth;
-
-				if ( this.options.shrink == 'clip' ) {
-					this.minBoundaryX = -this.indicatorWidth + 8;
-					this.maxBoundaryX = this.wrapperWidth - 8;
-				} else {
-					this.minBoundaryX = 0;
-					this.maxBoundaryX = this.maxPosX;
-				}
-
-				this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));	
-			}
-
-			if ( this.options.listenY ) {
-				this.wrapperHeight = this.wrapper.clientHeight;
-				if ( this.options.resize ) {
-					this.indicatorHeight = Math.max(Math.round(this.wrapperHeight * this.wrapperHeight / (this.scroller.scrollerHeight || this.wrapperHeight || 1)), 8);
-					this.indicatorStyle.height = this.indicatorHeight + 'px';
-				} else {
-					this.indicatorHeight = this.indicator.clientHeight;
-				}
-
-				this.maxPosY = this.wrapperHeight - this.indicatorHeight;
-
-				if ( this.options.shrink == 'clip' ) {
-					this.minBoundaryY = -this.indicatorHeight + 8;
-					this.maxBoundaryY = this.wrapperHeight - 8;
-				} else {
-					this.minBoundaryY = 0;
-					this.maxBoundaryY = this.maxPosY;
-				}
-
-				this.maxPosY = this.wrapperHeight - this.indicatorHeight;
-				this.sizeRatioY = this.options.speedRatioY || (this.scroller.maxScrollY && (this.maxPosY / this.scroller.maxScrollY));
-			}
-
-			this.updatePosition();
-		},
-
-		updatePosition: function () {
-			var x = this.options.listenX && Math.round(this.sizeRatioX * this.scroller.x) || 0,
-				y = this.options.listenY && Math.round(this.sizeRatioY * this.scroller.y) || 0;
-
-			if ( !this.options.ignoreBoundaries ) {
-				if ( x < this.minBoundaryX ) {
-					if ( this.options.shrink == 'scale' ) {
-						this.width = Math.max(this.indicatorWidth + x, 8);
-						this.indicatorStyle.width = this.width + 'px';
-					}
-					x = this.minBoundaryX;
-				} else if ( x > this.maxBoundaryX ) {
-					if ( this.options.shrink == 'scale' ) {
-						this.width = Math.max(this.indicatorWidth - (x - this.maxPosX), 8);
-						this.indicatorStyle.width = this.width + 'px';
-						x = this.maxPosX + this.indicatorWidth - this.width;
-					} else {
-						x = this.maxBoundaryX;
-					}
-				} else if ( this.options.shrink == 'scale' && this.width != this.indicatorWidth ) {
-					this.width = this.indicatorWidth;
-					this.indicatorStyle.width = this.width + 'px';
-				}
-
-				if ( y < this.minBoundaryY ) {
-					if ( this.options.shrink == 'scale' ) {
-						this.height = Math.max(this.indicatorHeight + y * 3, 8);
-						this.indicatorStyle.height = this.height + 'px';
-					}
-					y = this.minBoundaryY;
-				} else if ( y > this.maxBoundaryY ) {
-					if ( this.options.shrink == 'scale' ) {
-						this.height = Math.max(this.indicatorHeight - (y - this.maxPosY) * 3, 8);
-						this.indicatorStyle.height = this.height + 'px';
-						y = this.maxPosY + this.indicatorHeight - this.height;
-					} else {
-						y = this.maxBoundaryY;
-					}
-				} else if ( this.options.shrink == 'scale' && this.height != this.indicatorHeight ) {
-					this.height = this.indicatorHeight;
-					this.indicatorStyle.height = this.height + 'px';
-				}
-			}
-
-			this.x = x;
-			this.y = y;
-
-			if ( this.scroller.options.useTransform ) {
-				this.indicatorStyle[utils.style.transform] = 'translate(' + x + 'px,' + y + 'px)' + this.scroller.translateZ;
-			} else {
-				this.indicatorStyle.left = x + 'px';
-				this.indicatorStyle.top = y + 'px';
-			}
-		},
-
-		_pos: function (x, y) {
-			if ( x < 0 ) {
-				x = 0;
-			} else if ( x > this.maxPosX ) {
-				x = this.maxPosX;
-			}
-
-			if ( y < 0 ) {
-				y = 0;
-			} else if ( y > this.maxPosY ) {
-				y = this.maxPosY;
-			}
-
-			x = this.options.listenX ? Math.round(x / this.sizeRatioX) : this.scroller.x;
-			y = this.options.listenY ? Math.round(y / this.sizeRatioY) : this.scroller.y;
-
-			this.scroller.scrollTo(x, y);
-		},
-
-		fade: function (val, hold) {
-			if ( hold && !this.visible ) {
-				return;
-			}
-
-			clearTimeout(this.fadeTimeout);
-			this.fadeTimeout = null;
-
-			var time = val ? 250 : 500,
-				delay = val ? 0 : 300;
-
-			val = val ? '1' : '0';
-
-			this.wrapperStyle[utils.style.transitionDuration] = time + 'ms';
-
-			this.fadeTimeout = setTimeout((function (val) {
-				this.wrapperStyle.opacity = val;
-				this.visible = +val;
-			}).bind(this, val), delay);
-		}
-	};
-
-	IScroll.utils = utils;
-
-	if ( typeof module != 'undefined' && module.exports ) {
-		module.exports = IScroll;
-	} else {
-		window.IScroll = IScroll;
-	}
-
-	})(window, document, Math);
 
 /***/ }
 /******/ ]);

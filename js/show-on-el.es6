@@ -21,6 +21,8 @@ class ShowOnEl {
       x: el.x+75, y: el.y+75,
       radius: {0:this.size},
       isRunLess: true,
+      onStart:() => {this.openSound.play();},
+      onComplete: () => { this.openSound2.play(); },
       childOptions: {
         radius: {
           15: 0
