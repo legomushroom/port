@@ -33,6 +33,7 @@ class Main {
     this.openSound2 = new Howl({
       urls: ['sounds/open-bubble-3.wav'], rate: .15
     });
+    this.bounceSound = new Howl({ urls: ['sounds/bounce-2.wav'] });
 
     this.particleRadius = getComputedStyle(this.particles[0]).width;
     this.particleRadius = parseInt(this.particleRadius, 10)/2;

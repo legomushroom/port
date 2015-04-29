@@ -8,6 +8,7 @@ body {
   -ms-user-select: none;
   user-select: none;
   overflow: hidden;
+  font-family: Open Sans, sans-serif;
 }
 .badge {
   position: fixed;
@@ -71,15 +72,37 @@ body {
 }
 .particle__content {
   position: absolute;
-  background: #ccc;
-  width: 30rem;
-  height: 30rem;
-  height: 20rem;
+  width: 33.75rem;
+  height: 33.75rem;
+  height: 26.25rem;
   display: none;
   top: 50%;
   left: 50%;
-  margin-left: -15rem;
-  margin-top: -10rem;
+  margin-left: -16.875rem;
+  margin-top: -13.125rem;
+}
+.particle__content.is-show {
+  display: block;
+}
+.project {
+  color: #fff;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.project__text,
+.project__img {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+}
+.project__text {
+  line-height: 1.5;
+  text-align: left;
+  left: 55%;
+  margin-top: 3.75rem;
+  width: 40%;
+  opacity: 0;
 }
 .close {
   position: fixed;
@@ -101,4 +124,268 @@ body {
   opacity: 1;
   left: 75%;
   z-index: 10;
+}
+.image {
+  -webkit-perspective: 800px;
+  -ms-perspective: 800px;
+  perspective: 800px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  font-size: 100%;
+}
+.scene,
+.shape,
+.face,
+.face-wrapper,
+.cr {
+  position: absolute;
+  -webkit-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+.shape {
+  opacity: 0;
+}
+.scene {
+  width: 80em;
+  height: 80em;
+  top: 50%;
+  left: 50%;
+  margin: -40em 0 0 -40em;
+  -webkit-transform: rotateX(90deg);
+  -ms-transform: rotateX(90deg);
+  transform: rotateX(90deg);
+}
+.cub-1 .ft .photon-shader,
+.cub-1 .bk .photon-shader,
+.cub-1 .bm .photon-shader {
+  background-color: #fff;
+}
+.cub-1 .ft .photon-shader,
+.cub-1 .bk .photon-shader,
+.cub-1 .rt .photon-shader,
+.cub-1 .lt .photon-shader {
+  background-color: #ccc;
+}
+.cub-1 .bm .photon-shader {
+  background: url("https://d13yacurqjgara.cloudfront.net/users/132971/screenshots/2031514/refraction.jpg") no-repeat center center;
+  background-size: 100% 100%;
+}
+.cub-1 .cr .photon-shader {
+  background-color: #ccc;
+}
+.shape {
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  -webkit-transform-origin: 50%;
+  -ms-transform-origin: 50%;
+  transform-origin: 50%;
+}
+.face,
+.face-wrapper {
+  overflow: hidden;
+  -webkit-transform-origin: 0 0;
+  -ms-transform-origin: 0 0;
+  transform-origin: 0 0;
+  -webkit-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  backface-visibility: hidden;
+/* hidden by default, prevent blinking and other weird rendering glitchs */
+}
+.face {
+  background-size: 100% 100% !important;
+  background-position: center;
+}
+.face-wrapper .face {
+  left: 100%;
+  width: 100%;
+  height: 100%;
+}
+.photon-shader {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+.side {
+  left: 50%;
+}
+.cr,
+.cr .side {
+  height: 100%;
+}
+[class*="cuboid"] .ft,
+[class*="cuboid"] .bk {
+  width: 100%;
+  height: 100%;
+}
+[class*="cuboid"] .bk {
+  left: 100%;
+}
+[class*="cuboid"] .rt {
+  -webkit-transform: rotateY(-90deg) translateX(-50%);
+  -ms-transform: rotateY(-90deg) translateX(-50%);
+  transform: rotateY(-90deg) translateX(-50%);
+}
+[class*="cuboid"] .lt {
+  -webkit-transform: rotateY(90deg) translateX(-50%);
+  -ms-transform: rotateY(90deg) translateX(-50%);
+  transform: rotateY(90deg) translateX(-50%);
+}
+[class*="cuboid"] .tp {
+  -webkit-transform: rotateX(90deg) translateY(-50%);
+  -ms-transform: rotateX(90deg) translateY(-50%);
+  transform: rotateX(90deg) translateY(-50%);
+}
+[class*="cuboid"] .bm {
+  -webkit-transform: rotateX(-90deg) translateY(-50%);
+  -ms-transform: rotateX(-90deg) translateY(-50%);
+  transform: rotateX(-90deg) translateY(-50%);
+}
+[class*="cuboid"] .lt {
+  left: 100%;
+}
+[class*="cuboid"] .bm {
+  top: 100%;
+}
+.cub-1 {
+  -webkit-transform: translate3D(0em, 0em, 0em) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  -ms-transform: translate3D(0em, 0em, 0em) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  transform: translate3D(0em, 0em, 0em) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  width: 16em;
+  height: 1em;
+  margin: -0.5em 0 0 -8em;
+}
+.cub-1 .ft {
+  -webkit-transform: translateZ(6em);
+  -ms-transform: translateZ(6em);
+  transform: translateZ(6em);
+}
+.cub-1 .bk {
+  -webkit-transform: translateZ(-6em) rotateY(180deg);
+  -ms-transform: translateZ(-6em) rotateY(180deg);
+  transform: translateZ(-6em) rotateY(180deg);
+}
+.cub-1 .rt,
+.cub-1 .lt {
+  width: 12em;
+  height: 1em;
+}
+.cub-1 .tp,
+.cub-1 .bm {
+  width: 16em;
+  height: 12em;
+}
+.cub-1 .face {
+  background-color: #fff;
+}
+.cub-1 .ft {
+  width: 14em;
+  margin-left: 1em;
+}
+.cub-1 .bk {
+  width: 14em;
+  margin-left: -1em;
+}
+.cub-1 .rt,
+.cub-1 .lt {
+  width: 10em;
+}
+.cub-1 .tp,
+.cub-1 .bm,
+.cub-1 .tp .photon-shader,
+.cub-1 .bm .photon-shader {
+  border-radius: 1em;
+}
+.cub-1 .cr {
+  width: 1em;
+  left: 0.5em;
+}
+.cub-1 .cr-0 {
+  -webkit-transform: translate3D(14em, 0, 5em);
+  -ms-transform: translate3D(14em, 0, 5em);
+  transform: translate3D(14em, 0, 5em);
+}
+.cub-1 .cr-1 {
+  -webkit-transform: translate3D(14em, 0, -5em);
+  -ms-transform: translate3D(14em, 0, -5em);
+  transform: translate3D(14em, 0, -5em);
+}
+.cub-1 .cr-2 {
+  -webkit-transform: translate3D(0, 0, -5em);
+  -ms-transform: translate3D(0, 0, -5em);
+  transform: translate3D(0, 0, -5em);
+}
+.cub-1 .cr-3 {
+  -webkit-transform: translate3D(0, 0, 5em);
+  -ms-transform: translate3D(0, 0, 5em);
+  transform: translate3D(0, 0, 5em);
+}
+.cub-1 .cr-0 .s0 {
+  -webkit-transform: rotateY(15deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(15deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(15deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .cr-0 .s1 {
+  -webkit-transform: rotateY(45deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(45deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(45deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .cr-0 .s2 {
+  -webkit-transform: rotateY(75deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(75deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(75deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .cr-1 .s0 {
+  -webkit-transform: rotateY(105deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(105deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(105deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .cr-1 .s1 {
+  -webkit-transform: rotateY(135deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(135deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(135deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .cr-1 .s2 {
+  -webkit-transform: rotateY(165deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(165deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(165deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .cr-2 .s0 {
+  -webkit-transform: rotateY(195deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(195deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(195deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .cr-2 .s1 {
+  -webkit-transform: rotateY(225deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(225deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(225deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .cr-2 .s2 {
+  -webkit-transform: rotateY(255deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(255deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(255deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .cr-3 .s0 {
+  -webkit-transform: rotateY(285deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(285deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(285deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .cr-3 .s1 {
+  -webkit-transform: rotateY(315deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(315deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(315deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .cr-3 .s2 {
+  -webkit-transform: rotateY(345deg) translate3D(-50%, 0, 0.975em);
+  -ms-transform: rotateY(345deg) translate3D(-50%, 0, 0.975em);
+  transform: rotateY(345deg) translate3D(-50%, 0, 0.975em);
+}
+.cub-1 .side {
+  width: 0.560898384862245em;
 }

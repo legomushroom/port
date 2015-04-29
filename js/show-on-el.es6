@@ -1,4 +1,7 @@
-var mojs      = require('../js/vendor/mo')
+var mojs      = require('../js/vendor/mo');
+var ShowInner = require('./show-inner');
+
+var showInnerModule = new ShowInner;
 
 class ShowOnEl {
   show (el) {
@@ -56,13 +59,13 @@ class ShowOnEl {
       onUpdate: (p)=> {
         var scaleSize = 15*mojs.easing.cubic.in(p)
         scaleSize = Math.max(.75, scaleSize)
-        var scale = `scale(${scaleSize}) translateZ(0)`,
-            contentScale = `scale(${1/scaleSize}) translateZ(0)`;
+        var scale = `scale(${scaleSize}) translateZ(0)`;
+            // contentScale = `scale(${1/scaleSize}) translateZ(0)`;
         mojs.h.setPrefixedStyle(innerEl, 'transform', scale);
-        mojs.h.setPrefixedStyle(contentEl, 'transform', contentScale);
+        // mojs.h.setPrefixedStyle(contentEl, 'transform', contentScale);
         innerEl.style.opacity = .75 + .25*mojs.easing.cubic.out(p)
       },
-      onComplete:()=> { this.closeBtn.classList.add('is-show'); }
+      onComplete:()=> { showInnerModule.showInner.apply(this, [el]); }
     });
     
     tween.add(scaleDownTween, soundTimeline, blobTimeline, scaleUpTimeline);

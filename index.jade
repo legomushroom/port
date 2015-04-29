@@ -5,6 +5,52 @@ html
     title port
     link(rel="stylesheet", type="text/css", href="css/main.css")
     meta(name="viewport", content="width=320px, height=320px, initial-scale=1,   user-scalable=no")
+
+  mixin img()
+    .image
+      .scene
+        .shape.cuboid-1.cub-1
+          .face.ft
+            .photon-shader
+          .face.bk
+            .photon-shader
+          .face.rt
+            .photon-shader
+          .face.lt
+            .photon-shader
+          .face.bm
+            .photon-shader
+          .face.tp
+            .photon-shader
+          .cr.cr-0
+            .face.side.s0
+              .photon-shader  
+            .face.side.s1
+              .photon-shader
+            .face.side.s2
+              .photon-shader
+          .cr.cr-1
+            .face.side.s0
+              .photon-shader
+            .face.side.s1
+              .photon-shader
+            .face.side.s2
+              .photon-shader
+          .cr.cr-2
+            .face.side.s0
+              .photon-shader
+            .face.side.s1
+              .photon-shader
+            .face.side.s2
+              .photon-shader
+          .cr.cr-3
+            .face.side.s0
+              .photon-shader
+            .face.side.s1
+              .photon-shader
+            .face.side.s2
+              .photon-shader
+
   
   - var colors = ['#FC2D79', '#FC2D79',  '#11CDC5', '#FCB635', '#f1f1f1', '#4A90E2']
   - var size = 150, gap = 25;
@@ -27,10 +73,17 @@ html
                              data-left="#{left}", data-top="#{top}"
                              style="left: #{left}px; top: #{top}px" )
                 .particle__inner(style="background: #{color}")
-                  .particle__content
-                    .project
-                      .project__img
-                      .project__ext
+                .particle__content
+                  .project
+                    .project__img
+                      +img()
+                    .project__text
+                      h3 Some random
+                      p  It if sometimes furnished unwilling as
+                        | additions so. Blessing resolved peculiar
+                        | fat graceful ham. Sussex on at really ladies
+                        | in as elinor. 
+
 
 
 
