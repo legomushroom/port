@@ -5,13 +5,22 @@ var Events    = require('./events')
 var ShowOnEl  = require('./show-on-el')
 
 var Howl      = require('howler').Howl
-
 var showOnElModule = new ShowOnEl;
+
+var ShowInner = require('./show-inner');
+
+
 
 class Main {
   constructor(o) {
     this.vars(); this.initContainer()
     this.draw(); this.events()
+    
+    setTimeout(()=>{
+      var showInnerModule = new ShowInner;
+      var el = document.querySelector('.particle.is-open');
+      showInnerModule.showInner(el, this);
+    }, 10000)
   }
   events ()    { (new Events).add.call(this) }
   showOnEl(el) { showOnElModule.show.apply(this, [el]) }
@@ -33,7 +42,7 @@ class Main {
     this.openSound2 = new Howl({
       urls: ['sounds/open-bubble-3.wav'], rate: .15
     });
-    this.bounceSound = new Howl({ urls: ['sounds/bounce-2.wav'] });
+    this.bounceSound = new Howl({ urls: ['sounds/bounce-21.wav'] });
 
     this.particleRadius = getComputedStyle(this.particles[0]).width;
     this.particleRadius = parseInt(this.particleRadius, 10)/2;

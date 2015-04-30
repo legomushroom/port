@@ -62,22 +62,32 @@
 	  return obj && (obj["default"] || obj);
 	};
 
-	var _core = _interopRequire(__webpack_require__(6));
+	var _core = _interopRequire(__webpack_require__(7));
 
-	var Impulse = __webpack_require__(7);
+	var Impulse = __webpack_require__(8);
 	var mojs = __webpack_require__(2);
 	var Iscroll = __webpack_require__(3);
 	var Events = __webpack_require__(4);
 	var ShowOnEl = __webpack_require__(5);
 
-	var Howl = __webpack_require__(8).Howl;
-
+	var Howl = __webpack_require__(9).Howl;
 	var showOnElModule = new ShowOnEl();
+
+	var ShowInner = __webpack_require__(6);
+
+
 
 	var Main = (function () {
 	  function Main(o) {
+	    var _this = this;
 	    this.vars();this.initContainer();
 	    this.draw();this.events();
+
+	    setTimeout(function () {
+	      var showInnerModule = new ShowInner();
+	      var el = document.querySelector(".particle.is-open");
+	      showInnerModule.showInner(el, _this);
+	    }, 10000);
 	  }
 
 	  _prototypeProperties(Main, null, {
@@ -119,7 +129,7 @@
 	        this.openSound2 = new Howl({
 	          urls: ["sounds/open-bubble-3.wav"], rate: 0.15
 	        });
-	        this.bounceSound = new Howl({ urls: ["sounds/bounce-2.wav"] });
+	        this.bounceSound = new Howl({ urls: ["sounds/bounce-21.wav"] });
 
 	        this.particleRadius = getComputedStyle(this.particles[0]).width;
 	        this.particleRadius = parseInt(this.particleRadius, 10) / 2;
@@ -218,9 +228,9 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var require;var require;/* WEBPACK VAR INJECTION */(function(global) {/*! 
-		:: mo · js :: motion graphics toolbelt for the web
-		Oleg Solomka @LegoMushroom 2015 MIT
-		0.114.4 
+	  :: mo · js :: motion graphics toolbelt for the web
+	  Oleg Solomka @LegoMushroom 2015 MIT
+	  0.116.1 
 	*/
 
 	(function(f){
@@ -744,15 +754,21 @@
 
 	module.exports = Burst;
 
-	},{"./h":4,"./shapes/bitsMap":10,"./swirl":19,"./transit":20,"./tween/tween":22}],3:[function(require,module,exports){
-	var Easing, bezier, easing;
+	},{"./h":4,"./shapes/bitsMap":11,"./swirl":20,"./transit":21,"./tween/tween":23}],3:[function(require,module,exports){
+	var Easing, PathEasing, bezier, easing;
 
 	bezier = require('./bezier-easing');
+
+	PathEasing = require('./path-easing');
 
 	Easing = (function() {
 	  function Easing() {}
 
 	  Easing.prototype.bezier = bezier;
+
+	  Easing.prototype.PathEasing = PathEasing;
+
+	  Easing.prototype.path = (new PathEasing('creator')).create;
 
 	  Easing.prototype.linear = {
 	    none: function(k) {
@@ -893,10 +909,12 @@
 
 	module.exports = easing;
 
-	},{"./bezier-easing":1}],4:[function(require,module,exports){
+	},{"./bezier-easing":1,"./path-easing":7}],4:[function(require,module,exports){
 	var Helpers, h;
 
 	Helpers = (function() {
+	  Helpers.prototype.NS = 'http://www.w3.org/2000/svg';
+
 	  Helpers.prototype.logBadgeCss = 'background:#3A0839;color:#FF512F;border-radius:5px; padding: 1px 5px 2px; border: 1px solid #FF512F;';
 
 	  Helpers.prototype.shortColors = {
@@ -1419,6 +1437,22 @@
 	    return ++this.uniqIDs;
 	  };
 
+	  Helpers.prototype.parsePath = function(path) {
+	    var domPath;
+	    if (typeof path === 'string') {
+	      if (path.charAt(0).toLowerCase() === 'm') {
+	        domPath = document.createElementNS(this.NS, 'path');
+	        domPath.setAttributeNS(null, 'd', path);
+	        return domPath;
+	      } else {
+	        return document.querySelector(path);
+	      }
+	    }
+	    if (path.style) {
+	      return path;
+	    }
+	  };
+
 	  return Helpers;
 
 	})();
@@ -1431,7 +1465,7 @@
 	var mojs;
 
 	mojs = {
-	  revision: '0.114.4',
+	  revision: '0.116.1',
 	  isDebug: true,
 	  helpers: require('./h'),
 	  Bit: require('./shapes/bit'),
@@ -1470,7 +1504,7 @@
 
 	return typeof window !== "undefined" && window !== null ? window.mojs = mojs : void 0;
 
-	},{"./burst":2,"./easing":3,"./h":4,"./motion-path":6,"./shapes/bit":9,"./shapes/bitsMap":10,"./shapes/circle":11,"./shapes/cross":12,"./shapes/equal":13,"./shapes/line":14,"./shapes/polygon":15,"./shapes/rect":16,"./shapes/zigzag":17,"./stagger":18,"./swirl":19,"./transit":20,"./tween/timeline":21,"./tween/tween":22,"./tween/tweener":23}],6:[function(require,module,exports){
+	},{"./burst":2,"./easing":3,"./h":4,"./motion-path":6,"./shapes/bit":10,"./shapes/bitsMap":11,"./shapes/circle":12,"./shapes/cross":13,"./shapes/equal":14,"./shapes/line":15,"./shapes/polygon":16,"./shapes/rect":17,"./shapes/zigzag":18,"./stagger":19,"./swirl":20,"./transit":21,"./tween/timeline":22,"./tween/tween":23,"./tween/tweener":24}],6:[function(require,module,exports){
 	var MotionPath, Timeline, Tween, easing, h, resize,
 	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -1485,8 +1519,6 @@
 	Tween = require('./tween/tween');
 
 	MotionPath = (function() {
-	  MotionPath.prototype.NS = 'http://www.w3.org/2000/svg';
-
 	  MotionPath.prototype.defaults = {
 	    path: null,
 	    curvature: {
@@ -1511,7 +1543,8 @@
 	    isPresetPosition: true,
 	    onStart: null,
 	    onComplete: null,
-	    onUpdate: null
+	    onUpdate: null,
+	    onPosit: null
 	  };
 
 	  function MotionPath(o1) {
@@ -1537,7 +1570,7 @@
 
 	  MotionPath.prototype.curveToPath = function(o) {
 	    var angle, curvature, curvatureX, curvatureY, curvePoint, curveXPoint, dX, dY, endPoint, path, percent, radius, start;
-	    path = document.createElementNS(this.NS, 'path');
+	    path = document.createElementNS(h.NS, 'path');
 	    start = o.start;
 	    endPoint = {
 	      x: start.x + o.shift.x,
@@ -1646,17 +1679,9 @@
 
 	  MotionPath.prototype.getPath = function() {
 	    var path;
-	    if (typeof this.props.path === 'string') {
-	      if (this.props.path.charAt(0).toLowerCase() === 'm') {
-	        path = document.createElementNS(this.NS, 'path');
-	        path.setAttributeNS(null, 'd', this.props.path);
-	        return path;
-	      } else {
-	        return document.querySelector(this.props.path);
-	      }
-	    }
-	    if (this.props.path.style) {
-	      return this.props.path;
+	    path = h.parsePath(this.props.path);
+	    if (path) {
+	      return path;
 	    }
 	    if (this.props.path.x || this.props.path.y) {
 	      return this.curveToPath({
@@ -1815,7 +1840,7 @@
 	    if (this.isModule) {
 	      this.setModulePosition(x, y);
 	    } else {
-	      this.setElPosition(x, y);
+	      this.setElPosition(x, y, p);
 	    }
 	    if (this.props.transformOrigin) {
 	      tOrigin = !isTransformFunOrigin ? this.props.transformOrigin : this.props.transformOrigin(this.angle, p);
@@ -1825,10 +1850,9 @@
 	    return !isInit && (typeof this.onUpdate === "function" ? this.onUpdate(p) : void 0);
 	  };
 
-	  MotionPath.prototype.setElPosition = function(x, y) {
+	  MotionPath.prototype.setElPosition = function(x, y, p) {
 	    var rotate, transform;
-	    rotate = this.angle !== 0 ? "rotate(" + this.angle + "deg)" : '';
-	    transform = "translate(" + x + "px," + y + "px) " + rotate;
+	    transform = this.props.onPosit == null ? (rotate = this.angle !== 0 ? "rotate(" + this.angle + "deg)" : '', "translate(" + x + "px," + y + "px) " + rotate) : this.props.onPosit(p, x, y, this.angle);
 	    this.el.style[h.prefix.css + "transform"] = transform;
 	    return this.el.style['transform'] = transform;
 	  };
@@ -1980,7 +2004,70 @@
 
 	module.exports = MotionPath;
 
-	},{"./easing":3,"./h":4,"./tween/timeline":21,"./tween/tween":22,"./vendor/resize":24}],7:[function(require,module,exports){
+	},{"./easing":3,"./h":4,"./tween/timeline":22,"./tween/tween":23,"./vendor/resize":25}],7:[function(require,module,exports){
+	var PathEasing, h;
+
+	h = require('./h');
+
+	PathEasing = (function() {
+	  function PathEasing(path, o) {
+	    var ref;
+	    if (o == null) {
+	      o = {};
+	    }
+	    if (path === 'creator') {
+	      return;
+	    }
+	    this.path = h.parsePath(path);
+	    this.pathLength = (ref = this.path) != null ? ref.getTotalLength() : void 0;
+	    this.precision = o.precision || 24;
+	    this.rect = o.rect || 100;
+	    this.sample = h.bind(this.sample, this);
+	    this;
+	  }
+
+	  PathEasing.prototype.sample = function(p, start, end, precision) {
+	    var center, newEnd, newStart, point, rect;
+	    if (start == null) {
+	      start = 0;
+	    }
+	    if (end == null) {
+	      end = 1;
+	    }
+	    if (precision == null) {
+	      precision = this.precision;
+	    }
+	    p = h.clamp(p, 0, 1);
+	    center = start + ((end - start) / 2);
+	    point = this.path.getPointAtLength(this.pathLength * center);
+	    rect = this.rect;
+	    if (rect * p > point.x) {
+	      newStart = center;
+	      newEnd = end;
+	    } else if (rect * p < point.x) {
+	      newStart = start;
+	      newEnd = center;
+	    } else {
+	      return 1 - point.y / rect;
+	    }
+	    if (--precision < 1) {
+	      return 1 - point.y / rect;
+	    } else {
+	      return this.sample(p, newStart, newEnd, precision);
+	    }
+	  };
+
+	  PathEasing.prototype.create = function(path, o) {
+	    return (new PathEasing(path, o)).sample;
+	  };
+
+	  return PathEasing;
+
+	})();
+
+	module.exports = PathEasing;
+
+	},{"./h":4}],8:[function(require,module,exports){
 
 	(function(root) {
 	  var offset, ref, ref1;
@@ -1998,7 +2085,7 @@
 	  }
 	})(window);
 
-	},{}],8:[function(require,module,exports){
+	},{}],9:[function(require,module,exports){
 
 	(function() {
 	  var k, lastTime, vendors, x;
@@ -2030,7 +2117,7 @@
 	  }
 	})();
 
-	},{}],9:[function(require,module,exports){
+	},{}],10:[function(require,module,exports){
 	var Bit, h;
 
 	h = require('../h');
@@ -2236,7 +2323,7 @@
 
 	module.exports = Bit;
 
-	},{"../h":4}],10:[function(require,module,exports){
+	},{"../h":4}],11:[function(require,module,exports){
 	var Bit, BitsMap, Circle, Cross, Equal, Line, Polygon, Rect, Zigzag, h;
 
 	Bit = require('./bit');
@@ -2283,7 +2370,7 @@
 
 	module.exports = new BitsMap;
 
-	},{"../h":4,"./bit":9,"./circle":11,"./cross":12,"./equal":13,"./line":14,"./polygon":15,"./rect":16,"./zigzag":17}],11:[function(require,module,exports){
+	},{"../h":4,"./bit":10,"./circle":12,"./cross":13,"./equal":14,"./line":15,"./polygon":16,"./rect":17,"./zigzag":18}],12:[function(require,module,exports){
 
 	var Bit, Circle,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2326,7 +2413,7 @@
 
 	module.exports = Circle;
 
-	},{"./bit":9}],12:[function(require,module,exports){
+	},{"./bit":10}],13:[function(require,module,exports){
 
 	var Bit, Cross,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2373,7 +2460,7 @@
 
 	module.exports = Cross;
 
-	},{"./bit":9}],13:[function(require,module,exports){
+	},{"./bit":10}],14:[function(require,module,exports){
 
 	var Bit, Equal,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2424,7 +2511,7 @@
 
 	module.exports = Equal;
 
-	},{"./bit":9}],14:[function(require,module,exports){
+	},{"./bit":10}],15:[function(require,module,exports){
 
 	var Bit, Line,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2457,7 +2544,7 @@
 
 	module.exports = Line;
 
-	},{"./bit":9}],15:[function(require,module,exports){
+	},{"./bit":10}],16:[function(require,module,exports){
 
 	var Bit, Polygon, h,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2519,7 +2606,7 @@
 
 	module.exports = Polygon;
 
-	},{"../h":4,"./bit":9}],16:[function(require,module,exports){
+	},{"../h":4,"./bit":10}],17:[function(require,module,exports){
 
 	var Bit, Rect,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2564,7 +2651,7 @@
 
 	module.exports = Rect;
 
-	},{"./bit":9}],17:[function(require,module,exports){
+	},{"./bit":10}],18:[function(require,module,exports){
 
 	var Bit, Zigzag,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2616,7 +2703,7 @@
 
 	module.exports = Zigzag;
 
-	},{"./bit":9}],18:[function(require,module,exports){
+	},{"./bit":10}],19:[function(require,module,exports){
 
 	var Stagger, Timeline, Transit, Tween, h,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2754,7 +2841,7 @@
 
 	module.exports = Stagger;
 
-	},{"./h":4,"./transit":20,"./tween/timeline":21,"./tween/tween":22}],19:[function(require,module,exports){
+	},{"./h":4,"./transit":21,"./tween/timeline":22,"./tween/tween":23}],20:[function(require,module,exports){
 
 	var Swirl, Transit,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2867,7 +2954,7 @@
 
 	module.exports = Swirl;
 
-	},{"./transit":20}],20:[function(require,module,exports){
+	},{"./transit":21}],21:[function(require,module,exports){
 
 	var Timeline, Transit, Tween, bitsMap, h,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -3530,7 +3617,7 @@
 
 	module.exports = Transit;
 
-	},{"./h":4,"./shapes/bitsMap":10,"./tween/timeline":21,"./tween/tween":22}],21:[function(require,module,exports){
+	},{"./h":4,"./shapes/bitsMap":11,"./tween/timeline":22,"./tween/tween":23}],22:[function(require,module,exports){
 	var Easing, Timeline, h;
 
 	Easing = require('../easing');
@@ -3697,7 +3784,7 @@
 
 	module.exports = Timeline;
 
-	},{"../easing":3,"../h":4}],22:[function(require,module,exports){
+	},{"../easing":3,"../h":4}],23:[function(require,module,exports){
 	var Tween, h, t;
 
 	h = require('../h');
@@ -3892,7 +3979,7 @@
 
 	module.exports = Tween;
 
-	},{"../h":4,"./tweener":23}],23:[function(require,module,exports){
+	},{"../h":4,"./tweener":24}],24:[function(require,module,exports){
 	var Tweener, h, i, t;
 
 	require('../polyfills/raf');
@@ -3979,7 +4066,7 @@
 
 	module.exports = t;
 
-	},{"../h":4,"../polyfills/performance":7,"../polyfills/raf":8}],24:[function(require,module,exports){
+	},{"../h":4,"../polyfills/performance":8,"../polyfills/raf":9}],25:[function(require,module,exports){
 
 	/*!
 	  LegoMushroom @legomushroom http://legomushroom.com
@@ -6257,9 +6344,9 @@
 	  return obj && (obj["default"] || obj);
 	};
 
-	var _core = _interopRequire(__webpack_require__(6));
+	var _core = _interopRequire(__webpack_require__(7));
 
-	var Hammer = __webpack_require__(19);
+	var Hammer = __webpack_require__(20);
 
 	var Events = (function () {
 	  function Events() {}
@@ -6326,11 +6413,10 @@
 	  return obj && (obj["default"] || obj);
 	};
 
-	var _core = _interopRequire(__webpack_require__(6));
+	var _core = _interopRequire(__webpack_require__(7));
 
 	var mojs = __webpack_require__(2);
-	var ShowInner = __webpack_require__(39);
-
+	var ShowInner = __webpack_require__(6);
 	var showInnerModule = new ShowInner();
 
 	var ShowOnEl = (function () {
@@ -6425,6 +6511,176 @@
 
 /***/ },
 /* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _prototypeProperties = function (child, staticProps, instanceProps) {
+	  if (staticProps) Object.defineProperties(child, staticProps);
+	  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+	};
+
+	var _interopRequire = function (obj) {
+	  return obj && (obj["default"] || obj);
+	};
+
+	var _core = _interopRequire(__webpack_require__(7));
+
+	var mojs = __webpack_require__(2);
+
+	var ShowInner = (function () {
+	  function ShowInner() {}
+
+	  _prototypeProperties(ShowInner, null, {
+	    showInner: {
+	      value: function showInner(el, ctx) {
+	        this.showInnerText(el, ctx);
+	      },
+	      writable: true,
+	      enumerable: true,
+	      configurable: true
+	    },
+	    showInnerText: {
+	      value: function showInnerText(el, ctx) {
+	        var _this = this;
+	        var texts = el.querySelectorAll(".project-text-line__inner");
+	        var timeline = new mojs.Timeline({
+	          duration: 500 * ctx.S,
+	          onComplete: function () {
+	            _this.showInnerPlastic(el, ctx);
+	          },
+	          onUpdate: function (p) {
+	            p = mojs.easing.cubic.out(p);
+	            var transform = "rotate(" + 90 * (1 - p) + "deg) translateZ(0)";
+	            var transformOrigin = "left " + 30 * p + "%";
+	            var len = texts.length;
+	            for (var i = 0; i < texts.length; i++) {
+	              mojs.h.setPrefixedStyle(texts[i], "transform", transform);
+	              mojs.h.setPrefixedStyle(texts[i], "transform-origin", transformOrigin);
+	              texts[i].style.opacity = mojs.easing.cubic.out(p);
+	            };
+	          }
+	        });
+	        var tween = new mojs.Tween();
+	        tween.add(timeline);
+	        tween.start();
+	      },
+	      writable: true,
+	      enumerable: true,
+	      configurable: true
+	    },
+	    showInnerPlastic: {
+	      value: function showInnerPlastic(el, ctx) {
+	        var contentEl = el.querySelector(".particle__content");
+	        ctx.closeBtn.classList.add("is-show");
+	        contentEl.classList.add("is-show");
+
+	        var tween = new mojs.Tween(),
+	            image = el.querySelector(".image"),
+	            scene = el.querySelector(".shape"),
+	            shadow = el.querySelector("#js-shadow"),
+	            shadowWrap = el.querySelector("#js-shadow-wrap");
+
+	        var transit = new mojs.Transit({
+	          parent: el.querySelector(".project__img"),
+	          x: 60, y: 307,
+	          type: "circle",
+	          count: 10,
+	          fill: "transparent",
+	          stroke: "white",
+	          strokeWidth: { 10: 0 },
+	          duration: 275 * ctx.S,
+	          delay: 300 * ctx.S,
+	          radiusX: { 20: 100 },
+	          radiusY: { 5: 10 },
+	          opacity: { 1: 0 },
+	          strokeDasharray: "50% 200%"
+	        }).then({
+	          shiftX: { "-75": "-75" },
+	          duration: 150 * ctx.S,
+	          radiusX: { 15: 80 },
+	          radiusY: { 4: 8 },
+	          strokeWidth: { 8: 0 },
+	          opacity: { 0.8: 0 }
+	        }).then({
+	          shiftX: { "-80": "-80" },
+	          duration: 75 * ctx.S,
+	          radiusX: { 12: 60 },
+	          radiusY: { 3: 7 },
+	          strokeWidth: { 4: 0 },
+	          opacity: { 0.6: 0 }
+	        }).then({
+	          shiftX: { "-85": "-85" },
+	          duration: 50 * ctx.S,
+	          radiusX: { 11: 55 },
+	          radiusY: { 2: 6 },
+	          strokeWidth: { 2: 0 },
+	          opacity: { 0.4: 0 }
+	        });
+
+	        var mp = new mojs.MotionPath({
+	          path: { x: -300, y: -300 },
+	          curvature: { x: "75%", y: "50%" },
+	          offsetX: 300,
+	          offsetY: 300,
+	          el: image,
+	          duration: 1000 * ctx.S,
+	          easing: "cubic.out",
+	          onPosit: function (p, x, y, angle) {
+	            p = mojs.easing.expo.out(mojs.easing.cubic["in"](p));
+	            var rotate = "rotateX(70deg) rotateZ(" + -60 * (1 - p) + "deg)",
+	                translate = "translateX(" + x + "px) translateY(" + y + "px)",
+	                scale = "scaleY(" + (2.5 - 1.5 * p) + ")";
+	            mojs.h.setPrefixedStyle(shadow, "transform", "" + translate + " " + rotate + " " + scale);
+	            return "translate(" + x + "px, " + y + "px)";
+	          }
+	        });
+
+	        var opacityEasing = mojs.easing.path("M0,0 C0,0 32.1191406,0.314142863 40.1669859,0 C40.1669859,0.165327852 50.9999996,-112.569017 74.0660521,0 C80.8905119,-16.0420643 87.1001393,-19.621745 92.0689049,0 C92.0689049,1.54522552 95.3231688,-14.8615687 100,0"),
+	            bounceEasing = mojs.easing.path("M0,100 C28.3125,98.6523445 39.0445328,8.99375039 40.1669859,0 C40.1669859,-0.0485295402 50.9999996,152.873952 74.0660521,0 C80.8905119,21.9365596 87.1001393,26.7923438 92.0689049,0 C92.0689049,-1.92034044 95.3231688,20.3352347 100,0");
+
+	        var timeline1 = new mojs.Timeline({
+	          duration: 800 * ctx.S,
+	          onUpdate: function (p) {
+	            var b = mojs.easing.bounce.out(p);
+	            var bin = mojs.easing.bounce["in"](p);
+	            var t = mojs.easing.cubic.out(p);
+	            var r = "rotateY(" + (0 + 90 * (1 - b)) + "deg) rotateX(" + 70 * (1 - t) + "deg) rotateZ(" + 90 * (1 - t) + "deg)";
+	            var scale = "scaleX(1) scaleY(1)";
+	            var tr = "" + r + " " + scale;
+	            mojs.h.setPrefixedStyle(scene, "transform", tr);
+	            mojs.h.setPrefixedStyle(scene, "transform-origin", "" + (50 + 50 * t) + "% 100%");
+	            scene.style.opacity = mojs.easing.expo.out(p);
+
+	            var scale = "scaleX(" + opacityEasing(p) + ")";
+	            var transform = "translate(" + (-300 * mojs.easing.bounce["in"](1 - p) - 5) + "px, 2px) " + scale;
+	            mojs.h.setPrefixedStyle(shadowWrap, "transform", transform);
+	            shadow.style.opacity = 0.75 * bounceEasing(p);
+	          }
+	        });
+
+	        var soundTimeline = new mojs.Timeline({
+	          delay: 300 * ctx.S, onStart: function () {
+	            ctx.bounceSound.play();
+	          }
+	        });
+
+	        tween.add(timeline1, soundTimeline);
+	        tween.start();
+	      },
+	      writable: true,
+	      enumerable: true,
+	      configurable: true
+	    }
+	  });
+
+	  return ShowInner;
+	})();
+
+	module.exports = ShowInner;
+
+/***/ },
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -8621,21 +8877,21 @@
 	}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), false);
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var simulation = __webpack_require__(9)
-	var Vector = __webpack_require__(10)
-	var Renderer = __webpack_require__(11)
-	var defaults = __webpack_require__(20)
-	var Spring = __webpack_require__(12)
-	var AttachSpring = __webpack_require__(13)
-	var Decelerate = __webpack_require__(14)
-	var Accelerate = __webpack_require__(15)
-	var Drag = __webpack_require__(16)
-	var Interact = __webpack_require__(17)
-	var Boundary = __webpack_require__(18)
-	var Promise = window.Promise || __webpack_require__(21)
+	var simulation = __webpack_require__(10)
+	var Vector = __webpack_require__(11)
+	var Renderer = __webpack_require__(12)
+	var defaults = __webpack_require__(21)
+	var Spring = __webpack_require__(13)
+	var AttachSpring = __webpack_require__(14)
+	var Decelerate = __webpack_require__(15)
+	var Accelerate = __webpack_require__(16)
+	var Drag = __webpack_require__(17)
+	var Interact = __webpack_require__(18)
+	var Boundary = __webpack_require__(19)
+	var Promise = window.Promise || __webpack_require__(22)
 
 	module.exports = Physics
 
@@ -8747,7 +9003,7 @@
 
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -10106,12 +10362,12 @@
 
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Vector = __webpack_require__(10)
+	var Vector = __webpack_require__(11)
 	  , bodies = []
-	  , raf = __webpack_require__(25)
+	  , raf = __webpack_require__(26)
 
 	function increment(a, b, c, d) {
 	  var vec = Vector(0, 0)
@@ -10201,7 +10457,7 @@
 
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = Vector
@@ -10354,14 +10610,14 @@
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var prefixes = ['Webkit', 'Moz', 'Ms', 'ms']
 	var calls = []
 	var transformProp
-	var raf = __webpack_require__(25)
-	var floatEqual = __webpack_require__(22).floatEqual
+	var raf = __webpack_require__(26)
+	var floatEqual = __webpack_require__(23).floatEqual
 
 	function loop() {
 	  raf(function() {
@@ -10473,13 +10729,13 @@
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Body = __webpack_require__(23)
-	var simulation = __webpack_require__(9)
-	var Boundary = __webpack_require__(18)
-	var Animation = __webpack_require__(24)
+	var Body = __webpack_require__(24)
+	var simulation = __webpack_require__(10)
+	var Boundary = __webpack_require__(19)
+	var Animation = __webpack_require__(25)
 
 	var Spring = module.exports = Animation({
 	  defaultOptions: {
@@ -10510,13 +10766,13 @@
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var defaults = __webpack_require__(20)
-	  , Vector = __webpack_require__(10)
-	  , simulation = __webpack_require__(9)
-	  , Body = __webpack_require__(23)
+	var defaults = __webpack_require__(21)
+	  , Vector = __webpack_require__(11)
+	  , simulation = __webpack_require__(10)
+	  , Body = __webpack_require__(24)
 
 	var defaultOptions = {
 	  tension: 100,
@@ -10615,13 +10871,13 @@
 	}
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Body = __webpack_require__(23)
-	var simulation = __webpack_require__(9)
-	var Boundary = __webpack_require__(18)
-	var Animation = __webpack_require__(24)
+	var Body = __webpack_require__(24)
+	var simulation = __webpack_require__(10)
+	var Boundary = __webpack_require__(19)
+	var Animation = __webpack_require__(25)
 
 	var Decelerate = module.exports = Animation({
 	  defaultOptions: {
@@ -10663,15 +10919,15 @@
 
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Body = __webpack_require__(23)
-	var simulation = __webpack_require__(9)
-	var Boundary = __webpack_require__(18)
-	var Animation = __webpack_require__(24)
-	var Vector = __webpack_require__(10)
-	var height = __webpack_require__(22).height
+	var Body = __webpack_require__(24)
+	var simulation = __webpack_require__(10)
+	var Boundary = __webpack_require__(19)
+	var Animation = __webpack_require__(25)
+	var Vector = __webpack_require__(11)
+	var height = __webpack_require__(23).height
 
 	var Accelerate = module.exports = Animation({
 	  defaultOptions: {
@@ -10736,11 +10992,11 @@
 
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Emitter = __webpack_require__(27)
-	  , defaults = __webpack_require__(20)
+	  , defaults = __webpack_require__(21)
 
 	var defaultOpts = {}
 
@@ -10835,15 +11091,15 @@
 
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var defaults = __webpack_require__(20)
-	var Velocity = __webpack_require__(26)
-	var Vector = __webpack_require__(10)
-	var Promise = __webpack_require__(21)
-	var util = __webpack_require__(22)
-	var Boundary = __webpack_require__(18)
+	var defaults = __webpack_require__(21)
+	var Velocity = __webpack_require__(28)
+	var Vector = __webpack_require__(11)
+	var Promise = __webpack_require__(22)
+	var util = __webpack_require__(23)
+	var Boundary = __webpack_require__(19)
 
 	module.exports = Interact
 
@@ -10937,10 +11193,10 @@
 
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Vector = __webpack_require__(10)
+	var Vector = __webpack_require__(11)
 	module.exports = Boundary
 
 	function pointBetween(p, p1, p2) {
@@ -11026,7 +11282,7 @@
 
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.4 - 2014-09-28
@@ -13481,7 +13737,7 @@
 	    prefixed: prefixed
 	});
 
-	if ("function" == TYPE_FUNCTION && __webpack_require__(29)) {
+	if ("function" == TYPE_FUNCTION && __webpack_require__(30)) {
 	    !(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
 	        return Hammer;
 	    }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -13495,7 +13751,7 @@
 
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -13506,8 +13762,8 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var keys = __webpack_require__(30),
-	    objectTypes = __webpack_require__(31);
+	var keys = __webpack_require__(31),
+	    objectTypes = __webpack_require__(32);
 
 	/**
 	 * Assigns own enumerable properties of source object(s) to the destination
@@ -13555,15 +13811,15 @@
 
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	//This file contains then/promise specific extensions to the core promise API
 
-	var Promise = __webpack_require__(28)
-	var asap = __webpack_require__(32)
+	var Promise = __webpack_require__(29)
+	var asap = __webpack_require__(33)
 
 	module.exports = Promise
 
@@ -13741,10 +13997,10 @@
 
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Vector = __webpack_require__(10)
+	var Vector = __webpack_require__(11)
 
 	function vertex(a, b) {
 	  return -b / (2 * a)
@@ -13775,10 +14031,10 @@
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Vector = __webpack_require__(10)
+	var Vector = __webpack_require__(11)
 
 	module.exports = Body
 
@@ -13810,13 +14066,13 @@
 
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var defaults = __webpack_require__(20)
-	  , Promise = window.Promise || __webpack_require__(21)
-	  , Boundary = __webpack_require__(18)
-	  , Vector = __webpack_require__(10)
+	var defaults = __webpack_require__(21)
+	  , Promise = window.Promise || __webpack_require__(22)
+	  , Boundary = __webpack_require__(19)
+	  , Vector = __webpack_require__(11)
 	  , Emitter = __webpack_require__(27)
 
 	var proto = {
@@ -13919,10 +14175,10 @@
 
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var now = __webpack_require__(33)
+	var now = __webpack_require__(34)
 	  , global = typeof window === 'undefined' ? {} : window
 	  , vendors = ['moz', 'webkit']
 	  , suffix = 'AnimationFrame'
@@ -14001,48 +14257,6 @@
 	}
 	module.exports.cancel = function() {
 	  caf.apply(global, arguments)
-	}
-
-
-/***/ },
-/* 26 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = Velocity
-
-	function Velocity() {
-	  this.positionQueue = []
-	  this.timeQueue = []
-	}
-
-	Velocity.prototype.reset = function() {
-	  this.positionQueue.splice(0)
-	  this.timeQueue.splice(0)
-	}
-
-	Velocity.prototype.pruneQueue = function(ms) {
-	  //pull old values off of the queue
-	  while(this.timeQueue.length && this.timeQueue[0] < (Date.now() - ms)) {
-	    this.timeQueue.shift()
-	    this.positionQueue.shift()
-	  }
-	}
-
-	Velocity.prototype.updatePosition = function(position) {
-	  this.positionQueue.push(position)
-	  this.timeQueue.push(Date.now())
-	  this.pruneQueue(50)
-	}
-
-	Velocity.prototype.getVelocity = function() {
-	  this.pruneQueue(1000)
-	  var length = this.timeQueue.length
-	  if(length < 2) return 0
-
-	  var distance = this.positionQueue[length-1] - this.positionQueue[0]
-	    , time = (this.timeQueue[length-1] - this.timeQueue[0]) / 1000
-
-	  return distance / time
 	}
 
 
@@ -14220,9 +14434,51 @@
 /* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
+	module.exports = Velocity
+
+	function Velocity() {
+	  this.positionQueue = []
+	  this.timeQueue = []
+	}
+
+	Velocity.prototype.reset = function() {
+	  this.positionQueue.splice(0)
+	  this.timeQueue.splice(0)
+	}
+
+	Velocity.prototype.pruneQueue = function(ms) {
+	  //pull old values off of the queue
+	  while(this.timeQueue.length && this.timeQueue[0] < (Date.now() - ms)) {
+	    this.timeQueue.shift()
+	    this.positionQueue.shift()
+	  }
+	}
+
+	Velocity.prototype.updatePosition = function(position) {
+	  this.positionQueue.push(position)
+	  this.timeQueue.push(Date.now())
+	  this.pruneQueue(50)
+	}
+
+	Velocity.prototype.getVelocity = function() {
+	  this.pruneQueue(1000)
+	  var length = this.timeQueue.length
+	  if(length < 2) return 0
+
+	  var distance = this.positionQueue[length-1] - this.positionQueue[0]
+	    , time = (this.timeQueue[length-1] - this.timeQueue[0]) / 1000
+
+	  return distance / time
+	}
+
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
-	var asap = __webpack_require__(32)
+	var asap = __webpack_require__(33)
 
 	module.exports = Promise
 	function Promise(fn) {
@@ -14328,7 +14584,7 @@
 
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
@@ -14336,7 +14592,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -14347,9 +14603,9 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var isNative = __webpack_require__(34),
-	    isObject = __webpack_require__(35),
-	    shimKeys = __webpack_require__(36);
+	var isNative = __webpack_require__(35),
+	    isObject = __webpack_require__(36),
+	    shimKeys = __webpack_require__(37);
 
 	/* Native method shortcuts for methods with the same name as other `lodash` methods */
 	var nativeKeys = isNative(nativeKeys = Object.keys) && nativeKeys;
@@ -14378,7 +14634,7 @@
 
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -14404,7 +14660,7 @@
 
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, setImmediate) {
@@ -14521,10 +14777,10 @@
 	module.exports = asap;
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38), __webpack_require__(37).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38), __webpack_require__(39).setImmediate))
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Generated by CoffeeScript 1.6.3
@@ -14567,7 +14823,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38)))
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -14607,7 +14863,7 @@
 
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -14618,7 +14874,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var objectTypes = __webpack_require__(31);
+	var objectTypes = __webpack_require__(32);
 
 	/**
 	 * Checks if `value` is the language type of Object.
@@ -14652,7 +14908,7 @@
 
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -14663,7 +14919,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var objectTypes = __webpack_require__(31);
+	var objectTypes = __webpack_require__(32);
 
 	/** Used for native method references */
 	var objectProto = Object.prototype;
@@ -14696,7 +14952,71 @@
 
 
 /***/ },
-/* 37 */
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// shim for using process in browser
+
+	var process = module.exports = {};
+	var queue = [];
+	var draining = false;
+
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    draining = true;
+	    var currentQueue;
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        var i = -1;
+	        while (++i < len) {
+	            currentQueue[i]();
+	        }
+	        len = queue.length;
+	    }
+	    draining = false;
+	}
+	process.nextTick = function (fun) {
+	    queue.push(fun);
+	    if (!draining) {
+	        setTimeout(drainQueue, 0);
+	    }
+	};
+
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+
+	function noop() {}
+
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+
+	// TODO(shtylman)
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
+
+/***/ },
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(38).nextTick;
@@ -14775,184 +15095,7 @@
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(37).setImmediate, __webpack_require__(37).clearImmediate))
-
-/***/ },
-/* 38 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// shim for using process in browser
-
-	var process = module.exports = {};
-	var queue = [];
-	var draining = false;
-
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    draining = true;
-	    var currentQueue;
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        var i = -1;
-	        while (++i < len) {
-	            currentQueue[i]();
-	        }
-	        len = queue.length;
-	    }
-	    draining = false;
-	}
-	process.nextTick = function (fun) {
-	    queue.push(fun);
-	    if (!draining) {
-	        setTimeout(drainQueue, 0);
-	    }
-	};
-
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-
-	function noop() {}
-
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-
-	// TODO(shtylman)
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
-
-
-/***/ },
-/* 39 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _prototypeProperties = function (child, staticProps, instanceProps) {
-	  if (staticProps) Object.defineProperties(child, staticProps);
-	  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-	};
-
-	var _interopRequire = function (obj) {
-	  return obj && (obj["default"] || obj);
-	};
-
-	var _core = _interopRequire(__webpack_require__(6));
-
-	var mojs = __webpack_require__(2);
-
-	var ShowInner = (function () {
-	  function ShowInner() {}
-
-	  _prototypeProperties(ShowInner, null, {
-	    showInner: {
-	      value: function showInner(el) {
-	        var _this = this;
-	        var contentEl = el.querySelector(".particle__content");
-	        this.closeBtn.classList.add("is-show");
-	        contentEl.classList.add("is-show");
-
-	        var tween = new mojs.Tween(),
-	            image = el.querySelector(".image"),
-	            scene = el.querySelector(".shape");
-
-	        var transit = new mojs.Transit({
-	          parent: el.querySelector(".project__img"),
-	          x: 60, y: 307,
-	          type: "circle",
-	          count: 10,
-	          fill: "transparent",
-	          stroke: "white",
-	          strokeWidth: { 10: 0 },
-	          duration: 300 * this.S,
-	          delay: 300 * this.S,
-	          radiusX: { 20: 100 },
-	          radiusY: { 5: 10 },
-	          opacity: { 1: 0 },
-	          strokeDasharray: "50% 200%"
-	        }).then({
-	          shiftX: { "-75": "-75" },
-	          duration: 150 * this.S,
-	          radiusX: { 15: 80 },
-	          radiusY: { 4: 8 },
-	          strokeWidth: { 8: 0 },
-	          opacity: { 0.8: 0 }
-	        }).then({
-	          shiftX: { "-80": "-80" },
-	          duration: 100 * this.S,
-	          radiusX: { 12: 60 },
-	          radiusY: { 3: 7 },
-	          strokeWidth: { 4: 0 },
-	          opacity: { 0.6: 0 }
-	        }).then({
-	          shiftX: { "-85": "-85" },
-	          duration: 50 * this.S,
-	          radiusX: { 11: 55 },
-	          radiusY: { 2: 6 },
-	          strokeWidth: { 2: 0 },
-	          opacity: { 0.4: 0 }
-	        });
-
-	        var mp = new mojs.MotionPath({
-	          path: { x: -300, y: -300 },
-	          curvature: { x: "75%", y: "50%" },
-	          offsetX: 300,
-	          offsetY: 300,
-	          el: image,
-	          duration: 1000 * this.S,
-	          easing: "cubic.out"
-	        });
-	        var timeline1 = new mojs.Timeline({
-	          duration: 800 * this.S,
-	          // onStart: () => { scene.style.display = 'block' },
-	          onUpdate: function (p) {
-	            var b = mojs.easing.bounce.out(p);
-	            var t = mojs.easing.cubic.out(p);
-	            var tr = "rotateY(" + (0 + 90 * (1 - b)) + "deg) rotateX(" + 70 * (1 - t) + "deg) rotateZ(" + 90 * (1 - t) + "deg)";
-	            mojs.h.setPrefixedStyle(scene, "transform", tr);
-	            mojs.h.setPrefixedStyle(scene, "transform-origin", "" + (50 + 50 * t) + "% 100%");
-	            scene.style.opacity = mojs.easing.expo.out(p);
-	          }
-	        });
-
-	        var soundTimeline = new mojs.Timeline({
-	          delay: 300 * this.S, onStart: function () {
-	            _this.bounceSound.play();
-	          }
-	        });
-
-	        tween.add(timeline1, soundTimeline);
-	        tween.start();
-	      },
-	      writable: true,
-	      enumerable: true,
-	      configurable: true
-	    }
-	  });
-
-	  return ShowInner;
-	})();
-
-	module.exports = ShowInner;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(39).setImmediate, __webpack_require__(39).clearImmediate))
 
 /***/ }
 /******/ ]);

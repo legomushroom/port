@@ -67,7 +67,7 @@ body
   // background #fff
 
 particleSize = 150/2
-.particle
+{el = '.particle'}
   rect 2*particleSize*PX
   position absolute
   nw 0
@@ -75,6 +75,12 @@ particleSize = 150/2
   display block
   // overflow hidden
   line-height (2*particleSize)*PX
+  &.is-open
+    z-index 20
+    {el}__inner
+      transform scale(15) translateZ(-1000px)
+    {el}__content
+      display block
   &__inner
     circle 100%
     position absolute
@@ -98,7 +104,6 @@ particleSize = 150/2
 .project
   color white
   position relative
-  // overflow hidden
   rect 100%
   &__text, 
   &__img
@@ -106,13 +111,38 @@ particleSize = 150/2
     width 50%
     height 100%
   &__text
-    line-height 1.5
-    text-align left
-    left 55%
-    margin-top 6*gs
-    width 40%
+    left 57%
+    margin-top 13.5*gs
+    width 110%
+  &__shadow-wrap
+    transform-origin 100% center
+  &__shadow
+    position absolute
+    width 300px
+    height 50px
     opacity 0
+    // background-color #555
+    top 274px
+    right 8px
+    transform rotateX(80deg)
+    border-radius 26px
+    background linear-gradient(to right, rgba(58,8,57,0) 0%,rgba(58,8,57,0.65) 100%)
+    transform-origin 100% center
+    // box-shadow 0 0 150px #333
 
+.project-text-line
+  overflow        hidden
+  line-height     1.5
+  font-size       16px
+  text-align      left
+  letter-spacing  1px
+  &--header
+    font-size       22px
+    font-weight     600
+    margin-bottom   gs
+    text-transform  uppercase
+  &__inner
+    opacity 0
 // .center
 //   background url('http://iconmelon.com/css/i/legomushroom.png') no-repeat center center !important
 //   background-size 100% !important

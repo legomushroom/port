@@ -1,6 +1,5 @@
 var mojs      = require('../js/vendor/mo');
 var ShowInner = require('./show-inner');
-
 var showInnerModule = new ShowInner;
 
 class ShowOnEl {
