@@ -42,7 +42,14 @@ class Main {
     this.openSound2 = new Howl({
       urls: ['sounds/open-bubble-3.wav'], rate: .15
     });
-    this.bounceSound = new Howl({ urls: ['sounds/bounce-21.wav'] });
+    this.bounceSound = new Howl({ urls: ['sounds/bounce-2.wav'] });
+    this.scissors1Sound = new Howl({ urls: ['sounds/scissors-1.wav'] });
+    this.scissors2Sound = new Howl({ urls: ['sounds/scissors-2.wav'] });
+    this.scissors3Sound = new Howl({ urls: ['sounds/scissors-3.wav'] });
+    this.scissors4Sound = new Howl({ urls: ['sounds/scissors-4.wav'] });
+    this.scissors5Sound = new Howl({ urls: ['sounds/scissors-5.wav'] });
+    this.scissors6Sound = new Howl({ urls: ['sounds/scissors-6.wav'] });
+    this.scissors7Sound = new Howl({ urls: ['sounds/scissors-7.wav'] });
 
     this.particleRadius = getComputedStyle(this.particles[0]).width;
     this.particleRadius = parseInt(this.particleRadius, 10)/2;

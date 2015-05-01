@@ -3,6 +3,7 @@ var mojs = require('../js/vendor/mo');
 class ShowInner {
   showInner (el, ctx) {
     this.showInnerText(el, ctx);
+    // this.showInnerPlastic(el, ctx);
   }
 
   showInnerText (el, ctx) {
@@ -16,40 +17,73 @@ class ShowInner {
       x: -25+xShift,y: 104+yShift,
       duration:     500*ctx.S,
       stroke:       'cyan',
-      strokeWidth:  {10: 0},
+      strokeWidth:  {'rand(3, 14)': 0},
       radius:       170,
       easing:       'cubic.in',
       strokeDasharray: '100%',
       strokeDashoffset: { '100%': '-100%' },
-      delay: 'rand(0, 500)'
+      delay: 'rand(200, 500)'
     }
+
+    var scissorsSoundDelay = 3500000;
 
     var lineBigOption = {
       y: 20+yShift, x: -45+xShift, radius: 120, strokeDashoffset: { '100%': '-100%' },
-      strokeWidth: {30: 0}
+      strokeWidth: {30: 0},
+      onStart: ()=> {
+        setTimeout(function () { ctx.scissors1Sound.play() }, scissorsSoundDelay*ctx.S);
+      }
       }
     mojs.h.extend(lineBigOption, textLineOption);
     var line1 = new mojs.Transit(lineBigOption);    
 
-    var line0Option = { y: 128+yShift, radius: 50, strokeDashoffset: { '-100%': '100%' } }
+    var line0Option = {
+      y: 128+yShift, radius: 50, strokeDashoffset: { '-100%': '100%' },
+      onStart: ()=> {
+        setTimeout(function () { ctx.scissors2Sound.play() }, scissorsSoundDelay*ctx.S);
+      }
+    }
     mojs.h.extend(line0Option, textLineOption);
     var line1 = new mojs.Transit(line0Option);    
 
-    var line1Option = { onComplete:()=> { this.showInnerTexts(el, ctx);}}
+    var line1Option = {
+        onStart: ()=> {
+          setTimeout(function () { ctx.scissors3Sound.play() }, scissorsSoundDelay*ctx.S);
+        }
+      }
     mojs.h.extend(line1Option, textLineOption);
     var line1 = new mojs.Transit(line1Option);
 
-    var line2Option = { y: 80+yShift, radius: 80, strokeDashoffset:{'-100%':'100%'}}
+    var line2Option = {
+      y: 80+yShift, radius: 80, strokeDashoffset:{'-100%':'100%'},
+      onStart: ()=> {
+        setTimeout(function () { ctx.scissors4Sound.play() }, scissorsSoundDelay*ctx.S);
+      }
+    }
     mojs.h.extend(line2Option, textLineOption);
     var line2 = new mojs.Transit(line2Option);
 
-    var line3Option = { y: 80+yShift, radius: 70, x: 180+xShift, strokeDashoffset:{'100%':'-100%'}}
+    var line3Option = {
+      y: 80+yShift, radius: 70, x: 180+xShift, strokeDashoffset:{'100%':'-100%'},
+      onStart: ()=> {
+        setTimeout(function () { ctx.scissors6Sound.play() }, scissorsSoundDelay*ctx.S);
+      }
+    }
     mojs.h.extend(line3Option, textLineOption);
     var line2 = new mojs.Transit(line3Option);
 
-    var line4Option = { y: 55+yShift, radius: 150, strokeDashoffset: { '-100%': '100%' }}
+    var line4Option = {
+      y: 55+yShift, radius: 150, strokeDashoffset: { '-100%': '100%' },
+      onStart: ()=> {
+        setTimeout(function () { ctx.scissors7Sound.play() }, scissorsSoundDelay*ctx.S);
+      }
+    }
     mojs.h.extend(line4Option, textLineOption);
     var line2 = new mojs.Transit(line4Option);
+
+    setTimeout(()=> {
+      this.showInnerTexts(el, ctx);
+    }, 500);
   }
 
   showInnerTexts(el, ctx) {
@@ -62,7 +96,7 @@ class ShowInner {
           duration: 500*ctx.S,
           // delay:    (Math.random()*100)*ctx.S,
           delay: i*50*ctx.S,
-          onComplete:() => { (i === 0) && this.showInnerPlastic(el, ctx); },
+          onComplete:() => { (i === 4) && this.showInnerPlastic(el, ctx); },
           onUpdate: (p)=> {
             p = mojs.easing.cubic.out(p);
             var transform       = `rotate(${90*(1-p)}deg) translateZ(0) translateY(${200*(1-p)}%)`;
