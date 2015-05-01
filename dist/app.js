@@ -87,7 +87,7 @@
 	      var showInnerModule = new ShowInner();
 	      var el = document.querySelector(".particle.is-open");
 	      showInnerModule.showInner(el, _this);
-	    }, 10000);
+	    }, 1000);
 	  }
 
 	  _prototypeProperties(Main, null, {
@@ -6542,27 +6542,90 @@
 	    },
 	    showInnerText: {
 	      value: function showInnerText(el, ctx) {
+	        this.showInnerTextPrelude(el, ctx);
+	      },
+	      writable: true,
+	      enumerable: true,
+	      configurable: true
+	    },
+	    showInnerTextPrelude: {
+	      value: function showInnerTextPrelude(el, ctx) {
 	        var _this = this;
-	        var texts = el.querySelectorAll(".project-text-line__inner");
-	        var timeline = new mojs.Timeline({
+	        var yShift = 10,
+	            xShift = 10;
+	        var textLineOption = {
+	          parent: el.querySelector(".project__text"),
+	          x: -25 + xShift, y: 104 + yShift,
 	          duration: 500 * ctx.S,
-	          onComplete: function () {
-	            _this.showInnerPlastic(el, ctx);
-	          },
-	          onUpdate: function (p) {
-	            p = mojs.easing.cubic.out(p);
-	            var transform = "rotate(" + 90 * (1 - p) + "deg) translateZ(0)";
-	            var transformOrigin = "left " + 30 * p + "%";
-	            var len = texts.length;
-	            for (var i = 0; i < texts.length; i++) {
-	              mojs.h.setPrefixedStyle(texts[i], "transform", transform);
-	              mojs.h.setPrefixedStyle(texts[i], "transform-origin", transformOrigin);
-	              texts[i].style.opacity = mojs.easing.cubic.out(p);
-	            };
-	          }
-	        });
+	          stroke: "cyan",
+	          strokeWidth: { 10: 0 },
+	          radius: 170,
+	          easing: "cubic.in",
+	          strokeDasharray: "100%",
+	          strokeDashoffset: { "100%": "-100%" },
+	          delay: "rand(0, 500)"
+	        };
+
+	        var lineBigOption = {
+	          y: 20 + yShift, x: -45 + xShift, radius: 120, strokeDashoffset: { "100%": "-100%" },
+	          strokeWidth: { 30: 0 }
+	        };
+	        mojs.h.extend(lineBigOption, textLineOption);
+	        var line1 = new mojs.Transit(lineBigOption);
+
+	        var line0Option = { y: 128 + yShift, radius: 50, strokeDashoffset: { "-100%": "100%" } };
+	        mojs.h.extend(line0Option, textLineOption);
+	        var line1 = new mojs.Transit(line0Option);
+
+	        var line1Option = { onComplete: function () {
+	            _this.showInnerTexts(el, ctx);
+	          } };
+	        mojs.h.extend(line1Option, textLineOption);
+	        var line1 = new mojs.Transit(line1Option);
+
+	        var line2Option = { y: 80 + yShift, radius: 80, strokeDashoffset: { "-100%": "100%" } };
+	        mojs.h.extend(line2Option, textLineOption);
+	        var line2 = new mojs.Transit(line2Option);
+
+	        var line3Option = { y: 80 + yShift, radius: 70, x: 180 + xShift, strokeDashoffset: { "100%": "-100%" } };
+	        mojs.h.extend(line3Option, textLineOption);
+	        var line2 = new mojs.Transit(line3Option);
+
+	        var line4Option = { y: 55 + yShift, radius: 150, strokeDashoffset: { "-100%": "100%" } };
+	        mojs.h.extend(line4Option, textLineOption);
+	        var line2 = new mojs.Transit(line4Option);
+	      },
+	      writable: true,
+	      enumerable: true,
+	      configurable: true
+	    },
+	    showInnerTexts: {
+	      value: function showInnerTexts(el, ctx) {
+	        var texts = el.querySelectorAll(".project-text-line__inner");
 	        var tween = new mojs.Tween();
-	        tween.add(timeline);
+	        for (var i = 0; i < texts.length; i++) {
+	          (function (i) {
+	            var _this2 = this;
+	            var text = texts[i];
+	            var timeline = new mojs.Timeline({
+	              duration: 500 * ctx.S,
+	              // delay:    (Math.random()*100)*ctx.S,
+	              delay: i * 50 * ctx.S,
+	              onComplete: function () {
+	                i === 0 && _this2.showInnerPlastic(el, ctx);
+	              },
+	              onUpdate: function (p) {
+	                p = mojs.easing.cubic.out(p);
+	                var transform = "rotate(" + 90 * (1 - p) + "deg) translateZ(0) translateY(" + 200 * (1 - p) + "%)";
+	                var transformOrigin = "left " + 80 * p + "%";
+	                mojs.h.setPrefixedStyle(text, "transform", transform);
+	                mojs.h.setPrefixedStyle(text, "transform-origin", transformOrigin);
+	                text.style.opacity = mojs.easing.cubic.out(p);
+	              }
+	            });
+	            tween.add(timeline);
+	          }).apply(this, [i]);
+	        };
 	        tween.start();
 	      },
 	      writable: true,

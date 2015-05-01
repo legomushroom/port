@@ -20,7 +20,7 @@ class Main {
       var showInnerModule = new ShowInner;
       var el = document.querySelector('.particle.is-open');
       showInnerModule.showInner(el, this);
-    }, 10000)
+    }, 1000)
   }
   events ()    { (new Events).add.call(this) }
   showOnEl(el) { showOnElModule.show.apply(this, [el]) }
