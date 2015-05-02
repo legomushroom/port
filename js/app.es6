@@ -7,6 +7,8 @@ var events    = require('./events-mixin')
 var showOnEl  = require('./show-on-el-mixin')
 var showInner = require('./show-inner-mixin');
 var showClose = require('./show-close-mixin');
+var showInnerPlastic = require('./show-inner-plastic-mixin');
+
 
 // var showOnElModule = new ShowOnEl;
 // var ShowInner = require('./show-inner');
@@ -40,7 +42,7 @@ var main = {
     this.openSound2     = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: .15 });
     this.bounceSound    = new Howl({ urls: ['sounds/bounce-2.wav'] });
     this.closeSound     = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .5 });
-    this.metaSound      = new Howl({ urls: ['sounds/open-bubble.wav'] });
+    this.metaSound      = new Howl({ urls: ['sounds/open-bubble.wav'], rate: 1.5});
 
 
     // this.scissors1Sound = new Howl({ urls: ['sounds/scissors-1.wav'] });
@@ -128,4 +130,5 @@ mojs.h.extend(main, events);
 mojs.h.extend(main, showOnEl);
 mojs.h.extend(main, showInner);
 mojs.h.extend(main, showClose);
+mojs.h.extend(main, showInnerPlastic);
 window.app = main.init()

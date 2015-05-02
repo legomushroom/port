@@ -70,6 +70,8 @@
 	var showOnEl = __webpack_require__(42);
 	var showInner = __webpack_require__(43);
 	var showClose = __webpack_require__(44);
+	var showInnerPlastic = __webpack_require__(45);
+
 
 	// var showOnElModule = new ShowOnEl;
 	// var ShowInner = require('./show-inner');
@@ -103,7 +105,7 @@
 	    this.openSound2 = new Howl({ urls: ["sounds/open-bubble-3.wav"], rate: 0.15 });
 	    this.bounceSound = new Howl({ urls: ["sounds/bounce-2.wav"] });
 	    this.closeSound = new Howl({ urls: ["sounds/bubble-single-1.wav"], rate: 0.5 });
-	    this.metaSound = new Howl({ urls: ["sounds/open-bubble.wav"] });
+	    this.metaSound = new Howl({ urls: ["sounds/open-bubble.wav"], rate: 1.5 });
 
 
 	    // this.scissors1Sound = new Howl({ urls: ['sounds/scissors-1.wav'] });
@@ -191,6 +193,7 @@
 	mojs.h.extend(main, showOnEl);
 	mojs.h.extend(main, showInner);
 	mojs.h.extend(main, showClose);
+	mojs.h.extend(main, showInnerPlastic);
 	window.app = main.init();
 
 /***/ },
@@ -12472,8 +12475,10 @@
 	        // mojs.h.setPrefixedStyle(contentEl, 'transform', contentScale);
 	        innerEl.style.opacity = 0.75 + 0.25 * mojs.easing.cubic.out(p);
 	      },
-	      onComplete: function () {
-	        _this.showInner(el, _this);
+	      onStart: function () {
+	        setTimeout(function () {
+	          _this.showInner(el, _this);
+	        }, 400);
 	      }
 	    });
 
@@ -12498,25 +12503,44 @@
 	var _core = _interopRequire(__webpack_require__(7));
 
 	var mojs = __webpack_require__(2);
-	// var ShowCloseModule = require('./show-close-mixin');
-	// var showCloseModule = new ShowCloseModule;
-	// showCloseModule.initClose()
 
 	var showInner = {
 	  showInner: function (el) {
-	    // this.showClose();
-	    // this.showInnerText();
-	    this.showInnerTextPrelude(el);
+	    this.showClose();
+	    this.showInnerPlastic(el);
+	    // this.showInnerTextPrelude(el);
 	  },
 	  showInnerTextPrelude: function (el) {
 	    var _this = this;
+
+
+	    var text = el.querySelector(".project__text");
+
+	    // var burst = new mojs.Burst({
+	    //   parent:       text,
+	    //   type:         'circle',
+	    //   degree:       45,
+	    //   randomRadius:  1,
+	    //   fill:         'cyan',
+	    //   x: -5,        y: 70,
+	    //   radius:       {0: 200},
+	    //   angle:        -15,
+	    //   isSwirl:      true,
+	    //   delay:        500*this.S,
+	    //   onStart:      () => {this.closeSound.play()}
+
+	    // });
+
+
+
 	    var texts = el.querySelectorAll(".project-text-line__inner");
 	    var yShift = 10,
 	        xShift = 10;
 	    el.querySelector(".particle__content").style.display = "block";
+
 	    this.showClose();
 	    var textLineOption = {
-	      parent: el.querySelector(".project__text"),
+	      parent: text,
 	      x: -25 + xShift, y: 104 + yShift,
 	      duration: 500 * this.S,
 	      stroke: "cyan",
@@ -12526,7 +12550,7 @@
 	      strokeDasharray: "100%",
 	      strokeLinecap: "round",
 	      strokeDashoffset: { "100%": "-100%" },
-	      delay: "rand(200, 500)"
+	      delay: "rand(0, 300)"
 	    };
 	    var scissorsSoundDelay = 350;
 	    var lineBigOption = {
@@ -12591,9 +12615,93 @@
 	    mojs.h.setPrefixedStyle(el, "transform", transform);
 	    mojs.h.setPrefixedStyle(el, "transform-origin", transformOrigin);
 	    el.style.opacity = mojs.easing.cubic.out(p);
+	  }
+	};
+
+	module.exports = showInner;
+
+/***/ },
+
+/***/ 44:
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) {
+	  return obj && (obj["default"] || obj);
+	};
+
+	var _core = _interopRequire(__webpack_require__(7));
+
+	var mojs = __webpack_require__(2);
+
+	var showClose = {
+	  initClose: function () {
+	    var _this = this;
+	    var dur = 400;
+	    var closeOption = {
+	      parent: document.querySelector("#js-close-btn"),
+	      type: "circle",
+	      radius: { 0: 15 },
+	      fill: "transparent",
+	      stroke: "white",
+	      strokeWidth: { 5: 0 },
+	      x: "50%", y: "50%",
+	      duration: dur,
+	      isRunLess: true };
+	    this.closeCircle = new mojs.Transit(closeOption);
+
+	    var closeCrossOption = {
+	      type: "cross",
+	      delay: 0.4 * dur,
+	      angle: 45,
+	      strokeWidth: 2,
+	      radius: { 0: 8 },
+	      isShowEnd: true,
+	      onStart: function () {
+	        _this.closeSound.play();
+	      }
+	    };
+	    mojs.h.extend(closeCrossOption, closeOption);
+	    this.closeCross = new mojs.Transit(closeCrossOption);
+
+	    var closeBurstOption = {
+	      type: "line",
+	      radius: { 0: 30 },
+	      strokeWidth: { 4: 0 },
+	      delay: 0.4 * dur,
+	      childOptions: { radius: { 5: 0 } } };
+	    mojs.h.extend(closeBurstOption, closeOption);
+	    this.closeBurst = new mojs.Burst(closeBurstOption);
 	  },
+	  showClose: function () {
+	    this.closeBtn.classList.add("is-show");
+	    this.closeCircle.run();this.closeCross.run();this.closeBurst.run();
+	  },
+	  hideClose: function () {
+	    this.closeBtn.style.display = "none";
+	  }
+	};
+
+
+	module.exports = showClose;
+
+/***/ },
+
+/***/ 45:
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) {
+	  return obj && (obj["default"] || obj);
+	};
+
+	var _core = _interopRequire(__webpack_require__(7));
+
+	var showInnerPlastic = {
 	  showInnerPlastic: function (el) {
-	    var _this2 = this;
+	    var _this = this;
 	    var contentEl = el.querySelector(".particle__content");
 	    contentEl.classList.add("is-show");
 
@@ -12605,7 +12713,7 @@
 
 	    var transit = new mojs.Transit({
 	      parent: el.querySelector(".project__img"),
-	      x: 60, y: 307,
+	      x: 60, y: 240,
 	      type: "circle",
 	      count: 10,
 	      fill: "transparent",
@@ -12682,7 +12790,7 @@
 
 	    var soundTimeline = new mojs.Timeline({
 	      delay: 300 * this.S, onStart: function () {
-	        _this2.bounceSound.play();
+	        _this.bounceSound.play();
 	      }
 	    });
 
@@ -12691,74 +12799,8 @@
 	  }
 	};
 
-	module.exports = showInner;
+	module.exports = showInnerPlastic;
 	// onStart:()=> { this.showClose(); }
-
-/***/ },
-
-/***/ 44:
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = function (obj) {
-	  return obj && (obj["default"] || obj);
-	};
-
-	var _core = _interopRequire(__webpack_require__(7));
-
-	var mojs = __webpack_require__(2);
-
-	var showClose = {
-	  initClose: function () {
-	    var _this = this;
-	    var dur = 400;
-	    var closeOption = {
-	      parent: document.querySelector("#js-close-btn"),
-	      type: "circle",
-	      radius: { 0: 15 },
-	      fill: "transparent",
-	      stroke: "white",
-	      strokeWidth: { 5: 0 },
-	      x: "50%", y: "50%",
-	      duration: dur,
-	      isRunLess: true };
-	    this.closeCircle = new mojs.Transit(closeOption);
-
-	    var closeCrossOption = {
-	      type: "cross",
-	      delay: 0.4 * dur,
-	      angle: 45,
-	      strokeWidth: 2,
-	      radius: { 0: 8 },
-	      isShowEnd: true,
-	      onStart: function () {
-	        _this.closeSound.play();
-	      }
-	    };
-	    mojs.h.extend(closeCrossOption, closeOption);
-	    this.closeCross = new mojs.Transit(closeCrossOption);
-
-	    var closeBurstOption = {
-	      type: "line",
-	      radius: { 0: 30 },
-	      strokeWidth: { 4: 0 },
-	      delay: 0.4 * dur,
-	      childOptions: { radius: { 5: 0 } } };
-	    mojs.h.extend(closeBurstOption, closeOption);
-	    this.closeBurst = new mojs.Burst(closeBurstOption);
-	  },
-	  showClose: function () {
-	    this.closeBtn.classList.add("is-show");
-	    this.closeCircle.run();this.closeCross.run();this.closeBurst.run();
-	  },
-	  hideClose: function () {
-	    this.closeBtn.style.display = "none";
-	  }
-	};
-
-
-	module.exports = showClose;
 
 /***/ }
 

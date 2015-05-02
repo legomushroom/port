@@ -86,7 +86,7 @@ particleSize = 150/2
     position absolute
     nw 0
   contentWidth  = 540
-  contentHeight = 420
+  contentHeight = 280
   &__content
     position absolute
     // border PX solid white
@@ -105,6 +105,7 @@ particleSize = 150/2
   color white
   position relative
   rect 100%
+  // border 1px solid white
   &__text, 
   &__img
     position absolute
@@ -112,8 +113,12 @@ particleSize = 150/2
     height 100%
   &__text
     left 57%
-    margin-top 13.5*gs
-    width 110%
+    margin-top 3.5*gs
+    width 40%
+    text-align left
+    line-height 1.4
+  h2
+    text-transform uppercase
   &__shadow-wrap
     transform-origin 100% center
   &__shadow
@@ -121,8 +126,7 @@ particleSize = 150/2
     width 300px
     height 50px
     opacity 0
-    // background-color #555
-    top 274px
+    top 204px
     right 8px
     transform rotateX(80deg)
     border-radius 26px
@@ -130,22 +134,24 @@ particleSize = 150/2
     transform-origin 100% center
     // box-shadow 0 0 150px #333
 
-.project-text-line
-  overflow        hidden
-  line-height     1.5
-  font-size       16px
-  text-align      left
-  letter-spacing  1px
-  &--header
-    font-size       22px
-    font-weight     600
-    margin-bottom   gs
-    text-transform  uppercase
-  &__inner
-    opacity 0
-// .center
-//   background url('http://iconmelon.com/css/i/legomushroom.png') no-repeat center center !important
-//   background-size 100% !important
+// .project-text-line
+//   overflow        hidden
+//   line-height     1.5
+//   font-size       16px
+//   text-align      left
+//   letter-spacing  1px
+//   opacity         .75
+//   &--header
+//     font-size       22px
+//     font-weight     600
+//     margin-bottom   gs
+//     text-transform  uppercase
+//     opacity         1
+//   // &__inner
+//   //   opacity 0
+// // .center
+// //   background url('http://iconmelon.com/css/i/legomushroom.png') no-repeat center center !important
+// //   background-size 100% !important
 
 .close
   position fixed

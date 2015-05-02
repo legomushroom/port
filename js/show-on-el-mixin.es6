@@ -62,7 +62,11 @@ var showOnEl = {
         // mojs.h.setPrefixedStyle(contentEl, 'transform', contentScale);
         innerEl.style.opacity = .75 + .25*mojs.easing.cubic.out(p)
       },
-      onComplete:()=> { this.showInner(el, this); }
+      onStart:()=> {
+        setTimeout(()=> {
+          this.showInner(el, this);
+        }, 400)
+      }
     });
     
     tween.add(scaleDownTween, soundTimeline, blobTimeline, scaleUpTimeline);

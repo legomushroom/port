@@ -85,12 +85,12 @@ body {
   position: absolute;
   width: 33.75rem;
   height: 33.75rem;
-  height: 26.25rem;
+  height: 17.5rem;
   display: none;
   top: 50%;
   left: 50%;
   margin-left: -16.875rem;
-  margin-top: -13.125rem;
+  margin-top: -8.75rem;
 }
 .particle__content.is-show {
   display: block;
@@ -109,8 +109,13 @@ body {
 }
 .project__text {
   left: 57%;
-  margin-top: 8.4375rem;
-  width: 110%;
+  margin-top: 2.1875rem;
+  width: 40%;
+  text-align: left;
+  line-height: 1.4;
+}
+.project h2 {
+  text-transform: uppercase;
 }
 .project__shadow-wrap {
   -webkit-transform-origin: 100% center;
@@ -122,7 +127,7 @@ body {
   width: 300px;
   height: 50px;
   opacity: 0;
-  top: 274px;
+  top: 204px;
   right: 8px;
   -webkit-transform: rotateX(80deg);
   -ms-transform: rotateX(80deg);
@@ -133,22 +138,6 @@ body {
   -webkit-transform-origin: 100% center;
   -ms-transform-origin: 100% center;
   transform-origin: 100% center;
-}
-.project-text-line {
-  overflow: hidden;
-  line-height: 1.5;
-  font-size: 16px;
-  text-align: left;
-  letter-spacing: 1px;
-}
-.project-text-line--header {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 0.625rem;
-  text-transform: uppercase;
-}
-.project-text-line__inner {
-  opacity: 0;
 }
 .close {
   position: fixed;
