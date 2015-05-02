@@ -103,7 +103,7 @@
 	    this.openSound2 = new Howl({ urls: ["sounds/open-bubble-3.wav"], rate: 0.15 });
 	    this.bounceSound = new Howl({ urls: ["sounds/bounce-2.wav"] });
 	    this.closeSound = new Howl({ urls: ["sounds/bubble-single-1.wav"], rate: 0.5 });
-	    this.metaSound = new Howl({ urls: ["sounds/meta.wav"] });
+	    this.metaSound = new Howl({ urls: ["sounds/open-bubble.wav"] });
 
 
 	    // this.scissors1Sound = new Howl({ urls: ['sounds/scissors-1.wav'] });
@@ -12503,97 +12503,98 @@
 	// showCloseModule.initClose()
 
 	var showInner = {
-	  showInner: function (el, ctx) {
-	    this.showInnerText(el, ctx);
+	  showInner: function (el) {
+	    // this.showClose();
+	    // this.showInnerText();
+	    this.showInnerTextPrelude(el);
 	  },
-	  showInnerText: function (el, ctx) {
-	    this.showInnerTextPrelude(el, ctx);
-	  },
-	  showInnerTextPrelude: function (el, ctx) {
+	  showInnerTextPrelude: function (el) {
 	    var _this = this;
+	    var texts = el.querySelectorAll(".project-text-line__inner");
 	    var yShift = 10,
 	        xShift = 10;
 	    el.querySelector(".particle__content").style.display = "block";
+	    this.showClose();
 	    var textLineOption = {
 	      parent: el.querySelector(".project__text"),
 	      x: -25 + xShift, y: 104 + yShift,
-	      duration: 500 * ctx.S,
+	      duration: 500 * this.S,
 	      stroke: "cyan",
-	      strokeWidth: { "rand(3, 14)": 0 },
+	      strokeWidth: { "rand(6, 14)": 0 },
 	      radius: 170,
 	      easing: "cubic.in",
 	      strokeDasharray: "100%",
+	      strokeLinecap: "round",
 	      strokeDashoffset: { "100%": "-100%" },
 	      delay: "rand(200, 500)"
 	    };
 	    var scissorsSoundDelay = 350;
 	    var lineBigOption = {
-	      y: 20 + yShift, x: -45 + xShift, radius: 120, strokeDashoffset: { "100%": "-100%" },
-	      strokeWidth: { 30: 0 } };
+	      y: 15 + yShift, x: -45 + xShift, radius: 120, strokeDashoffset: { "100%": "-100%" },
+	      strokeWidth: { 30: 0 },
+	      onUpdate: function (p) {
+	        _this.moveTextEl(texts[0], p);
+	      },
+	      onComplete: function () {
+	        _this.showInnerPlastic(el);
+	      }
+	    };
 	    mojs.h.extend(lineBigOption, textLineOption);
 	    var line1 = new mojs.Transit(lineBigOption);
 
 	    var line0Option = {
-	      y: 128 + yShift, radius: 50, strokeDashoffset: { "-100%": "100%" } };
+	      y: 122 + yShift, radius: 50, strokeDashoffset: { "-100%": "100%" },
+	      onUpdate: function (p) {
+	        _this.moveTextEl(texts[4], p);
+	      }
+	    };
 	    mojs.h.extend(line0Option, textLineOption);
-	    var line1 = new mojs.Transit(line0Option);
+	    var line0 = new mojs.Transit(line0Option);
 
-	    var line1Option = {};
+	    var line1Option = { y: 98 + yShift, onUpdate: function (p) {
+	        _this.moveTextEl(texts[3], p);
+	      } };
 	    mojs.h.extend(line1Option, textLineOption);
 	    var line1 = new mojs.Transit(line1Option);
 
 	    var line2Option = {
-	      y: 80 + yShift, radius: 80, strokeDashoffset: { "-100%": "100%" } };
+	      y: 73 + yShift, radius: 80, strokeDashoffset: { "-100%": "100%" },
+	      onUpdate: function (p) {
+	        _this.moveTextEl(texts[2], p);
+	      }
+	    };
 	    mojs.h.extend(line2Option, textLineOption);
 	    var line2 = new mojs.Transit(line2Option);
 
 	    var line3Option = {
-	      y: 80 + yShift, radius: 70, x: 180 + xShift, strokeDashoffset: { "100%": "-100%" } };
+	      y: 73 + yShift, radius: 70, x: 180 + xShift, strokeDashoffset: { "100%": "-100%" } };
 	    mojs.h.extend(line3Option, textLineOption);
-	    var line2 = new mojs.Transit(line3Option);
+	    var line3 = new mojs.Transit(line3Option);
 
 	    var line4Option = {
-	      y: 55 + yShift, radius: 150, strokeDashoffset: { "-100%": "100%" } };
+	      y: 50 + yShift, radius: 150, strokeDashoffset: { "-100%": "100%" },
+	      onUpdate: function (p) {
+	        _this.moveTextEl(texts[1], p);
+	      }
+	    };
 	    mojs.h.extend(line4Option, textLineOption);
-	    var line2 = new mojs.Transit(line4Option);
+	    var line4 = new mojs.Transit(line4Option);
 
 	    setTimeout(function () {
 	      _this.metaSound.play();
-	      _this.showInnerTexts(el, ctx);
 	    }, 500);
 	  },
-	  showInnerTexts: function (el, ctx) {
-	    var texts = el.querySelectorAll(".project-text-line__inner");
-	    var tween = new mojs.Tween();
-	    for (var i = 0; i < texts.length; i++) {
-	      (function (i) {
-	        var _this2 = this;
-	        var text = texts[i];
-	        var timeline = new mojs.Timeline({
-	          duration: 500 * ctx.S,
-	          // delay:    (Math.random()*100)*ctx.S,
-	          delay: i * 50 * ctx.S,
-	          onComplete: function () {
-	            i === 4 && _this2.showInnerPlastic(el, ctx);
-	          },
-	          onUpdate: function (p) {
-	            p = mojs.easing.cubic.out(p);
-	            var transform = "rotate(" + 90 * (1 - p) + "deg) translateZ(0) translateY(" + 200 * (1 - p) + "%)";
-	            var transformOrigin = "left " + 80 * p + "%";
-	            mojs.h.setPrefixedStyle(text, "transform", transform);
-	            mojs.h.setPrefixedStyle(text, "transform-origin", transformOrigin);
-	            text.style.opacity = mojs.easing.cubic.out(p);
-	          }
-	        });
-	        tween.add(timeline);
-	      }).apply(this, [i]);
-	    };
-	    tween.start();
+	  moveTextEl: function (el, p) {
+	    p = mojs.easing.cubic.out(p);
+	    var transform = "rotate(" + 90 * (1 - p) + "deg) translateZ(0) translateY(" + 200 * (1 - p) + "%)";
+	    var transformOrigin = "left " + 80 * p + "%";
+	    mojs.h.setPrefixedStyle(el, "transform", transform);
+	    mojs.h.setPrefixedStyle(el, "transform-origin", transformOrigin);
+	    el.style.opacity = mojs.easing.cubic.out(p);
 	  },
-	  showInnerPlastic: function (el, ctx) {
-	    var _this3 = this;
+	  showInnerPlastic: function (el) {
+	    var _this2 = this;
 	    var contentEl = el.querySelector(".particle__content");
-	    ctx.closeBtn.classList.add("is-show");
 	    contentEl.classList.add("is-show");
 
 	    var tween = new mojs.Tween(),
@@ -12610,29 +12611,29 @@
 	      fill: "transparent",
 	      stroke: "white",
 	      strokeWidth: { 10: 0 },
-	      duration: 275 * ctx.S,
-	      delay: 300 * ctx.S,
+	      duration: 275 * this.S,
+	      delay: 300 * this.S,
 	      radiusX: { 20: 100 },
 	      radiusY: { 5: 10 },
 	      opacity: { 1: 0 },
 	      strokeDasharray: "50% 200%"
 	    }).then({
 	      shiftX: { "-75": "-75" },
-	      duration: 150 * ctx.S,
+	      duration: 150 * this.S,
 	      radiusX: { 15: 80 },
 	      radiusY: { 4: 8 },
 	      strokeWidth: { 8: 0 },
 	      opacity: { 0.8: 0 }
 	    }).then({
 	      shiftX: { "-80": "-80" },
-	      duration: 75 * ctx.S,
+	      duration: 75 * this.S,
 	      radiusX: { 12: 60 },
 	      radiusY: { 3: 7 },
 	      strokeWidth: { 4: 0 },
 	      opacity: { 0.6: 0 }
 	    }).then({
 	      shiftX: { "-85": "-85" },
-	      duration: 50 * ctx.S,
+	      duration: 50 * this.S,
 	      radiusX: { 11: 55 },
 	      radiusY: { 2: 6 },
 	      strokeWidth: { 2: 0 },
@@ -12645,7 +12646,7 @@
 	      offsetX: 300,
 	      offsetY: 300,
 	      el: image,
-	      duration: 1000 * ctx.S,
+	      duration: 1000 * this.S,
 	      easing: "cubic.out",
 	      onPosit: function (p, x, y, angle) {
 	        p = mojs.easing.expo.out(mojs.easing.cubic["in"](p));
@@ -12654,17 +12655,13 @@
 	            scale = "scaleY(" + (2.5 - 1.5 * p) + ")";
 	        mojs.h.setPrefixedStyle(shadow, "transform", "" + translate + " " + rotate + " " + scale);
 	        return "translate(" + x + "px, " + y + "px)";
-	      },
-	      onComplete: function () {
-	        _this3.showClose(ctx);
-	      }
-	    });
+	      } });
 
 	    var opacityEasing = mojs.easing.path("M0,0 C0,0 32.1191406,0.314142863 40.1669859,0 C40.1669859,0.165327852 50.9999996,-112.569017 74.0660521,0 C80.8905119,-16.0420643 87.1001393,-19.621745 92.0689049,0 C92.0689049,1.54522552 95.3231688,-14.8615687 100,0"),
 	        bounceEasing = mojs.easing.path("M0,100 C28.3125,98.6523445 39.0445328,8.99375039 40.1669859,0 C40.1669859,-0.0485295402 50.9999996,152.873952 74.0660521,0 C80.8905119,21.9365596 87.1001393,26.7923438 92.0689049,0 C92.0689049,-1.92034044 95.3231688,20.3352347 100,0");
 
 	    var timeline1 = new mojs.Timeline({
-	      duration: 800 * ctx.S,
+	      duration: 800 * this.S,
 	      onUpdate: function (p) {
 	        var b = mojs.easing.bounce.out(p);
 	        var bin = mojs.easing.bounce["in"](p);
@@ -12684,8 +12681,8 @@
 	    });
 
 	    var soundTimeline = new mojs.Timeline({
-	      delay: 300 * ctx.S, onStart: function () {
-	        ctx.bounceSound.play();
+	      delay: 300 * this.S, onStart: function () {
+	        _this2.bounceSound.play();
 	      }
 	    });
 
@@ -12695,24 +12692,7 @@
 	};
 
 	module.exports = showInner;
-	// onStart: ()=> {
-	//   setTimeout(function () { ctx.scissors1Sound.play() }, scissorsSoundDelay*ctx.S);
-	// }
-	// onStart: ()=> {
-	//   setTimeout(function () { ctx.scissors2Sound.play() }, scissorsSoundDelay*ctx.S);
-	// }
-	// onStart: ()=> {
-	//   setTimeout(function () { ctx.scissors3Sound.play() }, scissorsSoundDelay*ctx.S);
-	// }
-	// onStart: ()=> {
-	//   setTimeout(function () { ctx.scissors4Sound.play() }, scissorsSoundDelay*ctx.S);
-	// }
-	// onStart: ()=> {
-	//   setTimeout(function () { ctx.scissors6Sound.play() }, scissorsSoundDelay*ctx.S);
-	// }
-	// onStart: ()=> {
-	//   setTimeout(function () { ctx.scissors7Sound.play() }, scissorsSoundDelay*ctx.S);
-	// }
+	// onStart:()=> { this.showClose(); }
 
 /***/ },
 
@@ -12730,7 +12710,7 @@
 	var mojs = __webpack_require__(2);
 
 	var showClose = {
-	  initClose: function (ctx) {
+	  initClose: function () {
 	    var _this = this;
 	    var dur = 400;
 	    var closeOption = {
@@ -12768,14 +12748,12 @@
 	    mojs.h.extend(closeBurstOption, closeOption);
 	    this.closeBurst = new mojs.Burst(closeBurstOption);
 	  },
-	  showClose: function (ctx) {
-	    ctx.closeBtn.style.display = "block";
-	    this.closeCircle.run();
-	    this.closeCross.run();
-	    this.closeBurst.run();
+	  showClose: function () {
+	    this.closeBtn.classList.add("is-show");
+	    this.closeCircle.run();this.closeCross.run();this.closeBurst.run();
 	  },
-	  hideClose: function (ctx) {
-	    ctx.closeBtn.style.display = "none";
+	  hideClose: function () {
+	    this.closeBtn.style.display = "none";
 	  }
 	};
 

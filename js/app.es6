@@ -40,7 +40,7 @@ var main = {
     this.openSound2     = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: .15 });
     this.bounceSound    = new Howl({ urls: ['sounds/bounce-2.wav'] });
     this.closeSound     = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .5 });
-    this.metaSound      = new Howl({ urls: ['sounds/meta.wav'] });
+    this.metaSound      = new Howl({ urls: ['sounds/open-bubble.wav'] });
 
 
     // this.scissors1Sound = new Howl({ urls: ['sounds/scissors-1.wav'] });

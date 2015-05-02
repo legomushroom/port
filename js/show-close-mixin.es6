@@ -1,7 +1,7 @@
 var mojs = require('../js/vendor/mo')
 
 var showClose = {
-  initClose: function (ctx) {
+  initClose: function () {
     var dur = 400;
     var closeOption = {
       parent:       document.querySelector('#js-close-btn'),
@@ -41,13 +41,11 @@ var showClose = {
     this.closeBurst = new mojs.Burst(closeBurstOption);
 
   },
-  showClose: function (ctx) {
-    ctx.closeBtn.style.display = 'block';
-    this.closeCircle.run();
-    this.closeCross.run();
-    this.closeBurst.run();
+  showClose: function () {
+    this.closeBtn.classList.add('is-show');
+    this.closeCircle.run(); this.closeCross.run(); this.closeBurst.run();
   },
-  hideClose: function (ctx) { ctx.closeBtn.style.display = 'none'; }
+  hideClose: function () { this.closeBtn.style.display = 'none'; }
 }
 
 
