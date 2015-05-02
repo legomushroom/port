@@ -78,14 +78,13 @@
 
 	var main = {
 	  init: function (o) {
+	    var _this = this;
 	    this.vars();this.initContainer();this.initClose();
 	    this.draw();this.events();
 
-	    // setTimeout(()=>{
-	    //   var showInnerModule = new ShowInner;
-	    //   var el = document.querySelector('.particle.is-open');
-	    //   showInnerModule.showInner(el, this);
-	    // }, 1000)
+	    setTimeout(function () {
+	      _this.showInnerCircle();
+	    }, 1000);
 	    return this;
 	  },
 	  // showOnEl: function (el) { showOnElModule.show.apply(this, [el]) },
@@ -101,24 +100,17 @@
 	    this.particlesContainer = document.querySelector("#scroller");
 	    this.particles = document.querySelectorAll(".particle");
 	    this.S = 1;
-	    this.openSound = new Howl({ urls: ["sounds/open-bubble-2.wav"] });
-	    this.openSound2 = new Howl({ urls: ["sounds/open-bubble-3.wav"], rate: 0.15 });
-	    this.bounceSound = new Howl({ urls: ["sounds/bounce-2.wav"] });
-	    this.closeSound = new Howl({ urls: ["sounds/bubble-single-1.wav"], rate: 0.5 });
-	    this.metaSound = new Howl({ urls: ["sounds/open-bubble.wav"], rate: 1.5 });
-
-
-	    // this.scissors1Sound = new Howl({ urls: ['sounds/scissors-1.wav'] });
-	    // this.scissors2Sound = new Howl({ urls: ['sounds/scissors-2.wav'] });
-	    // this.scissors3Sound = new Howl({ urls: ['sounds/scissors-3.wav'] });
-	    // this.scissors4Sound = new Howl({ urls: ['sounds/scissors-4.wav'] });
-	    // this.scissors5Sound = new Howl({ urls: ['sounds/scissors-5.wav'] });
-	    // this.scissors6Sound = new Howl({ urls: ['sounds/scissors-6.wav'] });
-	    // this.scissors7Sound = new Howl({ urls: ['sounds/scissors-7.wav'] });
+	    this.openSound = new Howl({ urls: ["sounds/open-bubble-2xxx.wav"] });
+	    this.openSound2 = new Howl({ urls: ["sounds/open-bubble-3xxx.wav"], rate: 0.15 });
+	    this.bounceSound = new Howl({ urls: ["sounds/bounce-2xxx.wav"] });
+	    this.closeSound = new Howl({ urls: ["sounds/bubble-single-1xxx.wav"], rate: 0.5 });
+	    this.metaSound = new Howl({ urls: ["sounds/open-bubblexxx.wav"], rate: 1.5 });
 
 	    this.particleRadius = getComputedStyle(this.particles[0]).width;
 	    this.particleRadius = parseInt(this.particleRadius, 10) / 2;
 	    this.closeBtn = document.querySelector("#js-close-btn");
+	    this.blobCircle = document.querySelector("#js-blob-circle");
+	    this.blobCircleI = document.querySelector("#js-blob-circle-inner");
 	    this.badge = document.querySelector("#js-badge");
 	    this.particlesLength = this.particles.length;
 	    var styles = getComputedStyle(this.particlesContainer);
@@ -195,6 +187,9 @@
 	mojs.h.extend(main, showClose);
 	mojs.h.extend(main, showInnerPlastic);
 	window.app = main.init();
+	// var showInnerModule = new ShowInner;
+	// var el = document.querySelector('.particle.is-open');
+	// showInnerModule.showInner(el, this);
 
 /***/ },
 
@@ -12409,22 +12404,28 @@
 	var mojs = __webpack_require__(2);
 
 	var showOnEl = {
-	  showOnEl: function (el) {
+	  showInnerCircle: function () {
 	    var _this = this;
-	    var x = el.x - this.wWidth / 2 - this.xOffset,
-	        y = el.y - this.wHeight / 2 - this.yOffset,
-	        innerEl = el.querySelector(".particle__inner"),
-	        contentEl = el.querySelector(".particle__content");
 	    var tween = new mojs.Tween();
 
-	    this.isOpen = true;
-	    el.style["z-index"] = 20;
-	    this.iscroll.enabled = false;
-	    this.iscroll.scrollTo(-x, -y, 500 * this.S);
+	    var blobCircleTm = new mojs.Timeline({
+	      duration: 500 * this.S,
+	      // easing:     'cubic.out',
+	      onUpdate: function (p) {
+	        mojs.h.setPrefixedStyle(_this.blobCircle, "transform", "scale(" + 30 * p + ") translateZ(0)");
+	        // mojs.h.setPrefixedStyle(this.blobCircleI, 'transform', `scale(${2*p}) translateZ(0)`);
+	        // var scale = 1/(1+(3*(1-p)));
+	        _this.blobCircle.style.opacity = 1 * mojs.easing.cubic["in"](1 - p);
+	      }
+	    });
+
+	    tween.add(blobCircleTm);
+	    tween.start();
+
 
 	    var burst = new mojs.Transit({
 	      parent: this.particlesContainer,
-	      x: el.x + 75, y: el.y + 75,
+	      x: "34%", y: "39%",
 	      type: "circle",
 	      stroke: "white",
 	      fill: "transparent",
@@ -12440,11 +12441,43 @@
 	      }
 	    });
 	    burst.el.style["z-index"] = 1;
-	    burst.run();
+	    // burst.run();
+	  },
+
+	  showOnEl: function (el) {
+	    var _this2 = this;
+	    var x = el.x - this.wWidth / 2 - this.xOffset,
+	        y = el.y - this.wHeight / 2 - this.yOffset,
+	        innerEl = el.querySelector(".particle__inner"),
+	        contentEl = el.querySelector(".particle__content");
+	    var tween = new mojs.Tween();
+
+	    this.isOpen = true;
+	    el.style["z-index"] = 20;
+	    this.iscroll.enabled = false;
+	    this.iscroll.scrollTo(-x, -y, 500 * this.S);
+
+	    // var burst = new mojs.Transit({
+	    //   parent:       this.particlesContainer,
+	    //   x: '50%',     y: '50%',
+	    //   type:         'circle',
+	    //   stroke:       'white',
+	    //   fill:         'transparent',
+	    //   strokeWidth:  {40: 0},
+	    //   count:        12,
+	    //   opacity:      {.5:0},
+	    //   radius:       {0:this.size},
+	    //   isRunLess:    true,
+	    //   childOptions: { radius: { 15: 0 } },
+	    //   duration:     500*this.S,
+	    //   onStart:() => {this.openSound.play();}
+	    // });
+	    // burst.el.style['z-index'] = 1;
+	    // burst.run();
 
 	    var soundTimeline = new mojs.Timeline({
 	      delay: 50 * this.S, onStart: function () {
-	        _this.openSound2.play();
+	        _this2.openSound2.play();
 	      }
 	    });
 
@@ -12459,8 +12492,8 @@
 	    var blobTimeline = new mojs.Timeline({
 	      duration: 600 * this.S, delay: 100 * this.S,
 	      onUpdate: function (p) {
-	        _this.blob = _this.blobBase + 0.3 * mojs.easing.cubic.out(p);
-	        _this.blobShift = _this.blobBase + 1 * p;
+	        _this2.blob = _this2.blobBase + 0.3 * mojs.easing.cubic.out(p);
+	        _this2.blobShift = _this2.blobBase + 1 * p;
 	      }
 	    });
 
@@ -12477,12 +12510,12 @@
 	      },
 	      onStart: function () {
 	        setTimeout(function () {
-	          _this.showInner(el, _this);
+	          _this2.showInner(el, _this2);
 	        }, 400);
 	      }
 	    });
 
-	    tween.add(scaleDownTween, soundTimeline, blobTimeline, scaleUpTimeline);
+	    tween.add(scaleDownTween, soundTimeline, blobTimeline, scaleUpTimeline, blobCircleTm);
 	    tween.start();
 	  }
 	};
@@ -12528,10 +12561,7 @@
 	    //   isSwirl:      true,
 	    //   delay:        500*this.S,
 	    //   onStart:      () => {this.closeSound.play()}
-
 	    // });
-
-
 
 	    var texts = el.querySelectorAll(".project-text-line__inner");
 	    var yShift = 10,

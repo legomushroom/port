@@ -139,6 +139,21 @@ body {
   -ms-transform-origin: 100% center;
   transform-origin: 100% center;
 }
+.blob-circle {
+  border: 2px solid #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  -webkit-transform: scale(0.01);
+  -ms-transform: scale(0.01);
+  transform: scale(0.01);
+  position: absolute;
+  margin-top: -15px;
+  margin-left: -15px;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+}
 .close {
   position: fixed;
   width: 1.875rem;

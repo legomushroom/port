@@ -22,10 +22,7 @@ var showInner = {
     //   isSwirl:      true,
     //   delay:        500*this.S,
     //   onStart:      () => {this.closeSound.play()}
-
     // });
-
-
 
     var texts = el.querySelectorAll('.project-text-line__inner');
     var yShift = 10, xShift = 10;

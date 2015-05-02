@@ -1,21 +1,27 @@
 var mojs      = require('../js/vendor/mo');
 
 var showOnEl = {
-  showOnEl: function (el) {
-    var x = el.x - this.wWidth/2 - this.xOffset,
-        y = el.y - this.wHeight/2 - this.yOffset,
-        innerEl   = el.querySelector('.particle__inner'),
-        contentEl = el.querySelector('.particle__content');
+  showInnerCircle: function () {
     var tween = new mojs.Tween;
 
-    this.isOpen = true;
-    el.style['z-index']  = 20
-    this.iscroll.enabled = false;
-    this.iscroll.scrollTo(-x,-y, 500*this.S);
+    var blobCircleTm = new mojs.Timeline({
+      duration:  500*this.S,
+      // easing:     'cubic.out',
+      onUpdate:   (p) => {
+        mojs.h.setPrefixedStyle(this.blobCircle, 'transform', `scale(${30*p}) translateZ(0)`);
+        // mojs.h.setPrefixedStyle(this.blobCircleI, 'transform', `scale(${2*p}) translateZ(0)`);
+        // var scale = 1/(1+(3*(1-p)));
+        this.blobCircle.style.opacity = 1*(mojs.easing.cubic.in(1-p));
+      }
+    });
+
+    tween.add(blobCircleTm);
+    tween.start()
+
 
     var burst = new mojs.Transit({
       parent:       this.particlesContainer,
-      x: el.x+75,   y: el.y+75,
+      x: '34%',     y: '39%',
       type:         'circle',
       stroke:       'white',
       fill:         'transparent',
@@ -29,7 +35,38 @@ var showOnEl = {
       onStart:() => {this.openSound.play();}
     });
     burst.el.style['z-index'] = 1;
-    burst.run();
+    // burst.run();
+  },
+
+  showOnEl: function (el) {
+    var x = el.x - this.wWidth/2 - this.xOffset,
+        y = el.y - this.wHeight/2 - this.yOffset,
+        innerEl   = el.querySelector('.particle__inner'),
+        contentEl = el.querySelector('.particle__content');
+    var tween = new mojs.Tween;
+
+    this.isOpen = true;
+    el.style['z-index']  = 20
+    this.iscroll.enabled = false;
+    this.iscroll.scrollTo(-x,-y, 500*this.S);
+
+    // var burst = new mojs.Transit({
+    //   parent:       this.particlesContainer,
+    //   x: '50%',     y: '50%',
+    //   type:         'circle',
+    //   stroke:       'white',
+    //   fill:         'transparent',
+    //   strokeWidth:  {40: 0},
+    //   count:        12,
+    //   opacity:      {.5:0},
+    //   radius:       {0:this.size},
+    //   isRunLess:    true,
+    //   childOptions: { radius: { 15: 0 } },
+    //   duration:     500*this.S,
+    //   onStart:() => {this.openSound.play();}
+    // });
+    // burst.el.style['z-index'] = 1;
+    // burst.run();
 
     var soundTimeline = new mojs.Timeline({
       delay: 50*this.S, onStart: () => { this.openSound2.play(); }
@@ -69,7 +106,7 @@ var showOnEl = {
       }
     });
     
-    tween.add(scaleDownTween, soundTimeline, blobTimeline, scaleUpTimeline);
+    tween.add(scaleDownTween, soundTimeline, blobTimeline, scaleUpTimeline, blobCircleTm);
     tween.start();
   }
 }

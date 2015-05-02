@@ -18,11 +18,12 @@ var main = {
     this.vars(); this.initContainer(); this.initClose()
     this.draw(); this.events()
     
-    // setTimeout(()=>{
-    //   var showInnerModule = new ShowInner;
-    //   var el = document.querySelector('.particle.is-open');
-    //   showInnerModule.showInner(el, this);
-    // }, 1000)
+    setTimeout(()=>{
+      this.showInnerCircle()
+      // var showInnerModule = new ShowInner;
+      // var el = document.querySelector('.particle.is-open');
+      // showInnerModule.showInner(el, this);
+    }, 1000)
     return this;
   },
   // showOnEl: function (el) { showOnElModule.show.apply(this, [el]) },
@@ -38,25 +39,18 @@ var main = {
     this.particlesContainer = document.querySelector('#scroller');
     this.particles = document.querySelectorAll('.particle');
     this.S = 1;
-    this.openSound      = new Howl({ urls: ['sounds/open-bubble-2.wav'] });
-    this.openSound2     = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: .15 });
-    this.bounceSound    = new Howl({ urls: ['sounds/bounce-2.wav'] });
-    this.closeSound     = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .5 });
-    this.metaSound      = new Howl({ urls: ['sounds/open-bubble.wav'], rate: 1.5});
-
-
-    // this.scissors1Sound = new Howl({ urls: ['sounds/scissors-1.wav'] });
-    // this.scissors2Sound = new Howl({ urls: ['sounds/scissors-2.wav'] });
-    // this.scissors3Sound = new Howl({ urls: ['sounds/scissors-3.wav'] });
-    // this.scissors4Sound = new Howl({ urls: ['sounds/scissors-4.wav'] });
-    // this.scissors5Sound = new Howl({ urls: ['sounds/scissors-5.wav'] });
-    // this.scissors6Sound = new Howl({ urls: ['sounds/scissors-6.wav'] });
-    // this.scissors7Sound = new Howl({ urls: ['sounds/scissors-7.wav'] });
+    this.openSound      = new Howl({ urls: ['sounds/open-bubble-2xxx.wav'] });
+    this.openSound2     = new Howl({ urls: ['sounds/open-bubble-3xxx.wav'], rate: .15 });
+    this.bounceSound    = new Howl({ urls: ['sounds/bounce-2xxx.wav'] });
+    this.closeSound     = new Howl({ urls: ['sounds/bubble-single-1xxx.wav'], rate: .5 });
+    this.metaSound      = new Howl({ urls: ['sounds/open-bubblexxx.wav'], rate: 1.5});
 
     this.particleRadius = getComputedStyle(this.particles[0]).width;
     this.particleRadius = parseInt(this.particleRadius, 10)/2;
-    this.closeBtn  = document.querySelector('#js-close-btn');
-    this.badge = document.querySelector('#js-badge');
+    this.closeBtn     = document.querySelector('#js-close-btn');
+    this.blobCircle   = document.querySelector('#js-blob-circle');
+    this.blobCircleI  = document.querySelector('#js-blob-circle-inner');
+    this.badge        = document.querySelector('#js-badge');
     this.particlesLength = this.particles.length;
     var styles     = getComputedStyle(this.particlesContainer);
     this.width     = parseInt(styles.width, 10);
