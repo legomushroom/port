@@ -1,9 +1,7 @@
 var mojs      = require('../js/vendor/mo');
-var ShowInner = require('./show-inner');
-var showInnerModule = new ShowInner;
 
-class ShowOnEl {
-  show (el) {
+var showOnEl = {
+  showOnEl: function (el) {
     var x = el.x - this.wWidth/2 - this.xOffset,
         y = el.y - this.wHeight/2 - this.yOffset,
         innerEl   = el.querySelector('.particle__inner'),
@@ -64,7 +62,7 @@ class ShowOnEl {
         // mojs.h.setPrefixedStyle(contentEl, 'transform', contentScale);
         innerEl.style.opacity = .75 + .25*mojs.easing.cubic.out(p)
       },
-      onComplete:()=> { showInnerModule.showInner.apply(this, [el]); }
+      onComplete:()=> { this.showInner(el, this); }
     });
     
     tween.add(scaleDownTween, soundTimeline, blobTimeline, scaleUpTimeline);
@@ -72,4 +70,4 @@ class ShowOnEl {
   }
 }
 
-export default ShowOnEl
+export default showOnEl

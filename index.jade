@@ -68,8 +68,8 @@ html
               - var left = i*(size+gap)-shift;
               - var top  = j*(size-gap/2);
               - var middle = ~~(columnCnt/2)
-              //- - var className = (j === middle && i === middle) ? 'is-open1': '';
-              - var className = (j === (middle-5) && i ===( middle-5)) ? 'is-open': '';
+              - var className = (j === middle && i === middle) ? 'is-open1': '';
+              //- - var className = (j === (middle-5) && i ===( middle-5)) ? 'is-open': '';
               .particle( class="#{className}", id="js-particle-#{i}",
                              data-left="#{left}", data-top="#{top}"
                              style="left: #{left}px; top: #{top}px" )
@@ -82,7 +82,7 @@ html
                       +img()
                     .project__text#js-text
                       .project-text-line.project-text-line--header
-                        .project-text-line__inner Some random project
+                        .project-text-line__inner Some project
                       .project-text-line
                         .project-text-line__inner It if sometimes furnished unwilling as
                       .project-text-line

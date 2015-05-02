@@ -1,55 +1,55 @@
-var Impulse   = require('impulse')
+// var Impulse   = require('impulse')
 var mojs      = require('../js/vendor/mo')
 var Iscroll   = require('../js/vendor/iscroll-probe')
-var Events    = require('./events')
-var ShowOnEl  = require('./show-on-el')
-
 var Howl      = require('howler').Howl
-var showOnElModule = new ShowOnEl;
 
-var ShowInner = require('./show-inner');
+var events    = require('./events-mixin')
+var showOnEl  = require('./show-on-el-mixin')
+var showInner = require('./show-inner-mixin');
+var showClose = require('./show-close-mixin');
 
+// var showOnElModule = new ShowOnEl;
+// var ShowInner = require('./show-inner');
 
-
-class Main {
-  constructor(o) {
-    this.vars(); this.initContainer()
+var main = {
+  init: function(o) {
+    this.vars(); this.initContainer(); this.initClose()
     this.draw(); this.events()
     
-    setTimeout(()=>{
-      var showInnerModule = new ShowInner;
-      var el = document.querySelector('.particle.is-open');
-      showInnerModule.showInner(el, this);
-    }, 1000)
-  }
-  events ()    { (new Events).add.call(this) }
-  showOnEl(el) { showOnElModule.show.apply(this, [el]) }
-
-  initContainer () {
+    // setTimeout(()=>{
+    //   var showInnerModule = new ShowInner;
+    //   var el = document.querySelector('.particle.is-open');
+    //   showInnerModule.showInner(el, this);
+    // }, 1000)
+    return this;
+  },
+  // showOnEl: function (el) { showOnElModule.show.apply(this, [el]) },
+  initContainer: function () {
     this.iscroll = new Iscroll('#js-wrapper', {
       scrollX: true, freeScroll: true, mouseWheel: true, probeType: 3
     });
     var x = -this.centerX + this.wWidth/2 + this.xOffset,
         y = -this.centerY + this.wHeight/2 + this.yOffset;
     this.iscroll.scrollTo(x, y, 10);
-  }
-
-  vars() {
+  },
+  vars: function() {
     this.particlesContainer = document.querySelector('#scroller');
     this.particles = document.querySelectorAll('.particle');
     this.S = 1;
-    this.openSound = new Howl({ urls: ['sounds/open-bubble-2.wav'] });
-    this.openSound2 = new Howl({
-      urls: ['sounds/open-bubble-3.wav'], rate: .15
-    });
-    this.bounceSound = new Howl({ urls: ['sounds/bounce-2.wav'] });
-    this.scissors1Sound = new Howl({ urls: ['sounds/scissors-1.wav'] });
-    this.scissors2Sound = new Howl({ urls: ['sounds/scissors-2.wav'] });
-    this.scissors3Sound = new Howl({ urls: ['sounds/scissors-3.wav'] });
-    this.scissors4Sound = new Howl({ urls: ['sounds/scissors-4.wav'] });
-    this.scissors5Sound = new Howl({ urls: ['sounds/scissors-5.wav'] });
-    this.scissors6Sound = new Howl({ urls: ['sounds/scissors-6.wav'] });
-    this.scissors7Sound = new Howl({ urls: ['sounds/scissors-7.wav'] });
+    this.openSound      = new Howl({ urls: ['sounds/open-bubble-2.wav'] });
+    this.openSound2     = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: .15 });
+    this.bounceSound    = new Howl({ urls: ['sounds/bounce-2.wav'] });
+    this.closeSound     = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .5 });
+    this.metaSound      = new Howl({ urls: ['sounds/meta.wav'] });
+
+
+    // this.scissors1Sound = new Howl({ urls: ['sounds/scissors-1.wav'] });
+    // this.scissors2Sound = new Howl({ urls: ['sounds/scissors-2.wav'] });
+    // this.scissors3Sound = new Howl({ urls: ['sounds/scissors-3.wav'] });
+    // this.scissors4Sound = new Howl({ urls: ['sounds/scissors-4.wav'] });
+    // this.scissors5Sound = new Howl({ urls: ['sounds/scissors-5.wav'] });
+    // this.scissors6Sound = new Howl({ urls: ['sounds/scissors-6.wav'] });
+    // this.scissors7Sound = new Howl({ urls: ['sounds/scissors-7.wav'] });
 
     this.particleRadius = getComputedStyle(this.particles[0]).width;
     this.particleRadius = parseInt(this.particleRadius, 10)/2;
@@ -71,9 +71,8 @@ class Main {
       particle.x = parseInt(particle.getAttribute('data-left'), 10);
       particle.y = parseInt(particle.getAttribute('data-top'),  10);
     }
-  }
-
-  draw() {
+  },
+  draw: function() {
     var origin = `${this.bubleCenter.x}px ${this.bubleCenter.y}px`
     mojs.helpers.setPrefixedStyle(this.particlesContainer, 'perspective-origin', origin)
 
@@ -113,9 +112,8 @@ class Main {
       }
     }
     requestAnimationFrame(this.draw.bind(this));
-  }
-
-  calcDimentions () {
+  },
+  calcDimentions: function () {
     this.wWidth    = window.innerWidth; this.wHeight = window.innerHeight;
     this.centerY = this.height/2 - this.wHeight/2;
     this.centerX = this.width/2  - this.wWidth/2;
@@ -126,4 +124,8 @@ class Main {
   }
 }
 
-window.app = new Main
+mojs.h.extend(main, events);
+mojs.h.extend(main, showOnEl);
+mojs.h.extend(main, showInner);
+mojs.h.extend(main, showClose);
+window.app = main.init()

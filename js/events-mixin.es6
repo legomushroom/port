@@ -1,7 +1,7 @@
 var Hammer    = require('hammerjs')
 
-class Events {
-  add() {
+var events = {
+  events: function () {
     window.addEventListener('resize', () => {
       this.calcDimentions()
       this.bubleCenter.x = -this.iscroll.x + this.wWidth/2 + this.xOffset
@@ -26,10 +26,8 @@ class Events {
     this.iscroll.on('scroll', ()=> {
       this.bubleCenter.x = -this.iscroll.x + this.wWidth/2 + this.xOffset
       this.bubleCenter.y = -this.iscroll.y + this.wHeight/2 + this.yOffset
-      // console.log(this.iscroll.x, this.iscroll.y);
     });
-
   }
 }
 
-export default Events
+export default events

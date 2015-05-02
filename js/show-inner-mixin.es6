@@ -1,17 +1,14 @@
 var mojs = require('../js/vendor/mo');
+// var ShowCloseModule = require('./show-close-mixin');
+// var showCloseModule = new ShowCloseModule;
+// showCloseModule.initClose()
 
-class ShowInner {
-  showInner (el, ctx) {
-    this.showInnerText(el, ctx);
-    // this.showInnerPlastic(el, ctx);
-  }
-
-  showInnerText (el, ctx) {
-    this.showInnerTextPrelude(el, ctx);
-  }
-
-  showInnerTextPrelude (el, ctx) {
+var showInner = {
+  showInner:            function (el, ctx) { this.showInnerText(el, ctx); },
+  showInnerText:        function (el, ctx) { this.showInnerTextPrelude(el, ctx); },
+  showInnerTextPrelude: function (el, ctx) {
     var yShift = 10, xShift = 10;
+    el.querySelector('.particle__content').style.display = 'block'
     var textLineOption = {
       parent:       el.querySelector('.project__text'),
       x: -25+xShift,y: 104+yShift,
@@ -24,69 +21,67 @@ class ShowInner {
       strokeDashoffset: { '100%': '-100%' },
       delay: 'rand(200, 500)'
     }
-
-    var scissorsSoundDelay = 3500000;
-
+    var scissorsSoundDelay = 350;
     var lineBigOption = {
       y: 20+yShift, x: -45+xShift, radius: 120, strokeDashoffset: { '100%': '-100%' },
       strokeWidth: {30: 0},
-      onStart: ()=> {
-        setTimeout(function () { ctx.scissors1Sound.play() }, scissorsSoundDelay*ctx.S);
-      }
+      // onStart: ()=> {
+      //   setTimeout(function () { ctx.scissors1Sound.play() }, scissorsSoundDelay*ctx.S);
+      // }
       }
     mojs.h.extend(lineBigOption, textLineOption);
     var line1 = new mojs.Transit(lineBigOption);    
 
     var line0Option = {
       y: 128+yShift, radius: 50, strokeDashoffset: { '-100%': '100%' },
-      onStart: ()=> {
-        setTimeout(function () { ctx.scissors2Sound.play() }, scissorsSoundDelay*ctx.S);
-      }
+      // onStart: ()=> {
+      //   setTimeout(function () { ctx.scissors2Sound.play() }, scissorsSoundDelay*ctx.S);
+      // }
     }
     mojs.h.extend(line0Option, textLineOption);
     var line1 = new mojs.Transit(line0Option);    
 
     var line1Option = {
-        onStart: ()=> {
-          setTimeout(function () { ctx.scissors3Sound.play() }, scissorsSoundDelay*ctx.S);
-        }
+        // onStart: ()=> {
+        //   setTimeout(function () { ctx.scissors3Sound.play() }, scissorsSoundDelay*ctx.S);
+        // }
       }
     mojs.h.extend(line1Option, textLineOption);
     var line1 = new mojs.Transit(line1Option);
 
     var line2Option = {
       y: 80+yShift, radius: 80, strokeDashoffset:{'-100%':'100%'},
-      onStart: ()=> {
-        setTimeout(function () { ctx.scissors4Sound.play() }, scissorsSoundDelay*ctx.S);
-      }
+      // onStart: ()=> {
+      //   setTimeout(function () { ctx.scissors4Sound.play() }, scissorsSoundDelay*ctx.S);
+      // }
     }
     mojs.h.extend(line2Option, textLineOption);
     var line2 = new mojs.Transit(line2Option);
 
     var line3Option = {
       y: 80+yShift, radius: 70, x: 180+xShift, strokeDashoffset:{'100%':'-100%'},
-      onStart: ()=> {
-        setTimeout(function () { ctx.scissors6Sound.play() }, scissorsSoundDelay*ctx.S);
-      }
+      // onStart: ()=> {
+      //   setTimeout(function () { ctx.scissors6Sound.play() }, scissorsSoundDelay*ctx.S);
+      // }
     }
     mojs.h.extend(line3Option, textLineOption);
     var line2 = new mojs.Transit(line3Option);
 
     var line4Option = {
       y: 55+yShift, radius: 150, strokeDashoffset: { '-100%': '100%' },
-      onStart: ()=> {
-        setTimeout(function () { ctx.scissors7Sound.play() }, scissorsSoundDelay*ctx.S);
-      }
+      // onStart: ()=> {
+      //   setTimeout(function () { ctx.scissors7Sound.play() }, scissorsSoundDelay*ctx.S);
+      // }
     }
     mojs.h.extend(line4Option, textLineOption);
     var line2 = new mojs.Transit(line4Option);
 
     setTimeout(()=> {
+      this.metaSound.play();
       this.showInnerTexts(el, ctx);
     }, 500);
-  }
-
-  showInnerTexts(el, ctx) {
+  },
+  showInnerTexts: function (el, ctx) {
     var texts = el.querySelectorAll('.project-text-line__inner');
     var tween = new mojs.Tween;
     for (var i = 0; i < texts.length; i++) {
@@ -110,9 +105,8 @@ class ShowInner {
       }).apply(this,[i])
     };
     tween.start();
-  }
-
-  showInnerPlastic (el, ctx) {
+  },
+  showInnerPlastic: function (el, ctx) {
     var contentEl = el.querySelector('.particle__content');
     ctx.closeBtn.classList.add('is-show');
     contentEl.classList.add('is-show');
@@ -175,7 +169,8 @@ class ShowInner {
             scale     = `scaleY(${2.5 - 1.5*(p)})`
         mojs.h.setPrefixedStyle(shadow, 'transform', `${translate} ${rotate} ${scale}`)
         return `translate(${x}px, ${y}px)`
-      }
+      },
+      onComplete:()=> { this.showClose(ctx); }
     });
 
     var opacityEasing = mojs.easing.path('M0,0 C0,0 32.1191406,0.314142863 40.1669859,0 C40.1669859,0.165327852 50.9999996,-112.569017 74.0660521,0 C80.8905119,-16.0420643 87.1001393,-19.621745 92.0689049,0 C92.0689049,1.54522552 95.3231688,-14.8615687 100,0'),
@@ -210,5 +205,5 @@ class ShowInner {
   }
 }
 
-export default ShowInner
+export default showInner
 
