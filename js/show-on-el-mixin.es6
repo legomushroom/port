@@ -35,6 +35,9 @@ var showOnEl = {
   },
 
   showOnEl: function (el) {
+    // return immediately on edges
+    if (el.delta < .2) { return }
+
     var x = el.x - this.wWidth/2 - this.xOffset,
         y = el.y - this.wHeight/2 - this.yOffset,
         innerEl   = el.querySelector('.particle__inner'),
@@ -45,26 +48,7 @@ var showOnEl = {
     el.style['z-index']  = 20
     this.iscroll.enabled = false;
     this.iscroll.scrollTo(-x,-y, 500*this.S);
-
     this.showInnerCircle(el.x+75, el.y+75)
-
-    // var burst = new mojs.Transit({
-    //   parent:       this.particlesContainer,
-    //   x: '50%',     y: '50%',
-    //   type:         'circle',
-    //   stroke:       'white',
-    //   fill:         'transparent',
-    //   strokeWidth:  {40: 0},
-    //   count:        12,
-    //   opacity:      {.5:0},
-    //   radius:       {0:this.size},
-    //   isRunLess:    true,
-    //   childOptions: { radius: { 15: 0 } },
-    //   duration:     500*this.S,
-    //   onStart:() => {this.openSound.play();}
-    // });
-    // burst.el.style['z-index'] = 1;
-    // burst.run();
 
     var soundTimeline = new mojs.Timeline({
       delay: 50*this.S, onStart: () => { this.openSound2.play(); } });
@@ -98,7 +82,8 @@ var showOnEl = {
       },
       onStart:()=> {
         setTimeout(()=> {
-          this.showInner(el, this);
+          this.content.innerHTML = el.querySelector('.particle__content').innerHTML;
+          this.showInner(this.content);
         }, 400)
       }
     });

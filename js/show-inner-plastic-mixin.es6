@@ -1,7 +1,6 @@
 var showInnerPlastic = {
   showInnerPlastic: function (el) {
-    var contentEl = el.querySelector('.particle__content');
-    contentEl.classList.add('is-show');
+    el.classList.add('is-show');
 
     var tween = new mojs.Tween,
         image = el.querySelector('.image'),

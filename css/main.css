@@ -82,17 +82,21 @@ body {
   left: 0;
 }
 .particle__content {
-  position: absolute;
-  width: 33.75rem;
-  height: 33.75rem;
-  height: 17.5rem;
   display: none;
-  top: 50%;
-  left: 50%;
+}
+.content {
+  position: fixed;
+  width: 33.75rem;
+  height: 17.5rem;
+  display: block;
   margin-left: -16.875rem;
   margin-top: -8.75rem;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  display: none;
 }
-.particle__content.is-show {
+.content.is-show {
   display: block;
 }
 .project {
@@ -147,8 +151,8 @@ body {
   height: 30px;
   border-radius: 50%;
   position: absolute;
-  top: 0;
-  left: 0;
+  top: -50%;
+  left: -50%;
   z-index: 1;
 }
 .close {

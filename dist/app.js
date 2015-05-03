@@ -97,16 +97,17 @@
 	    var x = -this.centerX + this.wWidth / 2 + this.xOffset,
 	        y = -this.centerY + this.wHeight / 2 + this.yOffset;
 	    this.iscroll.scrollTo(x, y, 10);
+	    // console.log(this.iscroll.maxScrollY = -3000)
 	  },
 	  vars: function () {
 	    this.particlesContainer = document.querySelector("#scroller");
 	    this.particles = document.querySelectorAll(".particle");
 	    this.S = 1;
-	    this.openSound = new Howl({ urls: ["sounds/open-bubble-2.wav"] });
-	    this.openSound2 = new Howl({ urls: ["sounds/open-bubble-3.wav"], rate: 0.15 });
-	    this.bounceSound = new Howl({ urls: ["sounds/bounce-2.wav"] });
-	    this.closeSound = new Howl({ urls: ["sounds/bubble-single-1.wav"], rate: 0.5 });
-	    this.metaSound = new Howl({ urls: ["sounds/open-bubble.wav"], rate: 1.5 });
+	    this.openSound = new Howl({ urls: ["sounds/open-bubble-2xxx.wav"] });
+	    this.openSound2 = new Howl({ urls: ["sounds/open-bubble-3xxx.wav"], rate: 0.15 });
+	    this.bounceSound = new Howl({ urls: ["sounds/bounce-2xxx.wav"] });
+	    this.closeSound = new Howl({ urls: ["sounds/bubble-single-1xxx.wav"], rate: 0.5 });
+	    this.metaSound = new Howl({ urls: ["sounds/open-bubblexxx.wav"], rate: 1.5 });
 
 	    this.particleRadius = getComputedStyle(this.particles[0]).width;
 	    this.particleRadius = parseInt(this.particleRadius, 10) / 2;
@@ -114,6 +115,7 @@
 	    this.blobCircle = document.querySelector("#js-blob-circle");
 	    this.blobCircleI = document.querySelector("#js-blob-circle-inner");
 	    this.badge = document.querySelector("#js-badge");
+	    this.content = document.querySelector("#js-content");
 	    this.particlesLength = this.particles.length;
 	    var styles = getComputedStyle(this.particlesContainer);
 	    this.width = parseInt(styles.width, 10);
@@ -12381,7 +12383,9 @@
 
 	    this.iscroll.on("scroll", function () {
 	      _this.bubleCenter.x = -_this.iscroll.x + _this.wWidth / 2 + _this.xOffset;
-	      _this.bubleCenter.y = -_this.iscroll.y + _this.wHeight / 2 + _this.yOffset;
+	      _this.bubleCenter.y = -_this.iscroll.y + _this.wHeight / 2 + _this.yOffset
+	      // console.log(this.bubleCenter.y)
+	      ;
 	    });
 	  }
 	};
@@ -12442,6 +12446,11 @@
 
 	  showOnEl: function (el) {
 	    var _this2 = this;
+	    // return immediately on edges
+	    if (el.delta < 0.2) {
+	      return;
+	    }
+
 	    var x = el.x - this.wWidth / 2 - this.xOffset,
 	        y = el.y - this.wHeight / 2 - this.yOffset,
 	        innerEl = el.querySelector(".particle__inner"),
@@ -12452,26 +12461,7 @@
 	    el.style["z-index"] = 20;
 	    this.iscroll.enabled = false;
 	    this.iscroll.scrollTo(-x, -y, 500 * this.S);
-
 	    this.showInnerCircle(el.x + 75, el.y + 75);
-
-	    // var burst = new mojs.Transit({
-	    //   parent:       this.particlesContainer,
-	    //   x: '50%',     y: '50%',
-	    //   type:         'circle',
-	    //   stroke:       'white',
-	    //   fill:         'transparent',
-	    //   strokeWidth:  {40: 0},
-	    //   count:        12,
-	    //   opacity:      {.5:0},
-	    //   radius:       {0:this.size},
-	    //   isRunLess:    true,
-	    //   childOptions: { radius: { 15: 0 } },
-	    //   duration:     500*this.S,
-	    //   onStart:() => {this.openSound.play();}
-	    // });
-	    // burst.el.style['z-index'] = 1;
-	    // burst.run();
 
 	    var soundTimeline = new mojs.Timeline({
 	      delay: 50 * this.S, onStart: function () {
@@ -12507,7 +12497,8 @@
 	      },
 	      onStart: function () {
 	        setTimeout(function () {
-	          _this2.showInner(el, _this2);
+	          _this2.content.innerHTML = el.querySelector(".particle__content").innerHTML;
+	          _this2.showInner(_this2.content);
 	        }, 400);
 	      }
 	    });
@@ -12539,101 +12530,6 @@
 	    this.showClose();
 	    this.showInnerPlastic(el);
 	    // this.showInnerTextPrelude(el);
-	  },
-	  showInnerTextPrelude: function (el) {
-	    var _this = this;
-
-
-	    var text = el.querySelector(".project__text");
-
-	    // var burst = new mojs.Burst({
-	    //   parent:       text,
-	    //   type:         'circle',
-	    //   degree:       45,
-	    //   randomRadius:  1,
-	    //   fill:         'cyan',
-	    //   x: -5,        y: 70,
-	    //   radius:       {0: 200},
-	    //   angle:        -15,
-	    //   isSwirl:      true,
-	    //   delay:        500*this.S,
-	    //   onStart:      () => {this.closeSound.play()}
-	    // });
-
-	    var texts = el.querySelectorAll(".project-text-line__inner");
-	    var yShift = 10,
-	        xShift = 10;
-	    el.querySelector(".particle__content").style.display = "block";
-
-	    this.showClose();
-	    var textLineOption = {
-	      parent: text,
-	      x: -25 + xShift, y: 104 + yShift,
-	      duration: 500 * this.S,
-	      stroke: "cyan",
-	      strokeWidth: { "rand(6, 14)": 0 },
-	      radius: 170,
-	      easing: "cubic.in",
-	      strokeDasharray: "100%",
-	      strokeLinecap: "round",
-	      strokeDashoffset: { "100%": "-100%" },
-	      delay: "rand(0, 300)"
-	    };
-	    var scissorsSoundDelay = 350;
-	    var lineBigOption = {
-	      y: 15 + yShift, x: -45 + xShift, radius: 120, strokeDashoffset: { "100%": "-100%" },
-	      strokeWidth: { 30: 0 },
-	      onUpdate: function (p) {
-	        _this.moveTextEl(texts[0], p);
-	      },
-	      onComplete: function () {
-	        _this.showInnerPlastic(el);
-	      }
-	    };
-	    mojs.h.extend(lineBigOption, textLineOption);
-	    var line1 = new mojs.Transit(lineBigOption);
-
-	    var line0Option = {
-	      y: 122 + yShift, radius: 50, strokeDashoffset: { "-100%": "100%" },
-	      onUpdate: function (p) {
-	        _this.moveTextEl(texts[4], p);
-	      }
-	    };
-	    mojs.h.extend(line0Option, textLineOption);
-	    var line0 = new mojs.Transit(line0Option);
-
-	    var line1Option = { y: 98 + yShift, onUpdate: function (p) {
-	        _this.moveTextEl(texts[3], p);
-	      } };
-	    mojs.h.extend(line1Option, textLineOption);
-	    var line1 = new mojs.Transit(line1Option);
-
-	    var line2Option = {
-	      y: 73 + yShift, radius: 80, strokeDashoffset: { "-100%": "100%" },
-	      onUpdate: function (p) {
-	        _this.moveTextEl(texts[2], p);
-	      }
-	    };
-	    mojs.h.extend(line2Option, textLineOption);
-	    var line2 = new mojs.Transit(line2Option);
-
-	    var line3Option = {
-	      y: 73 + yShift, radius: 70, x: 180 + xShift, strokeDashoffset: { "100%": "-100%" } };
-	    mojs.h.extend(line3Option, textLineOption);
-	    var line3 = new mojs.Transit(line3Option);
-
-	    var line4Option = {
-	      y: 50 + yShift, radius: 150, strokeDashoffset: { "-100%": "100%" },
-	      onUpdate: function (p) {
-	        _this.moveTextEl(texts[1], p);
-	      }
-	    };
-	    mojs.h.extend(line4Option, textLineOption);
-	    var line4 = new mojs.Transit(line4Option);
-
-	    setTimeout(function () {
-	      _this.metaSound.play();
-	    }, 500);
 	  },
 	  moveTextEl: function (el, p) {
 	    p = mojs.easing.cubic.out(p);
@@ -12729,8 +12625,7 @@
 	var showInnerPlastic = {
 	  showInnerPlastic: function (el) {
 	    var _this = this;
-	    var contentEl = el.querySelector(".particle__content");
-	    contentEl.classList.add("is-show");
+	    el.classList.add("is-show");
 
 	    var tween = new mojs.Tween(),
 	        image = el.querySelector(".image"),

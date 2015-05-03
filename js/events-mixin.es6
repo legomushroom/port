@@ -26,6 +26,7 @@ var events = {
     this.iscroll.on('scroll', ()=> {
       this.bubleCenter.x = -this.iscroll.x + this.wWidth/2 + this.xOffset
       this.bubleCenter.y = -this.iscroll.y + this.wHeight/2 + this.yOffset
+      // console.log(this.bubleCenter.y)
     });
   }
 }

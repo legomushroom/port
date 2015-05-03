@@ -34,16 +34,17 @@ var main = {
     var x = -this.centerX + this.wWidth/2 + this.xOffset,
         y = -this.centerY + this.wHeight/2 + this.yOffset;
     this.iscroll.scrollTo(x, y, 10);
+    // console.log(this.iscroll.maxScrollY = -3000)
   },
   vars: function() {
     this.particlesContainer = document.querySelector('#scroller');
     this.particles = document.querySelectorAll('.particle');
     this.S = 1;
-    this.openSound      = new Howl({ urls: ['sounds/open-bubble-2.wav'] });
-    this.openSound2     = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: .15 });
-    this.bounceSound    = new Howl({ urls: ['sounds/bounce-2.wav'] });
-    this.closeSound     = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .5 });
-    this.metaSound      = new Howl({ urls: ['sounds/open-bubble.wav'], rate: 1.5});
+    this.openSound      = new Howl({ urls: ['sounds/open-bubble-2xxx.wav'] });
+    this.openSound2     = new Howl({ urls: ['sounds/open-bubble-3xxx.wav'], rate: .15 });
+    this.bounceSound    = new Howl({ urls: ['sounds/bounce-2xxx.wav'] });
+    this.closeSound     = new Howl({ urls: ['sounds/bubble-single-1xxx.wav'], rate: .5 });
+    this.metaSound      = new Howl({ urls: ['sounds/open-bubblexxx.wav'], rate: 1.5});
 
     this.particleRadius = getComputedStyle(this.particles[0]).width;
     this.particleRadius = parseInt(this.particleRadius, 10)/2;
@@ -51,6 +52,7 @@ var main = {
     this.blobCircle   = document.querySelector('#js-blob-circle');
     this.blobCircleI  = document.querySelector('#js-blob-circle-inner');
     this.badge        = document.querySelector('#js-badge');
+    this.content      = document.querySelector('#js-content');
     this.particlesLength = this.particles.length;
     var styles     = getComputedStyle(this.particlesContainer);
     this.width     = parseInt(styles.width, 10);
@@ -111,7 +113,7 @@ var main = {
     requestAnimationFrame(this.draw.bind(this));
   },
   calcDimentions: function () {
-    this.wWidth    = window.innerWidth; this.wHeight = window.innerHeight;
+    this.wWidth  = window.innerWidth; this.wHeight = window.innerHeight;
     this.centerY = this.height/2 - this.wHeight/2;
     this.centerX = this.width/2  - this.wWidth/2;
     this.bubleCenter = { x: this.centerX, y: this.centerY }

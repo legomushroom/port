@@ -67,6 +67,8 @@ body
   // background #fff
 
 particleSize = 150/2
+contentWidth  = 540
+contentHeight = 280
 {el = '.particle'}
   rect 2*particleSize*PX
   position absolute
@@ -85,21 +87,28 @@ particleSize = 150/2
     circle 100%
     position absolute
     nw 0
-  contentWidth  = 540
-  contentHeight = 280
   &__content
-    position absolute
-    // border PX solid white
-    // background #ccc
-    // border PX solid white
-    rect contentWidth*PX
-    height contentHeight*PX
     display none
-    nw 50%
-    margin-left -(contentWidth/2)*PX
-    margin-top -(contentHeight/2)*PX
-    &.is-show
-      display block
+  //   position absolute
+  //   width contentWidth*PX
+  //   height contentHeight*PX
+  //   nw 50%
+  //   margin-left -(contentWidth/2)*PX
+  //   margin-top -(contentHeight/2)*PX
+    
+.content
+  position      fixed
+  width         contentWidth*PX
+  height        contentHeight*PX
+  display       block
+  margin-left  -(contentWidth/2)*PX
+  margin-top   -(contentHeight/2)*PX
+  // border        1px solid white
+  z-index       2
+  nw            50%
+  display       none
+  &.is-show
+    display     block
 
 .project
   color white
@@ -164,7 +173,7 @@ blobSize = 30
   // transform translate(-70%,-70%)
   // margin-top   -(blobSize/2)px
   // margin-left  -(blobSize/2)px
-  nw            0
+  nw            -50%
   z-index       1
   // blobSizeI = 10
   // &__inner
