@@ -57,11 +57,11 @@ html
   - var columnCnt = 25;
   body
     .close#js-close-btn
-    .blob-circle#js-blob-circle
-      .blob-circle__inner#js-blob-circle-inner
     .badge#js-badge
     .wrapper#js-wrapper
       .particles#scroller(style="margin-left: #{-(size+gap)*1}px; margin-top: #{-(size+gap)*1}px; width:#{(size+gap)*(columnCnt-2.2) - size/2 - 2*gap}px; height:#{(size)*(columnCnt-4.5)-size-2*gap}px")
+          .blob-circle#js-blob-circle
+            .blob-circle__inner#js-blob-circle-inner
           //- .center
           - for (var j=0; j < columnCnt; j++)
             - for (var i=0; i < columnCnt-1; i++)

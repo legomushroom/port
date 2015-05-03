@@ -18,12 +18,12 @@ var main = {
     this.vars(); this.initContainer(); this.initClose()
     this.draw(); this.events()
     
-    setTimeout(()=>{
-      this.showInnerCircle()
-      // var showInnerModule = new ShowInner;
-      // var el = document.querySelector('.particle.is-open');
-      // showInnerModule.showInner(el, this);
-    }, 1000)
+    // setTimeout(()=>{
+    //   this.showInnerCircle()
+    //   // var showInnerModule = new ShowInner;
+    //   // var el = document.querySelector('.particle.is-open');
+    //   // showInnerModule.showInner(el, this);
+    // }, 1000)
     return this;
   },
   // showOnEl: function (el) { showOnElModule.show.apply(this, [el]) },
@@ -39,11 +39,11 @@ var main = {
     this.particlesContainer = document.querySelector('#scroller');
     this.particles = document.querySelectorAll('.particle');
     this.S = 1;
-    this.openSound      = new Howl({ urls: ['sounds/open-bubble-2xxx.wav'] });
-    this.openSound2     = new Howl({ urls: ['sounds/open-bubble-3xxx.wav'], rate: .15 });
-    this.bounceSound    = new Howl({ urls: ['sounds/bounce-2xxx.wav'] });
-    this.closeSound     = new Howl({ urls: ['sounds/bubble-single-1xxx.wav'], rate: .5 });
-    this.metaSound      = new Howl({ urls: ['sounds/open-bubblexxx.wav'], rate: 1.5});
+    this.openSound      = new Howl({ urls: ['sounds/open-bubble-2.wav'] });
+    this.openSound2     = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: .15 });
+    this.bounceSound    = new Howl({ urls: ['sounds/bounce-2.wav'] });
+    this.closeSound     = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .5 });
+    this.metaSound      = new Howl({ urls: ['sounds/open-bubble.wav'], rate: 1.5});
 
     this.particleRadius = getComputedStyle(this.particles[0]).width;
     this.particleRadius = parseInt(this.particleRadius, 10)/2;
@@ -84,12 +84,13 @@ var main = {
           scaleMax = 1,
           delta = mojs.helpers.clamp(a, 0.03, scaleMax);
 
+
       delta = (mojs.easing.cubic.in(delta))
       delta = mojs.helpers.clamp(delta, 0.03, scaleMax)
 
       var deltaShift = mojs.helpers.clamp(b, 0.03, 2*scaleMax)
       deltaShift = (mojs.easing.cubic.in(deltaShift))
-      deltaShift = mojs.helpers.clamp(deltaShift, 0.03, 2*scaleMax)
+      deltaShift = mojs.helpers.clamp(deltaShift, 0.03, 2*scaleMax)      
 
       // this.particleBuffer.querySelector('.particle__inner').textContent = i
 

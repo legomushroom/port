@@ -156,15 +156,27 @@ particleSize = 150/2
 
 blobSize = 30
 .blob-circle
-  border        2px solid white
+  box-sizing    border-box
+  border        10px solid white
   circle        (blobSize)px
-  transform     scale(1/100)
+  // transform     scale(1/100)
   position      absolute
-  margin-top   -(blobSize/2)px
-  margin-left  -(blobSize/2)px
-  nw            50%
+  // transform translate(-70%,-70%)
+  // margin-top   -(blobSize/2)px
+  // margin-left  -(blobSize/2)px
+  nw            0
   z-index       1
+  // blobSizeI = 10
   // &__inner
+  //   border        1px solid white
+  //   circle        (blobSizeI)px
+  //   // transform     scale(1/100)
+  //   position      absolute
+  //   margin-top   -(blobSizeI/2 + 2)px
+  //   margin-left  -(blobSizeI/2 + 2)px
+  //   nw            50%
+  //   z-index       1
+  //   opacity       .75
     
 
 .close
