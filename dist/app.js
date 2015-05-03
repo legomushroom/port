@@ -12528,7 +12528,6 @@
 	var showInner = {
 	  showInner: function (el) {
 	    this.showInnerPlastic(el);
-	    // this.showInnerTextPrelude(el);
 	  },
 	  moveTextEl: function (el, p) {
 	    p = mojs.easing.cubic.out(p);
