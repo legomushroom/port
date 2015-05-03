@@ -2,7 +2,6 @@ var mojs = require('../js/vendor/mo');
 
 var showInner = {
   showInner: function (el) {
-    this.showClose();
     this.showInnerPlastic(el);
     // this.showInnerTextPrelude(el);
   },

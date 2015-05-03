@@ -113,10 +113,10 @@ body {
 }
 .project__text {
   left: 57%;
-  margin-top: 2.1875rem;
+  margin-top: 1.875rem;
   width: 40%;
   text-align: left;
-  line-height: 1.4;
+  line-height: 1.6;
 }
 .project h2 {
   text-transform: uppercase;

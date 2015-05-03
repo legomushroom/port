@@ -103,11 +103,11 @@
 	    this.particlesContainer = document.querySelector("#scroller");
 	    this.particles = document.querySelectorAll(".particle");
 	    this.S = 1;
-	    this.openSound = new Howl({ urls: ["sounds/open-bubble-2xxx.wav"] });
-	    this.openSound2 = new Howl({ urls: ["sounds/open-bubble-3xxx.wav"], rate: 0.15 });
-	    this.bounceSound = new Howl({ urls: ["sounds/bounce-2xxx.wav"] });
-	    this.closeSound = new Howl({ urls: ["sounds/bubble-single-1xxx.wav"], rate: 0.5 });
-	    this.metaSound = new Howl({ urls: ["sounds/open-bubblexxx.wav"], rate: 1.5 });
+	    this.openSound = new Howl({ urls: ["sounds/open-bubble-2.wav"] });
+	    this.openSound2 = new Howl({ urls: ["sounds/open-bubble-3.wav"], rate: 0.15 });
+	    this.bounceSound = new Howl({ urls: ["sounds/bounce-2.wav"] });
+	    this.closeSound = new Howl({ urls: ["sounds/bubble-single-1.wav"], rate: 0.5 });
+	    this.metaSound = new Howl({ urls: ["sounds/open-bubble.wav"], rate: 1.5 });
 
 	    this.particleRadius = getComputedStyle(this.particles[0]).width;
 	    this.particleRadius = parseInt(this.particleRadius, 10) / 2;
@@ -12527,7 +12527,6 @@
 
 	var showInner = {
 	  showInner: function (el) {
-	    this.showClose();
 	    this.showInnerPlastic(el);
 	    // this.showInnerTextPrelude(el);
 	  },
@@ -12635,7 +12634,7 @@
 
 	    var transit = new mojs.Transit({
 	      parent: el.querySelector(".project__img"),
-	      x: 60, y: 240,
+	      x: 180, y: 235,
 	      type: "circle",
 	      count: 10,
 	      fill: "transparent",
@@ -12648,21 +12647,21 @@
 	      opacity: { 1: 0 },
 	      strokeDasharray: "50% 200%"
 	    }).then({
-	      shiftX: { "-75": "-75" },
+	      shiftX: { "-130": "-130" },
 	      duration: 150 * this.S,
 	      radiusX: { 15: 80 },
 	      radiusY: { 4: 8 },
 	      strokeWidth: { 8: 0 },
 	      opacity: { 0.8: 0 }
 	    }).then({
-	      shiftX: { "-80": "-80" },
+	      shiftX: { "-145": "-145" },
 	      duration: 75 * this.S,
 	      radiusX: { 12: 60 },
 	      radiusY: { 3: 7 },
 	      strokeWidth: { 4: 0 },
 	      opacity: { 0.6: 0 }
 	    }).then({
-	      shiftX: { "-85": "-85" },
+	      shiftX: { "-150": "-150" },
 	      duration: 50 * this.S,
 	      radiusX: { 11: 55 },
 	      radiusY: { 2: 6 },
@@ -12692,6 +12691,9 @@
 
 	    var timeline1 = new mojs.Timeline({
 	      duration: 800 * this.S,
+	      onComplete: function () {
+	        _this.showClose();
+	      },
 	      onUpdate: function (p) {
 	        var b = mojs.easing.bounce.out(p);
 	        var bin = mojs.easing.bounce["in"](p);
