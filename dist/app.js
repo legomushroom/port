@@ -40,17 +40,15 @@
 /******/ 	return __webpack_require__(0);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ 0:
+/******/ ([
+/* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__(1);
 
 
 /***/ },
-
-/***/ 1:
+/* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -59,18 +57,23 @@
 	  return obj && (obj["default"] || obj);
 	};
 
-	var _core = _interopRequire(__webpack_require__(7));
+	var _core = _interopRequire(__webpack_require__(9));
 
 	// var Impulse   = require('impulse')
 	var mojs = __webpack_require__(2);
 	var Iscroll = __webpack_require__(3);
-	var Howl = __webpack_require__(8).Howl;
+	var Howl = __webpack_require__(10).Howl;
 
-	var events = __webpack_require__(41);
-	var showOnEl = __webpack_require__(42);
-	var showInner = __webpack_require__(43);
-	var showClose = __webpack_require__(44);
-	var showInnerPlastic = __webpack_require__(45);
+	var events = __webpack_require__(4);
+	var showOnEl = __webpack_require__(5);
+	var showInner = __webpack_require__(6);
+	var showClose = __webpack_require__(7);
+	var showInnerPlastic = __webpack_require__(8);
+
+
+	// setTimeout(function () {
+	//   document.querySelector('.blob-circle1').classList.toggle('is-run')
+	// }, 2000)
 
 
 	// var showOnElModule = new ShowOnEl;
@@ -194,8 +197,7 @@
 	window.app = main.init();
 
 /***/ },
-
-/***/ 2:
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var require;var require;/* WEBPACK VAR INJECTION */(function(global) {/*! 
@@ -4258,8 +4260,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-
-/***/ 3:
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
@@ -6302,8 +6303,389 @@
 	})(window, document, Math);
 
 /***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
 
-/***/ 7:
+	"use strict";
+
+	var _interopRequire = function (obj) {
+	  return obj && (obj["default"] || obj);
+	};
+
+	var _core = _interopRequire(__webpack_require__(9));
+
+	var Hammer = __webpack_require__(11);
+
+	var events = {
+	  events: function () {
+	    var _this = this;
+	    window.addEventListener("resize", function () {
+	      _this.calcDimentions();
+	      _this.bubleCenter.x = -_this.iscroll.x + _this.wWidth / 2 + _this.xOffset;
+	      _this.bubleCenter.y = -_this.iscroll.y + _this.wHeight / 2 + _this.yOffset;
+	    });
+	    var hammerDoc = new Hammer(document.body);
+	    hammerDoc.on("tap", function (e) {
+	      var el = e.target.parentNode;
+	      if (_this.isOpen) {
+	        return e.preventDefault();
+	      }
+	      if (el.classList.contains("particle")) {
+	        _this.showOnEl(el);
+	      } else if (el.parentNode.classList.contains("particle")) {
+	        _this.showOnEl(el.parentNode);
+	      }
+	    });
+	    new Hammer(this.closeBtn).on("tap", function (e) {
+	      _this.closeEl();
+	    });
+
+	    document.addEventListener("touchmove", function (e) {
+	      e.preventDefault();
+	    }, false);
+
+	    this.iscroll.on("scroll", function () {
+	      _this.bubleCenter.x = -_this.iscroll.x + _this.wWidth / 2 + _this.xOffset;
+	      _this.bubleCenter.y = -_this.iscroll.y + _this.wHeight / 2 + _this.yOffset
+	      // console.log(this.bubleCenter.y)
+	      ;
+	    });
+	  }
+	};
+
+	module.exports = events;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) {
+	  return obj && (obj["default"] || obj);
+	};
+
+	var _core = _interopRequire(__webpack_require__(9));
+
+	var mojs = __webpack_require__(2);
+
+	var showOnEl = {
+	  showInnerCircle: function (x, y) {
+	    var _this = this;
+	    var tween = new mojs.Tween();
+
+	    var size = Math.min(this.wWidth, this.wHeight);
+	    this.blobCircle.style.left = "" + x + "px";
+	    this.blobCircle.style.top = "" + y + "px";
+	    // console.log(10*mojs.easing.quad.in(size/800))
+	    var borderWidth = 10 * mojs.easing.cubic["in"](size / 800);
+	    this.blobCircle.style["border-width"] = "" + borderWidth / 2 + "px";
+
+	    var blobCircleSize = 30 + 2 * borderWidth;
+	    this.blobCircle.style.width = "" + blobCircleSize + "px";
+	    this.blobCircle.style.height = "" + blobCircleSize + "px";
+	    this.blobCircle.style["margin-left"] = "" + -blobCircleSize / 2 + "px";
+	    this.blobCircle.style["margin-top"] = "" + -blobCircleSize / 2 + "px";
+	    var blobCircleTm = new mojs.Timeline({
+	      duration: 500 * this.S,
+	      onStart: function () {
+	        _this.openSound.play();
+	      },
+	      // easing:     'cubic.out',
+	      onUpdate: function (p) {
+	        var tr = "scale(" + 30 * p + ") translateZ(0)"; // translate3d(${x}px,${y}px,0)`;
+	        mojs.h.setPrefixedStyle(_this.blobCircle, "transform", tr);
+	        // mojs.h.setPrefixedStyle(this.blobCircleI, 'transform', `scale(${2*p}) translateZ(0)`);
+	        // mojs.h.setPrefixedStyle(this.blobCircleI, 'transform', `scale(${2*p}) translateZ(0)`);
+	        // var scale = 1/(1+(3*(1-p)));
+	        _this.blobCircle.style.opacity = 1 * mojs.easing.cubic["in"](1 - p);
+	      }
+	    });
+
+	    tween.add(blobCircleTm);
+	    tween.start();
+	  },
+
+	  showOnEl: function (el) {
+	    var _this2 = this;
+	    // return immediately on edges
+	    if (el.delta < 0.2) {
+	      return;
+	    }
+
+	    var x = el.x - this.wWidth / 2 - this.xOffset,
+	        y = el.y - this.wHeight / 2 - this.yOffset,
+	        innerEl = el.querySelector(".particle__inner"),
+	        contentEl = el.querySelector(".particle__content");
+	    var tween = new mojs.Tween();
+
+	    this.isOpen = true;
+	    el.style["z-index"] = 20;
+	    this.iscroll.enabled = false;
+	    this.iscroll.scrollTo(-x, -y, 500 * this.S);
+	    this.showInnerCircle(el.x + 75, el.y + 75);
+
+	    var soundTimeline = new mojs.Timeline({
+	      delay: 0 * this.S, onStart: function () {
+	        _this2.openSound2.play();
+	      } });
+
+	    var scaleDownTween = new mojs.Timeline({
+	      duration: 300 * this.S, easing: "expo.out",
+	      onUpdate: function (p) {
+	        mojs.h.setPrefixedStyle(innerEl, "transform", "scale(" + (1 - 0.25 * p) + ") translateZ(0)");
+	        innerEl.style.opacity = 1 - 0.25 * p;
+	      }
+	    });
+
+	    var blobTimeline = new mojs.Timeline({
+	      duration: 600 * this.S, delay: 100 * this.S,
+	      onUpdate: function (p) {
+	        _this2.blob = _this2.blobBase + 0.3 * mojs.easing.cubic.out(p);
+	        _this2.blobShift = _this2.blobBase + 1 * p;
+	      }
+	    });
+
+	    var scaleUpTimeline = new mojs.Timeline({
+	      duration: 600 * this.S, delay: 350 * this.S,
+	      onUpdate: function (p) {
+	        var scaleSize = 19 * mojs.easing.cubic["in"](p);
+	        scaleSize = Math.max(0.75, scaleSize);
+	        var scale = "scale(" + scaleSize + ") translateZ(0)";
+	        // contentScale = `scale(${1/scaleSize}) translateZ(0)`;
+	        mojs.h.setPrefixedStyle(innerEl, "transform", scale);
+	        // mojs.h.setPrefixedStyle(contentEl, 'transform', contentScale);
+	        innerEl.style.opacity = 0.75 + 0.25 * mojs.easing.cubic.out(p);
+	      },
+	      onStart: function () {
+	        setTimeout(function () {
+	          _this2.content.innerHTML = el.querySelector(".particle__content").innerHTML;
+	          _this2.showInner(_this2.content);
+	        }, 400);
+	      }
+	    });
+
+	    tween.add(scaleDownTween, soundTimeline, blobTimeline, scaleUpTimeline);
+	    tween.start();
+	  }
+	};
+
+	module.exports = showOnEl;
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) {
+	  return obj && (obj["default"] || obj);
+	};
+
+	var _core = _interopRequire(__webpack_require__(9));
+
+	var mojs = __webpack_require__(2);
+
+	var showInner = {
+	  showInner: function (el) {
+	    this.showInnerPlastic(el);
+	  },
+	  moveTextEl: function (el, p) {
+	    p = mojs.easing.cubic.out(p);
+	    var transform = "rotate(" + 90 * (1 - p) + "deg) translateZ(0) translateY(" + 200 * (1 - p) + "%)";
+	    var transformOrigin = "left " + 80 * p + "%";
+	    mojs.h.setPrefixedStyle(el, "transform", transform);
+	    mojs.h.setPrefixedStyle(el, "transform-origin", transformOrigin);
+	    el.style.opacity = mojs.easing.cubic.out(p);
+	  }
+	};
+
+	module.exports = showInner;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) {
+	  return obj && (obj["default"] || obj);
+	};
+
+	var _core = _interopRequire(__webpack_require__(9));
+
+	var mojs = __webpack_require__(2);
+
+	var showClose = {
+	  initClose: function () {
+	    var _this = this;
+	    var dur = 400;
+	    var closeOption = {
+	      parent: document.querySelector("#js-close-btn"),
+	      type: "circle",
+	      radius: { 0: 15 },
+	      fill: "transparent",
+	      stroke: "white",
+	      strokeWidth: { 5: 0 },
+	      x: "50%", y: "50%",
+	      duration: dur,
+	      isRunLess: true };
+	    this.closeCircle = new mojs.Transit(closeOption);
+
+	    var closeCrossOption = {
+	      type: "cross",
+	      delay: 0.4 * dur,
+	      angle: 45,
+	      strokeWidth: 2,
+	      radius: { 0: 8 },
+	      isShowEnd: true,
+	      onStart: function () {
+	        _this.closeSound.play();
+	      }
+	    };
+	    mojs.h.extend(closeCrossOption, closeOption);
+	    this.closeCross = new mojs.Transit(closeCrossOption);
+
+	    var closeBurstOption = {
+	      type: "line",
+	      radius: { 0: 30 },
+	      strokeWidth: { 4: 0 },
+	      delay: 0.4 * dur,
+	      childOptions: { radius: { 5: 0 } } };
+	    mojs.h.extend(closeBurstOption, closeOption);
+	    this.closeBurst = new mojs.Burst(closeBurstOption);
+	  },
+	  showClose: function () {
+	    this.closeBtn.classList.add("is-show");
+	    this.closeCircle.run();this.closeCross.run();this.closeBurst.run();
+	  },
+	  hideClose: function () {
+	    this.closeBtn.style.display = "none";
+	  }
+	};
+
+
+	module.exports = showClose;
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = function (obj) {
+	  return obj && (obj["default"] || obj);
+	};
+
+	var _core = _interopRequire(__webpack_require__(9));
+
+	var showInnerPlastic = {
+	  showInnerPlastic: function (el) {
+	    var _this = this;
+	    el.classList.add("is-show");
+
+	    var tween = new mojs.Tween(),
+	        image = el.querySelector(".image"),
+	        scene = el.querySelector(".shape"),
+	        shadow = el.querySelector("#js-shadow"),
+	        shadowWrap = el.querySelector("#js-shadow-wrap");
+
+	    var transit = new mojs.Transit({
+	      parent: el.querySelector(".project__img"),
+	      x: 180, y: 235,
+	      type: "circle",
+	      count: 10,
+	      fill: "transparent",
+	      stroke: "white",
+	      strokeWidth: { 10: 0 },
+	      duration: 275 * this.S,
+	      delay: 300 * this.S,
+	      radiusX: { 20: 100 },
+	      radiusY: { 5: 10 },
+	      opacity: { 1: 0 },
+	      strokeDasharray: "50% 200%"
+	    }).then({
+	      shiftX: { "-130": "-130" },
+	      duration: 150 * this.S,
+	      radiusX: { 15: 80 },
+	      radiusY: { 4: 8 },
+	      strokeWidth: { 8: 0 },
+	      opacity: { 0.8: 0 }
+	    }).then({
+	      shiftX: { "-145": "-145" },
+	      duration: 75 * this.S,
+	      radiusX: { 12: 60 },
+	      radiusY: { 3: 7 },
+	      strokeWidth: { 4: 0 },
+	      opacity: { 0.6: 0 }
+	    }).then({
+	      shiftX: { "-150": "-150" },
+	      duration: 50 * this.S,
+	      radiusX: { 11: 55 },
+	      radiusY: { 2: 6 },
+	      strokeWidth: { 2: 0 },
+	      opacity: { 0.4: 0 }
+	    });
+
+	    var mp = new mojs.MotionPath({
+	      path: { x: -300, y: -300 },
+	      curvature: { x: "75%", y: "50%" },
+	      offsetX: 300,
+	      offsetY: 300,
+	      el: image,
+	      duration: 1000 * this.S,
+	      easing: "cubic.out",
+	      onPosit: function (p, x, y, angle) {
+	        p = mojs.easing.expo.out(mojs.easing.cubic["in"](p));
+	        var rotate = "rotateX(70deg) rotateZ(" + -60 * (1 - p) + "deg)",
+	            translate = "translateX(" + x + "px) translateY(" + y + "px)",
+	            scale = "scaleY(" + (2.5 - 1.5 * p) + ")";
+	        mojs.h.setPrefixedStyle(shadow, "transform", "" + translate + " " + rotate + " " + scale);
+	        return "translate(" + x + "px, " + y + "px)";
+	      } });
+
+	    var opacityEasing = mojs.easing.path("M0,0 C0,0 32.1191406,0.314142863 40.1669859,0 C40.1669859,0.165327852 50.9999996,-112.569017 74.0660521,0 C80.8905119,-16.0420643 87.1001393,-19.621745 92.0689049,0 C92.0689049,1.54522552 95.3231688,-14.8615687 100,0"),
+	        bounceEasing = mojs.easing.path("M0,100 C28.3125,98.6523445 39.0445328,8.99375039 40.1669859,0 C40.1669859,-0.0485295402 50.9999996,152.873952 74.0660521,0 C80.8905119,21.9365596 87.1001393,26.7923438 92.0689049,0 C92.0689049,-1.92034044 95.3231688,20.3352347 100,0");
+
+	    var timeline1 = new mojs.Timeline({
+	      duration: 800 * this.S,
+	      onComplete: function () {
+	        _this.showClose();
+	      },
+	      onUpdate: function (p) {
+	        var b = mojs.easing.bounce.out(p);
+	        var bin = mojs.easing.bounce["in"](p);
+	        var t = mojs.easing.cubic.out(p);
+	        var r = "rotateY(" + (0 + 90 * (1 - b)) + "deg) rotateX(" + 70 * (1 - t) + "deg) rotateZ(" + 90 * (1 - t) + "deg)";
+	        var scale = "scaleX(1) scaleY(1)";
+	        var tr = "" + r + " " + scale;
+	        mojs.h.setPrefixedStyle(scene, "transform", tr);
+	        mojs.h.setPrefixedStyle(scene, "transform-origin", "" + (50 + 50 * t) + "% 100%");
+	        scene.style.opacity = mojs.easing.expo.out(p);
+
+	        var scale = "scaleX(" + opacityEasing(p) + ")";
+	        var transform = "translate(" + (-300 * mojs.easing.bounce["in"](1 - p) - 5) + "px, 2px) " + scale;
+	        mojs.h.setPrefixedStyle(shadowWrap, "transform", transform);
+	        shadow.style.opacity = 0.75 * bounceEasing(p);
+	      }
+	    });
+
+	    var soundTimeline = new mojs.Timeline({
+	      delay: 300 * this.S, onStart: function () {
+	        _this.bounceSound.play();
+	      }
+	    });
+
+	    tween.add(timeline1, soundTimeline);
+	    tween.start();
+	  }
+	};
+
+	module.exports = showInnerPlastic;
+	// onStart:()=> { this.showClose(); }
+
+/***/ },
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -8500,8 +8882,7 @@
 	}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), false);
 
 /***/ },
-
-/***/ 8:
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -9860,8 +10241,7 @@
 
 
 /***/ },
-
-/***/ 11:
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.4 - 2014-09-28
@@ -12316,7 +12696,7 @@
 	    prefixed: prefixed
 	});
 
-	if ("function" == TYPE_FUNCTION && __webpack_require__(28)) {
+	if ("function" == TYPE_FUNCTION && __webpack_require__(12)) {
 	    !(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
 	        return Hammer;
 	    }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -12330,401 +12710,12 @@
 
 
 /***/ },
-
-/***/ 28:
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
 
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
-/***/ },
-
-/***/ 41:
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = function (obj) {
-	  return obj && (obj["default"] || obj);
-	};
-
-	var _core = _interopRequire(__webpack_require__(7));
-
-	var Hammer = __webpack_require__(11);
-
-	var events = {
-	  events: function () {
-	    var _this = this;
-	    window.addEventListener("resize", function () {
-	      _this.calcDimentions();
-	      _this.bubleCenter.x = -_this.iscroll.x + _this.wWidth / 2 + _this.xOffset;
-	      _this.bubleCenter.y = -_this.iscroll.y + _this.wHeight / 2 + _this.yOffset;
-	    });
-	    var hammerDoc = new Hammer(document.body);
-	    hammerDoc.on("tap", function (e) {
-	      var el = e.target.parentNode;
-	      if (_this.isOpen) {
-	        return e.preventDefault();
-	      }
-	      if (el.classList.contains("particle")) {
-	        _this.showOnEl(el);
-	      } else if (el.parentNode.classList.contains("particle")) {
-	        _this.showOnEl(el.parentNode);
-	      }
-	    });
-	    new Hammer(this.closeBtn).on("tap", function (e) {
-	      _this.closeEl();
-	    });
-
-	    document.addEventListener("touchmove", function (e) {
-	      e.preventDefault();
-	    }, false);
-
-	    this.iscroll.on("scroll", function () {
-	      _this.bubleCenter.x = -_this.iscroll.x + _this.wWidth / 2 + _this.xOffset;
-	      _this.bubleCenter.y = -_this.iscroll.y + _this.wHeight / 2 + _this.yOffset
-	      // console.log(this.bubleCenter.y)
-	      ;
-	    });
-	  }
-	};
-
-	module.exports = events;
-
-/***/ },
-
-/***/ 42:
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = function (obj) {
-	  return obj && (obj["default"] || obj);
-	};
-
-	var _core = _interopRequire(__webpack_require__(7));
-
-	var mojs = __webpack_require__(2);
-
-	var showOnEl = {
-	  showInnerCircle: function (x, y) {
-	    var _this = this;
-	    var tween = new mojs.Tween();
-
-	    var size = Math.min(this.wWidth, this.wHeight);
-	    this.blobCircle.style.left = "" + x + "px";
-	    this.blobCircle.style.top = "" + y + "px";
-	    // console.log(10*mojs.easing.quad.in(size/800))
-	    var borderWidth = 10 * mojs.easing.cubic["in"](size / 800);
-	    this.blobCircle.style["border-width"] = "" + borderWidth + "px";
-
-	    var blobCircleSize = 30 + 2 * borderWidth;
-	    this.blobCircle.style.width = "" + blobCircleSize + "px";
-	    this.blobCircle.style.height = "" + blobCircleSize + "px";
-	    this.blobCircle.style["margin-left"] = "" + -blobCircleSize / 2 + "px";
-	    this.blobCircle.style["margin-top"] = "" + -blobCircleSize / 2 + "px";
-	    var blobCircleTm = new mojs.Timeline({
-	      duration: 500 * this.S,
-	      onStart: function () {
-	        _this.openSound.play();
-	      },
-	      // easing:     'cubic.out',
-	      onUpdate: function (p) {
-	        var tr = "scale(" + 30 * p + ") translateZ(0)"; // translate3d(${x}px,${y}px,0)`;
-	        mojs.h.setPrefixedStyle(_this.blobCircle, "transform", tr);
-	        // mojs.h.setPrefixedStyle(this.blobCircleI, 'transform', `scale(${2*p}) translateZ(0)`);
-	        // mojs.h.setPrefixedStyle(this.blobCircleI, 'transform', `scale(${2*p}) translateZ(0)`);
-	        // var scale = 1/(1+(3*(1-p)));
-	        _this.blobCircle.style.opacity = 1 * mojs.easing.cubic["in"](1 - p);
-	      }
-	    });
-
-	    tween.add(blobCircleTm);
-	    tween.start();
-	  },
-
-	  showOnEl: function (el) {
-	    var _this2 = this;
-	    // return immediately on edges
-	    if (el.delta < 0.2) {
-	      return;
-	    }
-
-	    var x = el.x - this.wWidth / 2 - this.xOffset,
-	        y = el.y - this.wHeight / 2 - this.yOffset,
-	        innerEl = el.querySelector(".particle__inner"),
-	        contentEl = el.querySelector(".particle__content");
-	    var tween = new mojs.Tween();
-
-	    this.isOpen = true;
-	    el.style["z-index"] = 20;
-	    this.iscroll.enabled = false;
-	    this.iscroll.scrollTo(-x, -y, 500 * this.S);
-	    this.showInnerCircle(el.x + 75, el.y + 75);
-
-	    var soundTimeline = new mojs.Timeline({
-	      delay: 50 * this.S, onStart: function () {
-	        _this2.openSound2.play();
-	      } });
-
-	    var scaleDownTween = new mojs.Timeline({
-	      duration: 300 * this.S, easing: "expo.out",
-	      onUpdate: function (p) {
-	        mojs.h.setPrefixedStyle(innerEl, "transform", "scale(" + (1 - 0.25 * p) + ") translateZ(0)");
-	        innerEl.style.opacity = 1 - 0.25 * p;
-	      }
-	    });
-
-	    var blobTimeline = new mojs.Timeline({
-	      duration: 600 * this.S, delay: 100 * this.S,
-	      onUpdate: function (p) {
-	        _this2.blob = _this2.blobBase + 0.3 * mojs.easing.cubic.out(p);
-	        _this2.blobShift = _this2.blobBase + 1 * p;
-	      }
-	    });
-
-	    var scaleUpTimeline = new mojs.Timeline({
-	      duration: 600 * this.S, delay: 350 * this.S,
-	      onUpdate: function (p) {
-	        var scaleSize = 19 * mojs.easing.cubic["in"](p);
-	        scaleSize = Math.max(0.75, scaleSize);
-	        var scale = "scale(" + scaleSize + ") translateZ(0)";
-	        // contentScale = `scale(${1/scaleSize}) translateZ(0)`;
-	        mojs.h.setPrefixedStyle(innerEl, "transform", scale);
-	        // mojs.h.setPrefixedStyle(contentEl, 'transform', contentScale);
-	        innerEl.style.opacity = 0.75 + 0.25 * mojs.easing.cubic.out(p);
-	      },
-	      onStart: function () {
-	        setTimeout(function () {
-	          _this2.content.innerHTML = el.querySelector(".particle__content").innerHTML;
-	          _this2.showInner(_this2.content);
-	        }, 400);
-	      }
-	    });
-
-	    tween.add(scaleDownTween, soundTimeline, blobTimeline, scaleUpTimeline);
-	    tween.start();
-	  }
-	};
-
-	module.exports = showOnEl;
-
-/***/ },
-
-/***/ 43:
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = function (obj) {
-	  return obj && (obj["default"] || obj);
-	};
-
-	var _core = _interopRequire(__webpack_require__(7));
-
-	var mojs = __webpack_require__(2);
-
-	var showInner = {
-	  showInner: function (el) {
-	    this.showInnerPlastic(el);
-	  },
-	  moveTextEl: function (el, p) {
-	    p = mojs.easing.cubic.out(p);
-	    var transform = "rotate(" + 90 * (1 - p) + "deg) translateZ(0) translateY(" + 200 * (1 - p) + "%)";
-	    var transformOrigin = "left " + 80 * p + "%";
-	    mojs.h.setPrefixedStyle(el, "transform", transform);
-	    mojs.h.setPrefixedStyle(el, "transform-origin", transformOrigin);
-	    el.style.opacity = mojs.easing.cubic.out(p);
-	  }
-	};
-
-	module.exports = showInner;
-
-/***/ },
-
-/***/ 44:
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = function (obj) {
-	  return obj && (obj["default"] || obj);
-	};
-
-	var _core = _interopRequire(__webpack_require__(7));
-
-	var mojs = __webpack_require__(2);
-
-	var showClose = {
-	  initClose: function () {
-	    var _this = this;
-	    var dur = 400;
-	    var closeOption = {
-	      parent: document.querySelector("#js-close-btn"),
-	      type: "circle",
-	      radius: { 0: 15 },
-	      fill: "transparent",
-	      stroke: "white",
-	      strokeWidth: { 5: 0 },
-	      x: "50%", y: "50%",
-	      duration: dur,
-	      isRunLess: true };
-	    this.closeCircle = new mojs.Transit(closeOption);
-
-	    var closeCrossOption = {
-	      type: "cross",
-	      delay: 0.4 * dur,
-	      angle: 45,
-	      strokeWidth: 2,
-	      radius: { 0: 8 },
-	      isShowEnd: true,
-	      onStart: function () {
-	        _this.closeSound.play();
-	      }
-	    };
-	    mojs.h.extend(closeCrossOption, closeOption);
-	    this.closeCross = new mojs.Transit(closeCrossOption);
-
-	    var closeBurstOption = {
-	      type: "line",
-	      radius: { 0: 30 },
-	      strokeWidth: { 4: 0 },
-	      delay: 0.4 * dur,
-	      childOptions: { radius: { 5: 0 } } };
-	    mojs.h.extend(closeBurstOption, closeOption);
-	    this.closeBurst = new mojs.Burst(closeBurstOption);
-	  },
-	  showClose: function () {
-	    this.closeBtn.classList.add("is-show");
-	    this.closeCircle.run();this.closeCross.run();this.closeBurst.run();
-	  },
-	  hideClose: function () {
-	    this.closeBtn.style.display = "none";
-	  }
-	};
-
-
-	module.exports = showClose;
-
-/***/ },
-
-/***/ 45:
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = function (obj) {
-	  return obj && (obj["default"] || obj);
-	};
-
-	var _core = _interopRequire(__webpack_require__(7));
-
-	var showInnerPlastic = {
-	  showInnerPlastic: function (el) {
-	    var _this = this;
-	    el.classList.add("is-show");
-
-	    var tween = new mojs.Tween(),
-	        image = el.querySelector(".image"),
-	        scene = el.querySelector(".shape"),
-	        shadow = el.querySelector("#js-shadow"),
-	        shadowWrap = el.querySelector("#js-shadow-wrap");
-
-	    var transit = new mojs.Transit({
-	      parent: el.querySelector(".project__img"),
-	      x: 180, y: 235,
-	      type: "circle",
-	      count: 10,
-	      fill: "transparent",
-	      stroke: "white",
-	      strokeWidth: { 10: 0 },
-	      duration: 275 * this.S,
-	      delay: 300 * this.S,
-	      radiusX: { 20: 100 },
-	      radiusY: { 5: 10 },
-	      opacity: { 1: 0 },
-	      strokeDasharray: "50% 200%"
-	    }).then({
-	      shiftX: { "-130": "-130" },
-	      duration: 150 * this.S,
-	      radiusX: { 15: 80 },
-	      radiusY: { 4: 8 },
-	      strokeWidth: { 8: 0 },
-	      opacity: { 0.8: 0 }
-	    }).then({
-	      shiftX: { "-145": "-145" },
-	      duration: 75 * this.S,
-	      radiusX: { 12: 60 },
-	      radiusY: { 3: 7 },
-	      strokeWidth: { 4: 0 },
-	      opacity: { 0.6: 0 }
-	    }).then({
-	      shiftX: { "-150": "-150" },
-	      duration: 50 * this.S,
-	      radiusX: { 11: 55 },
-	      radiusY: { 2: 6 },
-	      strokeWidth: { 2: 0 },
-	      opacity: { 0.4: 0 }
-	    });
-
-	    var mp = new mojs.MotionPath({
-	      path: { x: -300, y: -300 },
-	      curvature: { x: "75%", y: "50%" },
-	      offsetX: 300,
-	      offsetY: 300,
-	      el: image,
-	      duration: 1000 * this.S,
-	      easing: "cubic.out",
-	      onPosit: function (p, x, y, angle) {
-	        p = mojs.easing.expo.out(mojs.easing.cubic["in"](p));
-	        var rotate = "rotateX(70deg) rotateZ(" + -60 * (1 - p) + "deg)",
-	            translate = "translateX(" + x + "px) translateY(" + y + "px)",
-	            scale = "scaleY(" + (2.5 - 1.5 * p) + ")";
-	        mojs.h.setPrefixedStyle(shadow, "transform", "" + translate + " " + rotate + " " + scale);
-	        return "translate(" + x + "px, " + y + "px)";
-	      } });
-
-	    var opacityEasing = mojs.easing.path("M0,0 C0,0 32.1191406,0.314142863 40.1669859,0 C40.1669859,0.165327852 50.9999996,-112.569017 74.0660521,0 C80.8905119,-16.0420643 87.1001393,-19.621745 92.0689049,0 C92.0689049,1.54522552 95.3231688,-14.8615687 100,0"),
-	        bounceEasing = mojs.easing.path("M0,100 C28.3125,98.6523445 39.0445328,8.99375039 40.1669859,0 C40.1669859,-0.0485295402 50.9999996,152.873952 74.0660521,0 C80.8905119,21.9365596 87.1001393,26.7923438 92.0689049,0 C92.0689049,-1.92034044 95.3231688,20.3352347 100,0");
-
-	    var timeline1 = new mojs.Timeline({
-	      duration: 800 * this.S,
-	      onComplete: function () {
-	        _this.showClose();
-	      },
-	      onUpdate: function (p) {
-	        var b = mojs.easing.bounce.out(p);
-	        var bin = mojs.easing.bounce["in"](p);
-	        var t = mojs.easing.cubic.out(p);
-	        var r = "rotateY(" + (0 + 90 * (1 - b)) + "deg) rotateX(" + 70 * (1 - t) + "deg) rotateZ(" + 90 * (1 - t) + "deg)";
-	        var scale = "scaleX(1) scaleY(1)";
-	        var tr = "" + r + " " + scale;
-	        mojs.h.setPrefixedStyle(scene, "transform", tr);
-	        mojs.h.setPrefixedStyle(scene, "transform-origin", "" + (50 + 50 * t) + "% 100%");
-	        scene.style.opacity = mojs.easing.expo.out(p);
-
-	        var scale = "scaleX(" + opacityEasing(p) + ")";
-	        var transform = "translate(" + (-300 * mojs.easing.bounce["in"](1 - p) - 5) + "px, 2px) " + scale;
-	        mojs.h.setPrefixedStyle(shadowWrap, "transform", transform);
-	        shadow.style.opacity = 0.75 * bounceEasing(p);
-	      }
-	    });
-
-	    var soundTimeline = new mojs.Timeline({
-	      delay: 300 * this.S, onStart: function () {
-	        _this.bounceSound.play();
-	      }
-	    });
-
-	    tween.add(timeline1, soundTimeline);
-	    tween.start();
-	  }
-	};
-
-	module.exports = showInnerPlastic;
-	// onStart:()=> { this.showClose(); }
-
 /***/ }
-
-/******/ });
+/******/ ]);

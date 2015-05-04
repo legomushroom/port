@@ -9,7 +9,7 @@ var showOnEl = {
     this.blobCircle.style.top  = `${y}px`
     // console.log(10*mojs.easing.quad.in(size/800))
     var borderWidth = 10*mojs.easing.cubic.in(size/800)
-    this.blobCircle.style['border-width'] = `${borderWidth}px`
+    this.blobCircle.style['border-width'] = `${borderWidth/2}px`
 
     var blobCircleSize = 30 + 2*borderWidth
     this.blobCircle.style['width']       = `${blobCircleSize}px`
@@ -51,7 +51,7 @@ var showOnEl = {
     this.showInnerCircle(el.x+75, el.y+75)
 
     var soundTimeline = new mojs.Timeline({
-      delay: 50*this.S, onStart: () => { this.openSound2.play(); } });
+      delay: 0*this.S, onStart: () => { this.openSound2.play(); } });
 
     var scaleDownTween = new mojs.Timeline({
       duration: 300*this.S, easing: 'expo.out',

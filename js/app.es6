@@ -10,6 +10,11 @@ var showClose = require('./show-close-mixin');
 var showInnerPlastic = require('./show-inner-plastic-mixin');
 
 
+// setTimeout(function () {
+//   document.querySelector('.blob-circle1').classList.toggle('is-run')
+// }, 2000)
+
+
 // var showOnElModule = new ShowOnEl;
 // var ShowInner = require('./show-inner');
 

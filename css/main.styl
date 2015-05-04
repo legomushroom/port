@@ -28,6 +28,7 @@ body
   user-select none
   overflow hidden
   font-family Open Sans, sans-serif
+  // perspective 1000px
   // &::-webkit-scrollbar
   //   overflow -moz-scrollbars-none !important
   //   display none !important
@@ -39,6 +40,7 @@ body
   nw 0
   z-index 10
   color white
+  
 
 .wrapper
   position    absolute
@@ -89,13 +91,7 @@ contentHeight = 280
     nw 0
   &__content
     display none
-  //   position absolute
-  //   width contentWidth*PX
-  //   height contentHeight*PX
-  //   nw 50%
-  //   margin-left -(contentWidth/2)*PX
-  //   margin-top -(contentHeight/2)*PX
-    
+
 .content
   position      fixed
   width         contentWidth*PX
@@ -143,50 +139,40 @@ contentHeight = 280
     transform-origin 100% center
     // box-shadow 0 0 150px #333
 
-// .project-text-line
-//   overflow        hidden
-//   line-height     1.5
-//   font-size       16px
-//   text-align      left
-//   letter-spacing  1px
-//   opacity         .75
-//   &--header
-//     font-size       22px
-//     font-weight     600
-//     margin-bottom   gs
-//     text-transform  uppercase
-//     opacity         1
-//   // &__inner
-//   //   opacity 0
-// // .center
-// //   background url('http://iconmelon.com/css/i/legomushroom.png') no-repeat center center !important
-// //   background-size 100% !important
 
+// {el = '.blob-circle1'}
+//   box-sizing border-box
+//   position absolute
+//   rect 200*PX
+//   overflow hidden
+//   outline 1px solid orange
+//   mask-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC');
+//   // perspective 1000px
+//   &.is-run
+//     // transform scale(2)
+//     transform translateZ(200px) translateX(50%)
+//     transition transform 2s linear
+//     {el}__inner
+//       // transform translateZ(300px) translateX(-50%) translateY(-50%)
+//       transform translate(-50%, -50%) scale(1.04)
+//       transition transform 2s linear
+//   &__inner
+//     box-sizing border-box
+//     border 3px solid white
+//     rect 100%
+//     position absolute
+//     nw 50%
+//     transform translate(-50%, -50%) scale(1)
+    
 
 blobSize = 30
 .blob-circle
   box-sizing    border-box
   border        10px solid white
   circle        (blobSize)px
-  // transform     scale(1/100)
   position      absolute
-  // transform translate(-70%,-70%)
-  // margin-top   -(blobSize/2)px
-  // margin-left  -(blobSize/2)px
   nw            -50%
   z-index       1
-  // blobSizeI = 10
-  // &__inner
-  //   border        1px solid white
-  //   circle        (blobSizeI)px
-  //   // transform     scale(1/100)
-  //   position      absolute
-  //   margin-top   -(blobSizeI/2 + 2)px
-  //   margin-left  -(blobSizeI/2 + 2)px
-  //   nw            50%
-  //   z-index       1
-  //   opacity       .75
-    
 
 .close
   position fixed
