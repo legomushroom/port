@@ -3,12 +3,12 @@ var mojs      = require('../js/vendor/mo')
 var Iscroll   = require('../js/vendor/iscroll-probe')
 var Howl      = require('howler').Howl
 
-var events    = require('./events-mixin')
-var showOnEl  = require('./show-on-el-mixin')
-var showInner = require('./show-inner-mixin');
-var showClose = require('./show-close-mixin');
+var events        = require('./events-mixin')
+var showOnEl      = require('./show-on-el-mixin')
+var hideOnEl  = require('./hide-on-el-mixin')
+var showInner     = require('./show-inner-mixin');
+var showClose     = require('./show-close-mixin');
 var showInnerPlastic = require('./show-inner-plastic-mixin');
-
 
 // setTimeout(function () {
 //   document.querySelector('.blob-circle1').classList.toggle('is-run')
@@ -20,15 +20,8 @@ var showInnerPlastic = require('./show-inner-plastic-mixin');
 
 var main = {
   init: function(o) {
-    this.vars(); this.initContainer(); this.initClose()
+    this.vars(); this.initContainer(); this.initClose(); this.initHideClose()
     this.draw(); this.events()
-    
-    // setTimeout(()=>{
-    //   this.showInnerCircle()
-    //   // var showInnerModule = new ShowInner;
-    //   // var el = document.querySelector('.particle.is-open');
-    //   // showInnerModule.showInner(el, this);
-    // }, 1000)
     return this;
   },
   // showOnEl: function (el) { showOnElModule.show.apply(this, [el]) },
@@ -36,7 +29,7 @@ var main = {
     this.iscroll = new Iscroll('#js-wrapper', {
       scrollX: true, freeScroll: true, mouseWheel: true, probeType: 3
     });
-    var x = -this.centerX + this.wWidth/2 + this.xOffset,
+    var x = -this.centerX + this.wWidth/2  + this.xOffset,
         y = -this.centerY + this.wHeight/2 + this.yOffset;
     this.iscroll.scrollTo(x, y, 10);
     // console.log(this.iscroll.maxScrollY = -3000)
@@ -49,11 +42,17 @@ var main = {
     this.openSound2     = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: .15 });
     this.bounceSound    = new Howl({ urls: ['sounds/bounce-2.wav'] });
     this.closeSound     = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .5 });
-    this.metaSound      = new Howl({ urls: ['sounds/open-bubble.wav'], rate: 1.5});
+    this.closeSound2    = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .75 });
+    this.closeSound3    = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .85 });
+    this.metaSound      = new Howl({ urls: ['sounds/open-bubble.wav'], rate: 2});
+    this.closeScaleSound = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: .25 });
+    this.closeBtnSound   = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: 1 });
 
     this.particleRadius = getComputedStyle(this.particles[0]).width;
     this.particleRadius = parseInt(this.particleRadius, 10)/2;
     this.closeBtn     = document.querySelector('#js-close-btn');
+    this.closeBtnI    = document.querySelector('#js-close-btn-inner');
+    this.htmlGL       = document.querySelector('#js-html-gl');
     this.blobCircle   = document.querySelector('#js-blob-circle');
     this.blobCircleI  = document.querySelector('#js-blob-circle-inner');
     this.badge        = document.querySelector('#js-badge');
@@ -101,6 +100,8 @@ var main = {
 
       // this.particleBuffer.querySelector('.particle__inner').textContent = i
 
+      // delta = delta.toFixed(6)
+      // deltaShift = deltaShift.toFixed(6)
       var isDeltaChanged = this.particleBuffer.prevDelta !== delta
       if (isDeltaChanged || this.particleBuffer.prevDeltaShift !== deltaShift) {
         cnt++;
@@ -115,6 +116,7 @@ var main = {
         this.particleBuffer.delta  = delta; this.particleBuffer.nDelta = nDelta
       }
     }
+    // this.badge.textContent = cnt;
     requestAnimationFrame(this.draw.bind(this));
   },
   calcDimentions: function () {
@@ -130,6 +132,7 @@ var main = {
 
 mojs.h.extend(main, events);
 mojs.h.extend(main, showOnEl);
+mojs.h.extend(main, hideOnEl);
 mojs.h.extend(main, showInner);
 mojs.h.extend(main, showClose);
 mojs.h.extend(main, showInnerPlastic);

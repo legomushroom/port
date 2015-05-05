@@ -7,7 +7,6 @@ var showOnEl = {
     var size = Math.min(this.wWidth, this.wHeight);
     this.blobCircle.style.left = `${x}px`
     this.blobCircle.style.top  = `${y}px`
-    // console.log(10*mojs.easing.quad.in(size/800))
     var borderWidth = 10*mojs.easing.cubic.in(size/800)
     this.blobCircle.style['border-width'] = `${borderWidth/2}px`
 
@@ -16,16 +15,13 @@ var showOnEl = {
     this.blobCircle.style['height']      = `${blobCircleSize}px`
     this.blobCircle.style['margin-left'] = `${-blobCircleSize/2}px`
     this.blobCircle.style['margin-top']  = `${-blobCircleSize/2}px`
+    this.blobCircle.style['display']     = 'block'
     var blobCircleTm = new mojs.Timeline({
       duration:  500*this.S,
       onStart:() => {this.openSound.play();},
-      // easing:     'cubic.out',
       onUpdate:   (p) => {
-        var tr = `scale(${30*p}) translateZ(0)`// translate3d(${x}px,${y}px,0)`;
+        var tr = `scale(${28*p}) translateZ(0)`;
         mojs.h.setPrefixedStyle(this.blobCircle, 'transform', tr);
-        // mojs.h.setPrefixedStyle(this.blobCircleI, 'transform', `scale(${2*p}) translateZ(0)`);
-        // mojs.h.setPrefixedStyle(this.blobCircleI, 'transform', `scale(${2*p}) translateZ(0)`);
-        // var scale = 1/(1+(3*(1-p)));
         this.blobCircle.style.opacity = 1*(mojs.easing.cubic.in(1-p));
       }
     });
@@ -35,6 +31,7 @@ var showOnEl = {
   },
 
   showOnEl: function (el) {
+    this.currentEl = el;
     // return immediately on edges
     if (el.delta < .2) { return }
 
@@ -75,9 +72,7 @@ var showOnEl = {
         var scaleSize = 19*mojs.easing.cubic.in(p)
         scaleSize = Math.max(.75, scaleSize)
         var scale = `scale(${scaleSize}) translateZ(0)`;
-            // contentScale = `scale(${1/scaleSize}) translateZ(0)`;
         mojs.h.setPrefixedStyle(innerEl, 'transform', scale);
-        // mojs.h.setPrefixedStyle(contentEl, 'transform', contentScale);
         innerEl.style.opacity = .75 + .25*mojs.easing.cubic.out(p)
       },
       onStart:()=> {
@@ -85,6 +80,9 @@ var showOnEl = {
           this.content.innerHTML = el.querySelector('.particle__content').innerHTML;
           this.showInner(this.content);
         }, 400)
+      },
+      onComplete: () => {
+        this.blobCircle.style.display = 'none';
       }
     });
     

@@ -1,6 +1,7 @@
 var showInnerPlastic = {
   showInnerPlastic: function (el) {
     el.classList.add('is-show');
+    this.content.style.display = 'block';
 
     var tween = new mojs.Tween,
         image = el.querySelector('.image'),
