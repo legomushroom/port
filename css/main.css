@@ -40,6 +40,7 @@ body {
   position: absolute;
   color: #fff;
   font-size: 0.625rem;
+  font-weight: 100;
   letter-spacing: 0.0875rem;
   position: absolute;
   margin-left: -4.6875rem;
@@ -50,6 +51,7 @@ body {
 .curtain__progress-text-gradient {
   width: 14.0625rem;
   height: 1rem;
+  z-index: 1;
   -webkit-transition: -webkit-transform 0.3s ease-out;
   transition: transform 0.3s ease-out;
   background: -webkit-linear-gradient(left, rgba(40,18,64,0) 20%, #281240 50%);

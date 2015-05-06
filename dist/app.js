@@ -216,7 +216,7 @@
 	    }
 	    var shift = (this.maxLoadCnt - ++this.loadCnt) * this.progressStep;
 	    this.progress.style.width = "" + shift + "rem";
-	    mojs.h.setPrefixedStyle(this.progressGrad, "transform", "translateX(-" + this.loadCnt * this.progressStep / 1.6 + "rem)");
+	    mojs.h.setPrefixedStyle(this.progressGrad, "transform", "translateX(-" + this.loadCnt * this.progressStep / 1.3 + "rem)");
 	    this.loadCnt === this.maxLoadCnt && this.start();
 	  },
 	  loadImage: function (url) {
