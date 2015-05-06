@@ -34,14 +34,61 @@ body
   //   display none !important
   //   -ms-overflow-style none !important
   //   width 0 !important
-    
+   
+// .element
+//   border 1px solid hotpink
+//   padding 40px
+//   position absolute
+//   color white
+//   transform translate(50%, 50%)
+// .element-parent
+//   transform translate3d(0%, 0%,0)
+
+.curtain
+  rect 100%
+  position fixed
+  nw 0
+  background rgba(#28143f, 1)
+  z-index 30
+  opacity 1
+  transition all .8s ease-out
+  procWidth = 150
+  &__progress
+    height 2*PX
+    width  procWidth*PX
+    border-radius 4*PX
+    background white
+    position absolute
+    nw 50%
+    margin-left -(procWidth/2)*PX
+    margin-top  - PX
+    transition width .3s ease-out
+  &__progress-text,
+  &__progress-text-gradient
+    position absolute
+    color white
+    font-size 10*PX
+    letter-spacing 1.4*PX
+    position absolute
+    margin-left -(procWidth/2)*PX
+    margin-top  -2*gs
+    nw 50%
+  &__progress-text-gradient
+    width  1.5*procWidth*PX
+    height 16*PX
+    // border 1px solid red
+    transition transform .3s ease-out
+    background linear-gradient(to right, rgba(40,18,64,0) 20%,rgba(40,18,64,1) 50%)
+  &.is-hide
+    opacity 0
+    z-index 0
+
 .badge
   position fixed
   nw 0
   z-index 10
   color white
   
-
 .wrapper
   position    absolute
   z-index     1
@@ -92,6 +139,9 @@ contentHeight = 280
   &__content
     display none
 
+// svg
+//   border 2px solid red !important
+
 .content
   position      fixed
   width         contentWidth*PX
@@ -100,9 +150,23 @@ contentHeight = 280
   margin-left  -(contentWidth/2)*PX
   margin-top   -(contentHeight/2)*PX
   // border        1px solid white
-  z-index       2
+  z-index       0
   nw            50%
-  display       none
+  // opacity       0
+  transform     translateZ(0)
+  // display       none
+  &__inner
+    position absolute
+    rect 100%
+  &__dust-wrapper
+    // border 2px solid white
+    position    absolute
+    top         220px
+    width       240px
+    height      60px
+    overflow    hidden
+    z-index     2
+    
   &.is-show
     display     block
 
@@ -124,6 +188,14 @@ contentHeight = 280
     line-height 1.6
   h2
     text-transform uppercase
+  // &__dust-wrap
+  //   // border 2px solid white
+  //   position    absolute
+  //   top         220px
+  //   width       240px
+  //   height      60px
+  //   overflow    hidden
+  //   z-index     1
   &__shadow-wrap
     transform-origin 100% center
   &__shadow
@@ -173,18 +245,26 @@ blobSize = 30
   position      absolute
   nw            -50%
   z-index       1
+  display       none// !important
+
+.blob-circle-wrap
+  width   0px
+  height  0px
+  overflow hidden
 
 .close
   position fixed
-  circle 50*PX
+  circle 30*PX
   top  20%
   left -10%
   z-index -1
   // opacity 0
   transition opacity .25s ease-out
+  display none
   &:hover
     cursor pointer
   &.is-show
+    display block
     opacity 1
     left 75%
     z-index 10

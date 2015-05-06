@@ -3,28 +3,20 @@ var mojs      = require('../js/vendor/mo')
 var Iscroll   = require('../js/vendor/iscroll-probe')
 var Howl      = require('howler').Howl
 
-var events        = require('./events-mixin')
-var showOnEl      = require('./show-on-el-mixin')
-var hideOnEl  = require('./hide-on-el-mixin')
+var events        = require('./events-mixin');
+var showOnEl      = require('./show-on-el-mixin');
+var hideEl        = require('./hide-el-mixin');
 var showInner     = require('./show-inner-mixin');
-var showClose     = require('./show-close-mixin');
-var showInnerPlastic = require('./show-inner-plastic-mixin');
-
-// setTimeout(function () {
-//   document.querySelector('.blob-circle1').classList.toggle('is-run')
-// }, 2000)
-
-
-// var showOnElModule = new ShowOnEl;
-// var ShowInner = require('./show-inner');
+var closeButton   = require('./close-button-mixin');
 
 var main = {
   init: function(o) {
     this.vars(); this.initContainer(); this.initClose(); this.initHideClose()
     this.draw(); this.events()
+    setInterval(() => { this.updateProgress(false) }, 300)
+    // setTimeout(()=> { this.start()}, 2000);
     return this;
   },
-  // showOnEl: function (el) { showOnElModule.show.apply(this, [el]) },
   initContainer: function () {
     this.iscroll = new Iscroll('#js-wrapper', {
       scrollX: true, freeScroll: true, mouseWheel: true, probeType: 3
@@ -32,31 +24,37 @@ var main = {
     var x = -this.centerX + this.wWidth/2  + this.xOffset,
         y = -this.centerY + this.wHeight/2 + this.yOffset;
     this.iscroll.scrollTo(x, y, 10);
-    // console.log(this.iscroll.maxScrollY = -3000)
   },
   vars: function() {
     this.particlesContainer = document.querySelector('#scroller');
     this.particles = document.querySelectorAll('.particle');
-    this.S = 1;
-    this.openSound      = new Howl({ urls: ['sounds/open-bubble-2.wav'] });
-    this.openSound2     = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: .15 });
-    this.bounceSound    = new Howl({ urls: ['sounds/bounce-2.wav'] });
-    this.closeSound     = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .5 });
-    this.closeSound2    = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .75 });
-    this.closeSound3    = new Howl({ urls: ['sounds/bubble-single-1.wav'], rate: .85 });
-    this.metaSound      = new Howl({ urls: ['sounds/open-bubble.wav'], rate: 2});
-    this.closeScaleSound = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: .25 });
-    this.closeBtnSound   = new Howl({ urls: ['sounds/open-bubble-3.wav'], rate: 1 });
+    this.S = 1; this.ext = 'mp3'; this.loadCnt = 0; this.maxLoadCnt = 8;
+    this.progressStep = (150/this.maxLoadCnt) * (1/16);
+    this.openSound      = new Howl({ urls: [`sounds/open-bubble-2.${this.ext}`], onload: this.updateProgress.bind(this)});
+    this.openSound2     = new Howl({ urls: [`sounds/open-bubble-3.${this.ext}`], rate: .15, onload: this.updateProgress.bind(this)});
+    this.bounceSound    = new Howl({ urls: [`sounds/bounce.${this.ext}`] });
+    this.closeSound     = new Howl({ urls: [`sounds/bubble-single-1.${this.ext}`], rate: .5, onload: this.updateProgress.bind(this) });
+    this.closeSound2    = new Howl({ urls: [`sounds/bubble-single-1.${this.ext}`], rate: .75, onload: this.updateProgress.bind(this) });
+    this.closeSound3    = new Howl({ urls: [`sounds/bubble-single-1.${this.ext}`], rate: .85, onload: this.updateProgress.bind(this) });
+    // this.metaSound      = new Howl({ urls: [`sounds/open-bubble.${this.ext}`], rate: 2});
+    this.closeScaleSound = new Howl({ urls: [`sounds/open-bubble-3.${this.ext}`], rate: .25, onload: this.updateProgress.bind(this) });
+    this.closeBtnSound   = new Howl({ urls: [`sounds/open-bubble-3.${this.ext}`], rate: 1, onload: this.updateProgress.bind(this) });
+    this.loadImage('css/i/mojs-logo.png');
 
     this.particleRadius = getComputedStyle(this.particles[0]).width;
     this.particleRadius = parseInt(this.particleRadius, 10)/2;
     this.closeBtn     = document.querySelector('#js-close-btn');
     this.closeBtnI    = document.querySelector('#js-close-btn-inner');
-    this.htmlGL       = document.querySelector('#js-html-gl');
     this.blobCircle   = document.querySelector('#js-blob-circle');
-    this.blobCircleI  = document.querySelector('#js-blob-circle-inner');
+    this.blobCircleW  = document.querySelector('#js-blob-circle-wrap');
+    // this.blobCircleI  = document.querySelector('#js-blob-circle-inner');
     this.badge        = document.querySelector('#js-badge');
     this.content      = document.querySelector('#js-content');
+    this.contentI     = document.querySelector('#js-content-inner');
+    this.dustWrap     = document.querySelector('#js-dust-wrap');
+    this.curtain      = document.querySelector('#js-curtain');
+    this.progress     = document.querySelector('#js-progress');
+    this.progressGrad = document.querySelector('#js-progress-gradient');
     this.particlesLength = this.particles.length;
     var styles     = getComputedStyle(this.particlesContainer);
     this.width     = parseInt(styles.width, 10);
@@ -64,7 +62,7 @@ var main = {
     this.radPoint = mojs.helpers.getRadialPoint;
     this.particleBuffer = null; this.isOpen = false;
     this.blobBase = 1.6; this.blob = this.blobBase; this.blobShift = this.blobBase;
-    this.calcDimentions()
+    this.prepareDust(); this.calcDimentions()
     this.xOffset = this.particleRadius + 25;
     this.yOffset = 1.4*this.particleRadius;
     var i = this.particlesLength;
@@ -76,44 +74,31 @@ var main = {
   },
   draw: function() {
     var origin = `${this.bubleCenter.x}px ${this.bubleCenter.y}px`
-    mojs.helpers.setPrefixedStyle(this.particlesContainer, 'perspective-origin', origin)
+    var h = mojs.h, inEasing = mojs.easing.cubic.in;
+    h.setPrefixedStyle(this.particlesContainer, 'perspective-origin', origin)
 
-    var cnt = 0;
+    // var cnt = 0;
+
     var i = this.particlesLength;
     while(i--) {
       this.particleBuffer = this.particles[i];
       var x = Math.abs(this.bubleCenter.x-this.particleBuffer.x),
           y = Math.abs(this.bubleCenter.y-this.particleBuffer.y),
           radius = Math.sqrt(x*x + y*y),
-          a = this.blob - (2*radius)/this.size,
-          b = this.blobShift - (2*radius)/this.size,
-          scaleMax = 1,
-          delta = mojs.helpers.clamp(a, 0.03, scaleMax);
+          a      = this.blob - (2*radius)/this.size,
+          b      = this.blobShift - (2*radius)/this.size, scaleMax = 1;
 
+      var delta = mojs.helpers.clamp(inEasing(a), 0.03, scaleMax)
+      var deltaShift = h.clamp((inEasing(b)), 0.03, scaleMax)      
 
-      delta = (mojs.easing.cubic.in(delta))
-      delta = mojs.helpers.clamp(delta, 0.03, scaleMax)
-
-      var deltaShift = mojs.helpers.clamp(b, 0.03, 2*scaleMax)
-      deltaShift = (mojs.easing.cubic.in(deltaShift))
-      deltaShift = mojs.helpers.clamp(deltaShift, 0.03, 2*scaleMax)      
-
-      // this.particleBuffer.querySelector('.particle__inner').textContent = i
-
-      // delta = delta.toFixed(6)
-      // deltaShift = deltaShift.toFixed(6)
-      var isDeltaChanged = this.particleBuffer.prevDelta !== delta
+      var isDeltaChanged = this.particleBuffer.prevDelta !== delta;
       if (isDeltaChanged || this.particleBuffer.prevDeltaShift !== deltaShift) {
-        cnt++;
-        var nDelta = mojs.easing.expo.in(1-delta),
-            nDeltaShift = mojs.easing.cubic.in(1-deltaShift),
-            translateZ = -150*(nDeltaShift),
-            transform = `scale(${delta}) translateZ(${translateZ}px)`;
-        mojs.helpers.setPrefixedStyle(this.particleBuffer, 'transform', transform);
-        this.particleBuffer.prevDelta = delta
-        this.particleBuffer.prevDeltaShift = deltaShift
-        this.particleBuffer.translateZ = translateZ
-        this.particleBuffer.delta  = delta; this.particleBuffer.nDelta = nDelta
+      // cnt++;
+      var translateZ = -150*(inEasing(1-deltaShift)),
+          transform  = `scale(${delta}) translateZ(${translateZ}px)`;
+      h.setPrefixedStyle(this.particleBuffer, 'transform', transform);
+      this.particleBuffer.prevDelta      = delta;
+      this.particleBuffer.prevDeltaShift = deltaShift;
       }
     }
     // this.badge.textContent = cnt;
@@ -127,13 +112,51 @@ var main = {
     var x = Math.sqrt(this.wHeight*this.wHeight),
         y = Math.sqrt(this.wWidth*this.wWidth);
     this.size = 1*Math.min(x, y)
+  },
+  start: function () {
+    this.curtain.classList.add('is-hide');
+    this.startBlob();
+  },
+  startBlob: function () {
+    var tween = new mojs.Tween;
+    var t = new mojs.Timeline({
+      duration: 1200*this.S,
+      onUpdate: (p)=> {
+        this.blob = this.blobBase + .3*(1-mojs.easing.elastic.out(p));
+      }
+    });
+
+    var centerX = this.bubleCenter.x,
+        centerY = this.bubleCenter.y;
+    var t2 = new mojs.Timeline({
+      duration: 1200*this.S, delay: 0*this.S,
+      onUpdate: (p)=> {
+        this.blobShift = this.blobBase + .5*(1-mojs.easing.elastic.out(p));
+      },
+      onStart: () => { this.closeScaleSound.play() }
+    });
+    tween.add(t, t2);
+    tween.start();
+  },
+  updateProgress: function (isReturn = true) {
+    if (isReturn) {return}
+    var shift = (this.maxLoadCnt - ++this.loadCnt)*this.progressStep;
+    this.progress.style.width = `${shift}rem`;
+    mojs.h.setPrefixedStyle(this.progressGrad, 'transform', `translateX(-${(this.loadCnt*this.progressStep/1.6)}rem)`);
+    (this.loadCnt === this.maxLoadCnt) && this.start();
+  },
+  loadImage: function (url) {
+    let image = new Image;
+    image.addEventListener('load', this.updateProgress.bind(this),  false);
+    // image.addEventListener 'error', ((e)=> @imageLoaded(false)), false
+    // image.addEventListener 'abort', ((e)=> @imageLoaded(false)), false
+    image.src = url;
   }
 }
 
 mojs.h.extend(main, events);
 mojs.h.extend(main, showOnEl);
-mojs.h.extend(main, hideOnEl);
+mojs.h.extend(main, hideEl);
 mojs.h.extend(main, showInner);
-mojs.h.extend(main, showClose);
-mojs.h.extend(main, showInnerPlastic);
+mojs.h.extend(main, closeButton);
 window.app = main.init()

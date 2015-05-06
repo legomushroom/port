@@ -56,17 +56,22 @@ html
   - var size = 150, gap = 25;
   - var columnCnt = 25;
   body
-
-    .blob-circle1
-      .blob-circle1__inner
+    .curtain#js-curtain
+      .curtain__progress-text loading..
+      .curtain__progress-text-gradient#js-progress-gradient
+      .curtain__progress#js-progress
+    //- .element-parent
+    //-   .element text
     .close#js-close-btn
       .close__inner#js-close-btn-inner
     .content#js-content
+      .content__dust-wrapper#js-dust-wrap
+      .content__inner#js-content-inner
     .badge#js-badge
-    html-gl#js-html-gl
     .wrapper#js-wrapper
       .particles#scroller(style="margin-left: #{-(size+gap)*1}px; margin-top: #{-(size+gap)*1}px; width:#{(size+gap)*(columnCnt-2.2) - size/2 - 2*gap}px; height:#{(size)*(columnCnt-4.5)-size-2*gap}px")
-          .blob-circle#js-blob-circle
+          .blob-circle-wrap#js-blob-circle-wrap
+            .blob-circle#js-blob-circle
             //- .blob-circle__inner#js-blob-circle-inner
           //- .center
           - for (var j=0; j < columnCnt; j++)

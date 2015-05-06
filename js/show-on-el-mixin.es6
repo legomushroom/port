@@ -7,10 +7,9 @@ var showOnEl = {
     var size = Math.min(this.wWidth, this.wHeight);
     this.blobCircle.style.left = `${x}px`
     this.blobCircle.style.top  = `${y}px`
-    var borderWidth = 10*mojs.easing.cubic.in(size/800)
+    var borderWidth = Math.min(10*mojs.easing.cubic.in(size/800), 20),
+        blobCircleSize = 30 + 2*borderWidth;
     this.blobCircle.style['border-width'] = `${borderWidth/2}px`
-
-    var blobCircleSize = 30 + 2*borderWidth
     this.blobCircle.style['width']       = `${blobCircleSize}px`
     this.blobCircle.style['height']      = `${blobCircleSize}px`
     this.blobCircle.style['margin-left'] = `${-blobCircleSize/2}px`
@@ -31,7 +30,8 @@ var showOnEl = {
   },
 
   showOnEl: function (el) {
-    this.currentEl = el;
+    this.prevEl = this.currentEl; this.currentEl = el;
+    this.prevEl && (this.prevEl.style['z-index'] = 0)
     // return immediately on edges
     if (el.delta < .2) { return }
 
@@ -66,6 +66,9 @@ var showOnEl = {
       }
     });
 
+    this.content.style.opacity = 0;
+    this.contentI.innerHTML = el.querySelector('.particle__content').innerHTML;
+
     var scaleUpTimeline = new mojs.Timeline({
       duration: 600*this.S, delay: 350*this.S,
       onUpdate: (p)=> {
@@ -76,10 +79,10 @@ var showOnEl = {
         innerEl.style.opacity = .75 + .25*mojs.easing.cubic.out(p)
       },
       onStart:()=> {
+        // this.content.style.display = 'block';
         setTimeout(()=> {
-          this.content.innerHTML = el.querySelector('.particle__content').innerHTML;
           this.showInner(this.content);
-        }, 400)
+        }, 450)
       },
       onComplete: () => {
         this.blobCircle.style.display = 'none';

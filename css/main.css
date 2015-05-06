@@ -10,6 +10,55 @@ body {
   overflow: hidden;
   font-family: Open Sans, sans-serif;
 }
+.curtain {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #28143f;
+  z-index: 30;
+  opacity: 1;
+  -webkit-transition: all 0.8s ease-out;
+  transition: all 0.8s ease-out;
+}
+.curtain__progress {
+  height: 0.125rem;
+  width: 9.375rem;
+  border-radius: 0.25rem;
+  background: #fff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -4.6875rem;
+  margin-top: -0.0625rem;
+  -webkit-transition: width 0.3s ease-out;
+  transition: width 0.3s ease-out;
+}
+.curtain__progress-text,
+.curtain__progress-text-gradient {
+  position: absolute;
+  color: #fff;
+  font-size: 0.625rem;
+  letter-spacing: 0.0875rem;
+  position: absolute;
+  margin-left: -4.6875rem;
+  margin-top: -1.25rem;
+  top: 50%;
+  left: 50%;
+}
+.curtain__progress-text-gradient {
+  width: 14.0625rem;
+  height: 1rem;
+  -webkit-transition: -webkit-transform 0.3s ease-out;
+  transition: transform 0.3s ease-out;
+  background: -webkit-linear-gradient(left, rgba(40,18,64,0) 20%, #281240 50%);
+  background: linear-gradient(to right, rgba(40,18,64,0) 20%, #281240 50%);
+}
+.curtain.is-hide {
+  opacity: 0;
+  z-index: 0;
+}
 .badge {
   position: fixed;
   top: 0;
@@ -91,10 +140,25 @@ body {
   display: block;
   margin-left: -16.875rem;
   margin-top: -8.75rem;
-  z-index: 2;
+  z-index: 0;
   top: 50%;
   left: 50%;
-  display: none;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+}
+.content__inner {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.content__dust-wrapper {
+  position: absolute;
+  top: 220px;
+  width: 240px;
+  height: 60px;
+  overflow: hidden;
+  z-index: 2;
 }
 .content.is-show {
   display: block;
@@ -154,22 +218,30 @@ body {
   top: -50%;
   left: -50%;
   z-index: 1;
+  display: none;
+}
+.blob-circle-wrap {
+  width: 0px;
+  height: 0px;
+  overflow: hidden;
 }
 .close {
   position: fixed;
-  width: 3.125rem;
-  height: 3.125rem;
+  width: 1.875rem;
+  height: 1.875rem;
   border-radius: 50%;
   top: 20%;
   left: -10%;
   z-index: -1;
   -webkit-transition: opacity 0.25s ease-out;
   transition: opacity 0.25s ease-out;
+  display: none;
 }
 .close:hover {
   cursor: pointer;
 }
 .close.is-show {
+  display: block;
   opacity: 1;
   left: 75%;
   z-index: 10;

@@ -1,8 +1,6 @@
 var mojs = require('../js/vendor/mo');
-var html2canvas = require('html2canvas');
 
-window.html2canvas = html2canvas
-var showClose = {  
+var showCloseButton = {  
   initClose: function () {
     var dur = 400;
     var closeOption = {
@@ -14,7 +12,7 @@ var showClose = {
       strokeWidth:  {5:0},
       x: '50%',     y: '50%',
       duration:     dur,
-      isRunLess:   true,
+      isRunLess:   true
     }
     this.closeCircle = new mojs.Transit(closeOption);
 
@@ -48,14 +46,12 @@ var showClose = {
       stroke:       'white',
       strokeWidth:  {5:0},
       x: '-20%',     y: '-50%',
-      // duration:     dur,
       isRunLess:    true,
       delay:        (.7*dur),
       duration:     400*this.S,
       onStart: () => { this.closeSound2.play(); }
     }
     this.closeCircle2 = new mojs.Transit(closeOption2);
-
 
     var closeOption3 = {
       x: '80%',     y: '-30%',
@@ -78,7 +74,6 @@ var showClose = {
     this.closeCircle4 = new mojs.Transit(closeOption4);
   },
   showClose: function () {
-    this.closeBtn.style.display = 'block';
     this.closeBtn.classList.add('is-show');
     this.closeCircle.run(); this.closeCross.run(); this.closeBurst.run();
     this.closeCircle2.run(); this.closeCircle3.run(); this.closeCircle4.run()
@@ -101,7 +96,7 @@ var showClose = {
       },
       onStart: () => { this.closeBtnSound.play(); },
       onComplete:   () => {
-        this.closeBtn.style.display = 'none';
+        this.closeBtn.classList.remove('is-show');
         mojs.h.setPrefixedStyle(this.closeCross.el, 'transform', `none`)
       }
     });
@@ -113,14 +108,12 @@ var showClose = {
       fill:             'transparent',
       stroke:           'white',
       strokeWidth:      { 8:0 },
-      isRunLess:        true,
+      isRunLess:        true
       // strokeDasharray: '25% 25%',
     });
   },
-  hideClose: function () {
-    this.hideBurst.run(); this.hideCircle.run();
-  }
+  hideClose: function () { this.hideBurst.run(); this.hideCircle.run(); }
 }
 
 
-export default showClose
+export default showCloseButton

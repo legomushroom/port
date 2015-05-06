@@ -32,8 +32,6 @@
     "fastclick": "^1.0.6",
     "hammerjs": "^2.0.4",
     "howler": "^1.1.26",
-    "html2canvas": "^0.5.0-alpha2",
-    "impulse": "^0.1.0",
     "iscroll": "^5.1.3",
     "mo-js": "^0.110.1"
   },
