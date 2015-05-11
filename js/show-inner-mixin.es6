@@ -19,8 +19,25 @@ var showInner = {
       delay:      275*this.S,
       isRunLess:  true
     });
+    this.dust2Spriter = new mojs.Spriter({
+      el:         this.dust2,
+      duration:   200*this.S,
+      delay:      575*this.S,
+      isRunLess:  true
+    });
+    this.dust3Spriter = new mojs.Spriter({
+      el:         this.dust3,
+      duration:   100*this.S,
+      delay:      725*this.S,
+      isRunLess:  true
+    });
+    this.dust4Spriter = new mojs.Spriter({
+      el:         this.dust4,
+      duration:   50*this.S,
+      delay:      800*this.S,
+      isRunLess:  true
+    });
   },
-
   showInnerPlastic: function (el) {
     // mojs.h.setPrefixedStyle(this.content, 'transform', `translate3d(-5000px,-5000px,0)`);
     this.content.style.opacity    = 1;
@@ -30,8 +47,8 @@ var showInner = {
         scene = el.querySelector('.shape'),
         shadow     = el.querySelector('#js-shadow'),
         shadowWrap = el.querySelector('#js-shadow-wrap');
-    // this.dust.run()
-    this.dust1Spriter.run();
+    this.dust1Spriter.run(); this.dust2Spriter.run();
+    this.dust3Spriter.run(); this.dust4Spriter.run()
     var mp = new mojs.MotionPath({
       path:       { x: -300,  y: -300 },
       curvature:  { x: '75%', y: '50%' },

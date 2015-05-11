@@ -49,6 +49,9 @@ var main = {
     this.blobCircle   = document.querySelector('#js-blob-circle');
     this.blobEllipses = this.blobCircle.querySelectorAll('#js-blob-circle-ellipse')
     this.dust1        = document.querySelector('#js-dust-1');
+    this.dust2        = document.querySelector('#js-dust-2');
+    this.dust3        = document.querySelector('#js-dust-3');
+    this.dust4        = document.querySelector('#js-dust-4');
     // this.blobCircleW  = document.querySelector('#js-blob-circle-wrap');
     // this.blobCircleI  = document.querySelector('#js-blob-circle-inner');
     this.badge        = document.querySelector('#js-badge');
@@ -156,6 +159,12 @@ var main = {
     image.src = url;
   }
 }
+
+// for (let item of ['a', 'b', 'c']) {
+//   setTimeout(function () {
+//     console.log(item);
+//   }, 20)
+// }
 
 mojs.h.extend(main, events);
 mojs.h.extend(main, showOnEl);

@@ -23,7 +23,7 @@ body {
   transition: all 0.8s ease-out;
 }
 .curtain__progress {
-  height: 0.125rem;
+  height: 0.0625rem;
   width: 9.375rem;
   border-radius: 0.25rem;
   background: #fff;
@@ -220,7 +220,7 @@ body {
   font-size: 0.53125rem;
   letter-spacing: 0.0125rem;
   position: absolute;
-  top: 0.5rem;
+  top: 0.5625rem;
 }
 .by__text--1 {
   left: 0.625rem;
@@ -263,7 +263,6 @@ body {
 }
 .dust {
   position: absolute;
-  z-index: 10;
   width: 12.5rem;
   height: 12.5rem;
   height: 3.125rem;
@@ -271,6 +270,23 @@ body {
 .dust--1 {
   top: 16.875rem;
   left: 6.25rem;
+}
+.dust--2,
+.dust--3,
+.dust--4 {
+  top: 14.1875rem;
+}
+.dust--2 {
+  left: -2.5rem;
+  opacity: 0.9;
+}
+.dust--3 {
+  left: -4.375rem;
+  opacity: 0.7;
+}
+.dust--4 {
+  left: -4.8125rem;
+  opacity: 0.7;
 }
 .blob-circle {
   position: absolute;

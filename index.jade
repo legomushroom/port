@@ -72,16 +72,33 @@ html
     .content#js-content
       .content__dust-wrapper#js-dust-wrap
         .dust.dust--1.sprite#js-dust-1
-          - var framesCnt   = 50
-          - var yMax        = 10
-          - var xMax        = 80
-          - var strokeMax   = 10
-          - var yStep       = yMax/framesCnt
-          - var xStep       = xMax/framesCnt
-          - var strokeStep  = strokeMax/framesCnt
+          - var framesCnt = 50, yMax = 10, xMax = 80, strokeMax = 10
+          - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
+          - var strokeStep = strokeMax/framesCnt
           - for (var i = 0; i < framesCnt; i++)
             svg.sprite__frame
-              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}" fill="none", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="75")
+              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="75")
+        .dust.dust--2.sprite#js-dust-2
+          - var framesCnt = 50, yMax = 8, xMax = 60, strokeMax = 8
+          - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
+          - var strokeStep = strokeMax/framesCnt
+          - for (var i = 0; i < framesCnt; i++)
+            svg.sprite__frame
+              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="125")
+        .dust.dust--3.sprite#js-dust-3
+          - var framesCnt = 50, yMax = 4, xMax = 30, strokeMax = 5
+          - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
+          - var strokeStep = strokeMax/framesCnt
+          - for (var i = 0; i < framesCnt; i++)
+            svg.sprite__frame
+              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="150")
+        .dust.dust--4.sprite#js-dust-4
+          - var framesCnt = 50, yMax = 3, xMax = 25, strokeMax = 3
+          - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
+          - var strokeStep = strokeMax/framesCnt
+          - for (var i = 0; i < framesCnt; i++)
+            svg.sprite__frame
+              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}" fill="none", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="30", stroke-dashoffset="20")
 
       .content__inner#js-content-inner
     .badge#js-badge
