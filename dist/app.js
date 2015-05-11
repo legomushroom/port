@@ -40,17 +40,15 @@
 /******/ 	return __webpack_require__(0);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ 0:
+/******/ ([
+/* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__(1);
 
 
 /***/ },
-
-/***/ 1:
+/* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -68,9 +66,9 @@
 
 	var events = __webpack_require__(4);
 	var showOnEl = __webpack_require__(5);
-	var hideEl = __webpack_require__(49);
+	var hideEl = __webpack_require__(6);
 	var showInner = __webpack_require__(7);
-	var closeButton = __webpack_require__(48);
+	var closeButton = __webpack_require__(8);
 
 	var main = {
 	  init: function (o) {
@@ -79,7 +77,7 @@
 	    this.draw();this.events();
 	    setInterval(function () {
 	      _this.updateProgress(false);
-	    }, 300);
+	    }, 10);
 	    // setTimeout(()=> { this.start()}, 2000);
 	    return this;
 	  },
@@ -112,7 +110,8 @@
 	    this.closeBtn = document.querySelector("#js-close-btn");
 	    this.closeBtnI = document.querySelector("#js-close-btn-inner");
 	    this.blobCircle = document.querySelector("#js-blob-circle");
-	    this.blobCircleW = document.querySelector("#js-blob-circle-wrap");
+	    this.blobEllipses = this.blobCircle.querySelectorAll("#js-blob-circle-ellipse");
+	    // this.blobCircleW  = document.querySelector('#js-blob-circle-wrap');
 	    // this.blobCircleI  = document.querySelector('#js-blob-circle-inner');
 	    this.badge = document.querySelector("#js-badge");
 	    this.content = document.querySelector("#js-content");
@@ -236,14 +235,13 @@
 	window.app = main.init();
 
 /***/ },
-
-/***/ 2:
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var require;var require;/* WEBPACK VAR INJECTION */(function(global) {/*! 
 	  :: mo · js :: motion graphics toolbelt for the web
 	  Oleg Solomka @LegoMushroom 2015 MIT
-	  0.117.5 
+	  0.118.0 
 	*/
 
 	(function(f){
@@ -767,7 +765,7 @@
 
 	module.exports = Burst;
 
-	},{"./h":4,"./shapes/bitsMap":11,"./swirl":20,"./transit":21,"./tween/tween":23}],3:[function(require,module,exports){
+	},{"./h":4,"./shapes/bitsMap":11,"./swirl":21,"./transit":22,"./tween/tween":24}],3:[function(require,module,exports){
 	var Easing, PathEasing, bezier, easing;
 
 	bezier = require('./bezier-easing');
@@ -1558,7 +1556,7 @@
 	var mojs;
 
 	mojs = {
-	  revision: '0.117.5',
+	  revision: '0.118.0',
 	  isDebug: true,
 	  helpers: require('./h'),
 	  Bit: require('./shapes/bit'),
@@ -1574,6 +1572,7 @@
 	  Transit: require('./transit'),
 	  Swirl: require('./swirl'),
 	  Stagger: require('./stagger'),
+	  Spriter: require('./spriter'),
 	  MotionPath: require('./motion-path'),
 	  Timeline: require('./tween/timeline'),
 	  Tween: require('./tween/tween'),
@@ -1597,7 +1596,7 @@
 
 	return typeof window !== "undefined" && window !== null ? window.mojs = mojs : void 0;
 
-	},{"./burst":2,"./easing":3,"./h":4,"./motion-path":6,"./shapes/bit":10,"./shapes/bitsMap":11,"./shapes/circle":12,"./shapes/cross":13,"./shapes/equal":14,"./shapes/line":15,"./shapes/polygon":16,"./shapes/rect":17,"./shapes/zigzag":18,"./stagger":19,"./swirl":20,"./transit":21,"./tween/timeline":22,"./tween/tween":23,"./tween/tweener":24}],6:[function(require,module,exports){
+	},{"./burst":2,"./easing":3,"./h":4,"./motion-path":6,"./shapes/bit":10,"./shapes/bitsMap":11,"./shapes/circle":12,"./shapes/cross":13,"./shapes/equal":14,"./shapes/line":15,"./shapes/polygon":16,"./shapes/rect":17,"./shapes/zigzag":18,"./spriter":19,"./stagger":20,"./swirl":21,"./transit":22,"./tween/timeline":23,"./tween/tween":24,"./tween/tweener":25}],6:[function(require,module,exports){
 	var MotionPath, Timeline, Tween, easing, h, resize,
 	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -2097,7 +2096,7 @@
 
 	module.exports = MotionPath;
 
-	},{"./easing":3,"./h":4,"./tween/timeline":22,"./tween/tween":23,"./vendor/resize":25}],7:[function(require,module,exports){
+	},{"./easing":3,"./h":4,"./tween/timeline":23,"./tween/tween":24,"./vendor/resize":26}],7:[function(require,module,exports){
 	var PathEasing, h;
 
 	h = require('./h');
@@ -2799,6 +2798,127 @@
 	module.exports = Zigzag;
 
 	},{"./bit":10}],19:[function(require,module,exports){
+	var Spriter, Timeline, Tween, h;
+
+	h = require('./h');
+
+	Timeline = require('./tween/timeline');
+
+	Tween = require('./tween/tween');
+
+	Spriter = (function() {
+	  Spriter.prototype._defaults = {
+	    duration: 500,
+	    delay: 0,
+	    easing: 'linear.none',
+	    repeat: 0,
+	    yoyo: false,
+	    isRunLess: false,
+	    isShowEnd: false,
+	    onStart: null,
+	    onUpdate: null,
+	    onComplete: null
+	  };
+
+	  function Spriter(o) {
+	    this.o = o != null ? o : {};
+	    if (this.o.el == null) {
+	      return h.error('No "el" option specified, aborting');
+	    }
+	    this._vars();
+	    this._extendDefaults();
+	    this._parseFrames();
+	    if (this._frames.length <= 2) {
+	      h.warn("Spriter: only " + this._frames.length + " frames found");
+	    }
+	    if (this._frames.length < 1) {
+	      h.error("Spriter: there is no frames to animate, aborting");
+	    }
+	    this._createTween();
+	    this;
+	  }
+
+	  Spriter.prototype._vars = function() {
+	    this._props = h.cloneObj(this.o);
+	    this.el = this.o.el;
+	    return this._frames = [];
+	  };
+
+	  Spriter.prototype._extendDefaults = function() {
+	    return h.extend(this._props, this._defaults);
+	  };
+
+	  Spriter.prototype._parseFrames = function() {
+	    var frame, i, j, len, ref;
+	    this._frames = Array.prototype.slice.call(this.el.children, 0);
+	    ref = this._frames;
+	    for (i = j = 0, len = ref.length; j < len; i = ++j) {
+	      frame = ref[i];
+	      frame.style.opacity = 0;
+	    }
+	    return this._frameStep = 1 / this._frames.length;
+	  };
+
+	  Spriter.prototype._createTween = function() {
+	    this._timeline = new Timeline({
+	      duration: this._props.duration,
+	      delay: this._props.delay,
+	      yoyo: this._props.yoyo,
+	      repeat: this._props.repeat,
+	      easing: this._props.easing,
+	      onStart: (function(_this) {
+	        return function() {
+	          var base;
+	          return typeof (base = _this._props).onStart === "function" ? base.onStart() : void 0;
+	        };
+	      })(this),
+	      onComplete: (function(_this) {
+	        return function() {
+	          var base;
+	          return typeof (base = _this._props).onComplete === "function" ? base.onComplete() : void 0;
+	        };
+	      })(this),
+	      onUpdate: (function(_this) {
+	        return function(p) {
+	          return _this._setProgress(p);
+	        };
+	      })(this)
+	    });
+	    this._tween = new Tween;
+	    this._tween.add(this._timeline);
+	    return !this._props.isRunLess && this._startTween();
+	  };
+
+	  Spriter.prototype._startTween = function() {
+	    return setTimeout(((function(_this) {
+	      return function() {
+	        return _this._tween.start();
+	      };
+	    })(this)), 1);
+	  };
+
+	  Spriter.prototype._setProgress = function(p) {
+	    var currentNum, proc, ref, ref1;
+	    proc = Math.floor(p / this._frameStep);
+	    if (this._prevFrame !== this._frames[proc]) {
+	      if ((ref = this._prevFrame) != null) {
+	        ref.style.opacity = 0;
+	      }
+	      currentNum = p === 1 && this._props.isShowEnd ? proc - 1 : proc;
+	      if ((ref1 = this._frames[currentNum]) != null) {
+	        ref1.style.opacity = 1;
+	      }
+	      return this._prevFrame = this._frames[proc];
+	    }
+	  };
+
+	  return Spriter;
+
+	})();
+
+	module.exports = Spriter;
+
+	},{"./h":4,"./tween/timeline":23,"./tween/tween":24}],20:[function(require,module,exports){
 
 	var Stagger, Timeline, Transit, Tween, h,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2936,7 +3056,7 @@
 
 	module.exports = Stagger;
 
-	},{"./h":4,"./transit":21,"./tween/timeline":22,"./tween/tween":23}],20:[function(require,module,exports){
+	},{"./h":4,"./transit":22,"./tween/timeline":23,"./tween/tween":24}],21:[function(require,module,exports){
 
 	var Swirl, Transit,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -3049,7 +3169,7 @@
 
 	module.exports = Swirl;
 
-	},{"./transit":21}],21:[function(require,module,exports){
+	},{"./transit":22}],22:[function(require,module,exports){
 
 	var Timeline, Transit, Tween, bitsMap, h,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -3718,7 +3838,7 @@
 
 	module.exports = Transit;
 
-	},{"./h":4,"./shapes/bitsMap":11,"./tween/timeline":22,"./tween/tween":23}],22:[function(require,module,exports){
+	},{"./h":4,"./shapes/bitsMap":11,"./tween/timeline":23,"./tween/tween":24}],23:[function(require,module,exports){
 	var Timeline, easingModule, h;
 
 	easingModule = require('../easing');
@@ -3917,7 +4037,7 @@
 
 	module.exports = Timeline;
 
-	},{"../easing":3,"../h":4}],23:[function(require,module,exports){
+	},{"../easing":3,"../h":4}],24:[function(require,module,exports){
 	var Tween, h, t;
 
 	h = require('../h');
@@ -4112,7 +4232,7 @@
 
 	module.exports = Tween;
 
-	},{"../h":4,"./tweener":24}],24:[function(require,module,exports){
+	},{"../h":4,"./tweener":25}],25:[function(require,module,exports){
 	var Tweener, h, i, t;
 
 	require('../polyfills/raf');
@@ -4199,7 +4319,7 @@
 
 	module.exports = t;
 
-	},{"../h":4,"../polyfills/performance":8,"../polyfills/raf":9}],25:[function(require,module,exports){
+	},{"../h":4,"../polyfills/performance":8,"../polyfills/raf":9}],26:[function(require,module,exports){
 
 	/*!
 	  LegoMushroom @legomushroom http://legomushroom.com
@@ -4420,8 +4540,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-
-/***/ 3:
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
@@ -6464,8 +6583,7 @@
 	})(window, document, Math);
 
 /***/ },
-
-/***/ 4:
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6476,7 +6594,7 @@
 
 	var _core = _interopRequire(__webpack_require__(9));
 
-	var Hammer = __webpack_require__(12);
+	var Hammer = __webpack_require__(11);
 
 	var events = {
 	  events: function () {
@@ -6510,8 +6628,7 @@
 	module.exports = events;
 
 /***/ },
-
-/***/ 5:
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6534,14 +6651,28 @@
 	    this.blobCircle.style.top = "" + y + "px";
 	    var borderWidth = Math.min(10 * mojs.easing.cubic["in"](size / 800), 20),
 	        blobCircleSize = 30 + 2 * borderWidth;
-	    this.blobCircle.style["border-width"] = "" + borderWidth / 2 + "px";
-	    this.blobCircle.style.width = "" + blobCircleSize + "px";
-	    this.blobCircle.style.height = "" + blobCircleSize + "px";
-	    this.blobCircle.style["margin-left"] = "" + -blobCircleSize / 2 + "px";
-	    this.blobCircle.style["margin-top"] = "" + -blobCircleSize / 2 + "px";
+
+	    var strokeStep = borderWidth / 2 / this.blobEllipses.length;
+	    var i = 0;
+	    for (var _iterator = _core.$for.getIterator(this.blobEllipses), _step; !(_step = _iterator.next()).done;) {
+	      var item = _step.value;
+	      i++;
+	      // console.log(borderWidth/2 - i*strokeStep)
+	      item.setAttribute("stroke-width", borderWidth / 2 - i * strokeStep);
+	      item.setAttribute("rx", blobCircleSize / 2);
+	      item.setAttribute("ry", blobCircleSize / 2);
+	    }
+
 	    this.blobCircle.style.display = "block";
+
+	    var blobDuration = 500;
+	    var sp = new mojs.Spriter({
+	      el: this.blobCircle,
+	      duration: blobDuration * this.S
+	    });
+
 	    var blobCircleTm = new mojs.Timeline({
-	      duration: 500 * this.S,
+	      duration: blobDuration * this.S,
 	      onStart: function () {
 	        _this.openSound.play();
 	      },
@@ -6629,8 +6760,94 @@
 	module.exports = showOnEl;
 
 /***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
 
-/***/ 7:
+	"use strict";
+
+	var _interopRequire = function (obj) {
+	  return obj && (obj["default"] || obj);
+	};
+
+	var _core = _interopRequire(__webpack_require__(9));
+
+	var hideOnEl = {
+	  closeEl: function () {
+	    var _this = this;
+	    this.iscroll.enabled = true;this.isOpen = false;this.hideClose();
+
+	    var innerEl = this.currentEl.querySelector(".particle__inner"),
+	        scaleDownTween = new mojs.Tween();
+
+	    var scaleDownTimeline = new mojs.Timeline({
+	      duration: 500 * this.S,
+	      onUpdate: function (p) {
+	        var np = 1 - p,
+	            npe = mojs.easing.cubic.inout(np),
+	            scaleSize = 0.75 + 18 * npe,
+	            scale = "scale(" + scaleSize + ") translateZ(0)";
+
+	        mojs.h.setPrefixedStyle(innerEl, "transform", scale);
+	        mojs.h.setPrefixedStyle(_this.content, "transform", "scale(" + npe + ") translateZ(0)");
+	      }
+	    });
+
+	    var scaleDownSoundTimeline = new mojs.Timeline({
+	      delay: 0 * this.S, onStart: function () {
+	        _this.closeScaleSound.play();
+	      }
+	    });
+
+	    var scaleUpTimeline = new mojs.Timeline({
+	      duration: 1000 * this.S,
+	      onUpdate: function (p) {
+	        var scaleSize = 0.75 + 0.25 * mojs.easing.elastic.out(p),
+	            scale = "scale(" + scaleSize + ") translateZ(0)";
+	        mojs.h.setPrefixedStyle(innerEl, "transform", scale);
+	      },
+	      onComplete: function () {
+	        if (_this.isOpen) {
+	          return mojs.h.setPrefixedStyle(_this.content, "transform", "translateZ(0)");
+	        }
+	        _this.content.style.opacity = 0;_this.content.style["z-index"] = 0;
+	        mojs.h.setPrefixedStyle(_this.content, "transform", "translateZ(0)");
+	      }
+	    });
+	    scaleDownTween.add(scaleDownTimeline);scaleDownTween.append(scaleUpTimeline);
+
+	    var blobTween = new mojs.Tween();
+	    var blobShiftDownTimeline = new mojs.Timeline({
+	      duration: 1200 * this.S, delay: 300 * this.S,
+	      onUpdate: function (p) {
+	        if (_this.isOpen) {
+	          return;
+	        }
+	        _this.blobShift = _this.blobBase + (1 - mojs.easing.elastic.out(p));
+	      }
+	    });
+	    var blobDownTimeline = new mojs.Timeline({
+	      duration: 2100 * this.S, delay: 0 * this.S,
+	      onUpdate: function (p) {
+	        if (_this.isOpen) {
+	          return;
+	        }
+	        _this.blob = _this.blobBase + 0.3 * (1 - mojs.easing.elastic.out(p));
+	      }
+	    });
+
+	    blobTween.add(blobShiftDownTimeline, blobDownTimeline, scaleDownSoundTimeline);
+
+	    this.jellyTween = new mojs.Tween();
+	    this.jellyTween.add(scaleDownTween, blobTween);
+	    this.jellyTween.start();
+	  }
+	};
+
+
+	module.exports = hideOnEl;
+
+/***/ },
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6671,28 +6888,29 @@
 	      opacity: { 1: 0 },
 	      isRunLess: true,
 	      strokeDasharray: "50% 200%"
-	    }).then({
-	      shiftX: { "-130": "-130" },
-	      duration: 150 * this.S,
-	      radiusX: { 15: 80 },
-	      radiusY: { 4: 8 },
-	      strokeWidth: { 8: 0 },
-	      opacity: { 0.8: 0 }
-	    }).then({
-	      shiftX: { "-145": "-145" },
-	      duration: 75 * this.S,
-	      radiusX: { 12: 60 },
-	      radiusY: { 3: 7 },
-	      strokeWidth: { 4: 0 },
-	      opacity: { 0.6: 0 }
-	    }).then({
-	      shiftX: { "-150": "-150" },
-	      duration: 50 * this.S,
-	      radiusX: { 11: 55 },
-	      radiusY: { 2: 6 },
-	      strokeWidth: { 2: 0 },
-	      opacity: { 0.4: 0 }
-	    });
+	    }) //.then({
+	    //   shiftX:       {'-130': '-130'},
+	    //   duration:     150*this.S,
+	    //   radiusX:      {15: 80},
+	    //   radiusY:      {4: 8},
+	    //   strokeWidth:  {8: 0},
+	    //   opacity:      {.8:0}
+	    // }).then({
+	    //   shiftX:       {'-145': '-145'},
+	    //   duration:     75*this.S,
+	    //   radiusX:      {12: 60},
+	    //   radiusY:      {3: 7},
+	    //   strokeWidth:  {4: 0},
+	    //   opacity:      {.6:0}
+	    // }).then({
+	    //   shiftX:       {'-150': '-150'},
+	    //   duration:     50*this.S,
+	    //   radiusX:      {11: 55},
+	    //   radiusY:      {2: 6},
+	    //   strokeWidth:  {2: 0},
+	    //   opacity:      {.4:0}
+	    // });
+	    ;
 	  },
 
 	  showInnerPlastic: function (el) {
@@ -6705,7 +6923,7 @@
 	        scene = el.querySelector(".shape"),
 	        shadow = el.querySelector("#js-shadow"),
 	        shadowWrap = el.querySelector("#js-shadow-wrap");
-	    this.dust.run();
+	    // this.dust.run()
 	    var mp = new mojs.MotionPath({
 	      path: { x: -300, y: -300 },
 	      curvature: { x: "75%", y: "50%" },
@@ -6764,8 +6982,152 @@
 	// onStart:()=> { this.showClose(); }
 
 /***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
 
-/***/ 9:
+	"use strict";
+
+	var _interopRequire = function (obj) {
+	  return obj && (obj["default"] || obj);
+	};
+
+	var _core = _interopRequire(__webpack_require__(9));
+
+	var mojs = __webpack_require__(2);
+
+	var showCloseButton = {
+	  initClose: function () {
+	    var _this = this;
+	    var dur = 400;
+	    var closeOption = {
+	      parent: document.querySelector("#js-close-btn"),
+	      type: "circle",
+	      radius: { 0: 15 },
+	      fill: "transparent",
+	      stroke: "white",
+	      strokeWidth: { 5: 0 },
+	      x: "50%", y: "50%",
+	      duration: dur,
+	      isRunLess: true
+	    };
+	    this.closeCircle = new mojs.Transit(closeOption);
+
+	    var closeCrossOption = {
+	      type: "cross",
+	      delay: 0.4 * dur,
+	      angle: 45,
+	      strokeWidth: 2,
+	      radius: { 0: 8 },
+	      isShowEnd: true,
+	      onStart: function () {
+	        _this.closeSound.play();
+	      }
+	    };
+	    mojs.h.extend(closeCrossOption, closeOption);
+	    this.closeCross = new mojs.Transit(closeCrossOption);
+
+	    var closeBurstOption = {
+	      type: "line",
+	      radius: { 0: 30 },
+	      strokeWidth: { 4: 0 },
+	      delay: 0.4 * dur,
+	      childOptions: { radius: { 5: 0 } } };
+	    mojs.h.extend(closeBurstOption, closeOption);
+	    this.closeBurst = new mojs.Burst(closeBurstOption);
+
+	    var closeOption2 = {
+	      parent: document.querySelector("#js-close-btn"),
+	      type: "circle",
+	      radius: { 0: 10 },
+	      fill: "transparent",
+	      stroke: "white",
+	      strokeWidth: { 5: 0 },
+	      x: "-20%", y: "-50%",
+	      isRunLess: true,
+	      delay: 0.7 * dur,
+	      duration: 400 * this.S,
+	      onStart: function () {
+	        _this.closeSound2.play();
+	      }
+	    };
+	    this.closeCircle2 = new mojs.Transit(closeOption2);
+
+	    var closeOption3 = {
+	      x: "80%", y: "-30%",
+	      radius: { 0: 6 },
+	      delay: 1.1 * dur,
+	      duration: 300 * this.S,
+	      onStart: function () {
+	        _this.closeSound3.play();
+	      }
+	    };
+	    mojs.h.extend(closeOption3, closeOption2);
+	    this.closeCircle3 = new mojs.Transit(closeOption3);
+
+	    var closeOption4 = {
+	      x: "50%", y: "130%",
+	      radius: { 0: 4 },
+	      delay: 0.9 * dur,
+	      duration: 200 * this.S,
+	      onStart: function () {
+	        _this.closeSound3.play();
+	      }
+	    };
+	    mojs.h.extend(closeOption4, closeOption2);
+	    this.closeCircle4 = new mojs.Transit(closeOption4);
+	  },
+	  showClose: function () {
+	    this.closeBtn.classList.add("is-show");
+	    this.closeCircle.run();this.closeCross.run();this.closeBurst.run();
+	    this.closeCircle2.run();this.closeCircle3.run();this.closeCircle4.run();
+	  },
+	  initHideClose: function () {
+	    var _this2 = this;
+	    this.hideBurst = new mojs.Burst({
+	      x: "50%", y: "50%",
+	      parent: this.closeBtn,
+	      radius: { 0: 100 },
+	      type: "circle",
+	      fill: "white",
+	      degree: 25,
+	      isSwirl: true,
+	      randomRadius: 1,
+	      isRunLess: true,
+	      childOptions: { radius: { "rand(12,5)": 0 } },
+	      onUpdate: function (p) {
+	        p = mojs.easing.cubic["in"](p);
+	        mojs.h.setPrefixedStyle(_this2.closeCross.el, "transform", "scale(" + (1 - p) + ")");
+	      },
+	      onStart: function () {
+	        _this2.closeBtnSound.play();
+	      },
+	      onComplete: function () {
+	        _this2.closeBtn.classList.remove("is-show");
+	        mojs.h.setPrefixedStyle(_this2.closeCross.el, "transform", "none");
+	      }
+	    });
+	    this.hideCircle = new mojs.Transit({
+	      x: "50%", y: "50%",
+	      parent: this.closeBtn,
+	      type: "circle",
+	      radius: { 0: 15 },
+	      fill: "transparent",
+	      stroke: "white",
+	      strokeWidth: { 8: 0 },
+	      isRunLess: true
+	      // strokeDasharray: '25% 25%',
+	    });
+	  },
+	  hideClose: function () {
+	    this.hideBurst.run();this.hideCircle.run();
+	  }
+	};
+
+
+	module.exports = showCloseButton;
+
+/***/ },
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -8962,8 +9324,7 @@
 	}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), false);
 
 /***/ },
-
-/***/ 10:
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -10322,8 +10683,7 @@
 
 
 /***/ },
-
-/***/ 12:
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*! Hammer.JS - v2.0.4 - 2014-09-28
@@ -12778,7 +13138,7 @@
 	    prefixed: prefixed
 	});
 
-	if ("function" == TYPE_FUNCTION && __webpack_require__(23)) {
+	if ("function" == TYPE_FUNCTION && __webpack_require__(12)) {
 	    !(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
 	        return Hammer;
 	    }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -12792,248 +13152,12 @@
 
 
 /***/ },
-
-/***/ 23:
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
 
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
-/***/ },
-
-/***/ 48:
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = function (obj) {
-	  return obj && (obj["default"] || obj);
-	};
-
-	var _core = _interopRequire(__webpack_require__(9));
-
-	var mojs = __webpack_require__(2);
-
-	var showCloseButton = {
-	  initClose: function () {
-	    var _this = this;
-	    var dur = 400;
-	    var closeOption = {
-	      parent: document.querySelector("#js-close-btn"),
-	      type: "circle",
-	      radius: { 0: 15 },
-	      fill: "transparent",
-	      stroke: "white",
-	      strokeWidth: { 5: 0 },
-	      x: "50%", y: "50%",
-	      duration: dur,
-	      isRunLess: true
-	    };
-	    this.closeCircle = new mojs.Transit(closeOption);
-
-	    var closeCrossOption = {
-	      type: "cross",
-	      delay: 0.4 * dur,
-	      angle: 45,
-	      strokeWidth: 2,
-	      radius: { 0: 8 },
-	      isShowEnd: true,
-	      onStart: function () {
-	        _this.closeSound.play();
-	      }
-	    };
-	    mojs.h.extend(closeCrossOption, closeOption);
-	    this.closeCross = new mojs.Transit(closeCrossOption);
-
-	    var closeBurstOption = {
-	      type: "line",
-	      radius: { 0: 30 },
-	      strokeWidth: { 4: 0 },
-	      delay: 0.4 * dur,
-	      childOptions: { radius: { 5: 0 } } };
-	    mojs.h.extend(closeBurstOption, closeOption);
-	    this.closeBurst = new mojs.Burst(closeBurstOption);
-
-	    var closeOption2 = {
-	      parent: document.querySelector("#js-close-btn"),
-	      type: "circle",
-	      radius: { 0: 10 },
-	      fill: "transparent",
-	      stroke: "white",
-	      strokeWidth: { 5: 0 },
-	      x: "-20%", y: "-50%",
-	      isRunLess: true,
-	      delay: 0.7 * dur,
-	      duration: 400 * this.S,
-	      onStart: function () {
-	        _this.closeSound2.play();
-	      }
-	    };
-	    this.closeCircle2 = new mojs.Transit(closeOption2);
-
-	    var closeOption3 = {
-	      x: "80%", y: "-30%",
-	      radius: { 0: 6 },
-	      delay: 1.1 * dur,
-	      duration: 300 * this.S,
-	      onStart: function () {
-	        _this.closeSound3.play();
-	      }
-	    };
-	    mojs.h.extend(closeOption3, closeOption2);
-	    this.closeCircle3 = new mojs.Transit(closeOption3);
-
-	    var closeOption4 = {
-	      x: "50%", y: "130%",
-	      radius: { 0: 4 },
-	      delay: 0.9 * dur,
-	      duration: 200 * this.S,
-	      onStart: function () {
-	        _this.closeSound3.play();
-	      }
-	    };
-	    mojs.h.extend(closeOption4, closeOption2);
-	    this.closeCircle4 = new mojs.Transit(closeOption4);
-	  },
-	  showClose: function () {
-	    this.closeBtn.classList.add("is-show");
-	    this.closeCircle.run();this.closeCross.run();this.closeBurst.run();
-	    this.closeCircle2.run();this.closeCircle3.run();this.closeCircle4.run();
-	  },
-	  initHideClose: function () {
-	    var _this2 = this;
-	    this.hideBurst = new mojs.Burst({
-	      x: "50%", y: "50%",
-	      parent: this.closeBtn,
-	      radius: { 0: 100 },
-	      type: "circle",
-	      fill: "white",
-	      degree: 25,
-	      isSwirl: true,
-	      randomRadius: 1,
-	      isRunLess: true,
-	      childOptions: { radius: { "rand(12,5)": 0 } },
-	      onUpdate: function (p) {
-	        p = mojs.easing.cubic["in"](p);
-	        mojs.h.setPrefixedStyle(_this2.closeCross.el, "transform", "scale(" + (1 - p) + ")");
-	      },
-	      onStart: function () {
-	        _this2.closeBtnSound.play();
-	      },
-	      onComplete: function () {
-	        _this2.closeBtn.classList.remove("is-show");
-	        mojs.h.setPrefixedStyle(_this2.closeCross.el, "transform", "none");
-	      }
-	    });
-	    this.hideCircle = new mojs.Transit({
-	      x: "50%", y: "50%",
-	      parent: this.closeBtn,
-	      type: "circle",
-	      radius: { 0: 15 },
-	      fill: "transparent",
-	      stroke: "white",
-	      strokeWidth: { 8: 0 },
-	      isRunLess: true
-	      // strokeDasharray: '25% 25%',
-	    });
-	  },
-	  hideClose: function () {
-	    this.hideBurst.run();this.hideCircle.run();
-	  }
-	};
-
-
-	module.exports = showCloseButton;
-
-/***/ },
-
-/***/ 49:
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = function (obj) {
-	  return obj && (obj["default"] || obj);
-	};
-
-	var _core = _interopRequire(__webpack_require__(9));
-
-	var hideOnEl = {
-	  closeEl: function () {
-	    var _this = this;
-	    this.iscroll.enabled = true;this.isOpen = false;this.hideClose();
-
-	    var innerEl = this.currentEl.querySelector(".particle__inner"),
-	        scaleDownTween = new mojs.Tween();
-
-	    var scaleDownTimeline = new mojs.Timeline({
-	      duration: 500 * this.S,
-	      onUpdate: function (p) {
-	        var np = 1 - p,
-	            npe = mojs.easing.cubic.inout(np),
-	            scaleSize = 0.75 + 18 * npe,
-	            scale = "scale(" + scaleSize + ") translateZ(0)";
-
-	        mojs.h.setPrefixedStyle(innerEl, "transform", scale);
-	        mojs.h.setPrefixedStyle(_this.content, "transform", "scale(" + npe + ") translateZ(0)");
-	      }
-	    });
-
-	    var scaleDownSoundTimeline = new mojs.Timeline({
-	      delay: 0 * this.S, onStart: function () {
-	        _this.closeScaleSound.play();
-	      }
-	    });
-
-	    var scaleUpTimeline = new mojs.Timeline({
-	      duration: 1000 * this.S,
-	      onUpdate: function (p) {
-	        var scaleSize = 0.75 + 0.25 * mojs.easing.elastic.out(p),
-	            scale = "scale(" + scaleSize + ") translateZ(0)";
-	        mojs.h.setPrefixedStyle(innerEl, "transform", scale);
-	      },
-	      onComplete: function () {
-	        if (_this.isOpen) {
-	          return mojs.h.setPrefixedStyle(_this.content, "transform", "translateZ(0)");
-	        }
-	        _this.content.style.opacity = 0;_this.content.style["z-index"] = 0;
-	        mojs.h.setPrefixedStyle(_this.content, "transform", "translateZ(0)");
-	      }
-	    });
-	    scaleDownTween.add(scaleDownTimeline);scaleDownTween.append(scaleUpTimeline);
-
-	    var blobTween = new mojs.Tween();
-	    var blobShiftDownTimeline = new mojs.Timeline({
-	      duration: 1200 * this.S, delay: 300 * this.S,
-	      onUpdate: function (p) {
-	        if (_this.isOpen) {
-	          return;
-	        }
-	        _this.blobShift = _this.blobBase + (1 - mojs.easing.elastic.out(p));
-	      }
-	    });
-	    var blobDownTimeline = new mojs.Timeline({
-	      duration: 2100 * this.S, delay: 0 * this.S,
-	      onUpdate: function (p) {
-	        if (_this.isOpen) {
-	          return;
-	        }
-	        _this.blob = _this.blobBase + 0.3 * (1 - mojs.easing.elastic.out(p));
-	      }
-	    });
-
-	    blobTween.add(blobShiftDownTimeline, blobDownTimeline, scaleDownSoundTimeline);
-
-	    this.jellyTween = new mojs.Tween();
-	    this.jellyTween.add(scaleDownTween, blobTween);
-	    this.jellyTween.start();
-	  }
-	};
-
-
-	module.exports = hideOnEl;
-
 /***/ }
-
-/******/ });
+/******/ ]);

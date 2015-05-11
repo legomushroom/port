@@ -154,14 +154,6 @@ body {
   width: 100%;
   height: 100%;
 }
-.content__dust-wrapper {
-  position: absolute;
-  top: 220px;
-  width: 240px;
-  height: 60px;
-  overflow: hidden;
-  z-index: 2;
-}
 .content.is-show {
   display: block;
 }
@@ -209,18 +201,77 @@ body {
   -ms-transform-origin: 100% center;
   transform-origin: 100% center;
 }
+.by {
+  background: #fff;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 1.75rem;
+  width: 6.875rem;
+  z-index: 40;
+  opacity: 0.75;
+  border-top-left-radius: 0.75rem;
+}
+.by:hover {
+  opacity: 1;
+}
+.by__text {
+  color: #28143f;
+  font-size: 0.53125rem;
+  letter-spacing: 0.0125rem;
+  position: absolute;
+  top: 0.5rem;
+}
+.by__text--1 {
+  left: 0.625rem;
+}
+.by__text--2 {
+  left: 4.625rem;
+}
+.by__logo {
+  background: #f1f1f1;
+  position: absolute;
+  top: 0.375rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: url("") no-repeat center center;
+  background-size: 100% 100%;
+}
+.by__logo--mojs {
+  left: 3.3125rem;
+  background-image: url("i/mojs.svg");
+}
+.by__logo--legomushroom {
+  left: 5.5625rem;
+  background-image: url("i/legomushroom.svg");
+}
 .blob-circle {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  border: 10px solid #fff;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
   position: absolute;
   top: -50%;
   left: -50%;
   z-index: 1;
-  display: none;
+  margin-left: -3.125rem;
+  margin-top: -3.125rem;
+  width: 6.25rem;
+  height: 6.25rem;
+}
+.blob-circle__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  width: 100%;
+  height: 100%;
+}
+.blob-circle__ellipse {
+  fill: none;
+  stroke: #fff;
 }
 .blob-circle-wrap {
   width: 0px;

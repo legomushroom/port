@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.1 (12002) - http://www.bohemiancoding.com/sketch -->
+    <title>Slice 1</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="background-+-mushroom" sketch:type="MSLayerGroup">
+            <rect id="background" fill="#0E3077" sketch:type="MSShapeGroup" x="0" y="0" width="16" height="16" rx="140"></rect>
+            <g id="mushroom" transform="translate(4.320000, 3.120000)" sketch:type="MSShapeGroup">
+                <rect id="bottom" fill="#EE83EF" x="2.72" y="5.92" width="2" height="3.52"></rect>
+                <g id="leg" transform="translate(2.720000, 3.840000)">
+                    <rect id="post-shadow" fill="#B04DE8" x="0" y="1.04" width="2" height="1.04"></rect>
+                    <rect id="shadow" fill="#1B8FE6" x="0" y="0" width="2" height="1.04"></rect>
+                </g>
+                <g id="hat" transform="translate(3.752954, 1.984631) rotate(-1.000000) translate(-3.752954, -1.984631) translate(0.032954, 0.064631)">
+                    <path d="M6.53764199,3.839567 L0.815701812,3.72831219 C-0.0549193106,3.71138423 -0.260716665,3.20340664 0.354244951,2.59548754 L2.52021425,0.454322817 C3.13597978,-0.154391002 4.12728745,-0.15141449 4.73655121,0.463179507 L7.01264615,2.75918723 C7.62092972,3.37279247 7.41023709,3.85653335 6.53764199,3.839567 Z" fill="#6AE9EA"></path>
+                    <g id="left-+-right" transform="translate(2.480000, 1.360000)" fill="#FFFDCF">
+                        <ellipse id="left" cx="0.360506521" cy="0.29098144" rx="0.36" ry="0.32"></ellipse>
+                        <ellipse id="right" cx="2.10208796" cy="1.36153928" rx="0.36" ry="0.32"></ellipse>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

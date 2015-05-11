@@ -20,8 +20,9 @@ easy-click()
     z-index 1
     nw -50%
 
+c-deep-purple = #28143f
 body
-  background #28143f
+  background c-deep-purple
   font-size 16px
   margin  0
   padding 0
@@ -162,12 +163,12 @@ contentHeight = 280
     rect 100%
   &__dust-wrapper
     // border 2px solid white
-    position    absolute
-    top         220px
-    width       240px
-    height      60px
-    overflow    hidden
-    z-index     2
+    // position    absolute
+    // top         220px
+    // width       240px
+    // height      60px
+    // overflow    hidden
+    // z-index     2
     
   &.is-show
     display     block
@@ -237,17 +238,67 @@ contentHeight = 280
 //     position absolute
 //     nw 50%
 //     transform translate(-50%, -50%) scale(1)
-    
 
-blobSize = 30
+.by
+  background    white
+  position      absolute
+  bottom        0
+  right         0
+  height        28*PX
+  width         110*PX
+  z-index       40
+  opacity       .75
+  border-top-left-radius 12*PX
+  &:hover
+    opacity     1
+  &__text
+    color           c-deep-purple
+    font-size       8.5*PX
+    letter-spacing  .2*PX
+    position        absolute
+    top             8*PX
+    &--1
+      left 10*PX
+    &--2
+      left 74*PX
+  &__logo
+    background    #f1f1f1
+    position      absolute
+    top           6*PX
+    circle        16*PX
+    background url('') no-repeat center center
+    background-size 100% 100%
+    &--mojs
+      left 53*PX
+      background-image url('i/mojs.svg')
+    &--legomushroom
+      left 89*PX
+      background-image url('i/legomushroom.svg')
+      
+  
+
+blobSize = 100
 .blob-circle
   box-sizing    border-box
-  border        10px solid white
-  circle        (blobSize)px
+  // border        10px solid white
+  // circle        (blobSize)px
   position      absolute
-  nw            -50%
+  nw           -50%
   z-index       1
-  display       none// !important
+  // display       none
+  margin-left  -(blobSize/2)*PX
+  margin-top   -(blobSize/2)*PX
+  rect          blobSize*PX
+  &__frame
+    position    absolute
+    nw          0
+    display     block
+    transform   translateZ(0)
+    rect        100%
+  &__ellipse
+    fill        none
+    stroke      white
+  // display       none
 
 .blob-circle-wrap
   width   0px

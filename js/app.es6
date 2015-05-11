@@ -13,7 +13,7 @@ var main = {
   init: function(o) {
     this.vars(); this.initContainer(); this.initClose(); this.initHideClose()
     this.draw(); this.events()
-    setInterval(() => { this.updateProgress(false) }, 300)
+    setInterval(() => { this.updateProgress(false) }, 10)
     // setTimeout(()=> { this.start()}, 2000);
     return this;
   },
@@ -46,7 +46,8 @@ var main = {
     this.closeBtn     = document.querySelector('#js-close-btn');
     this.closeBtnI    = document.querySelector('#js-close-btn-inner');
     this.blobCircle   = document.querySelector('#js-blob-circle');
-    this.blobCircleW  = document.querySelector('#js-blob-circle-wrap');
+    this.blobEllipses = this.blobCircle.querySelectorAll('#js-blob-circle-ellipse')
+    // this.blobCircleW  = document.querySelector('#js-blob-circle-wrap');
     // this.blobCircleI  = document.querySelector('#js-blob-circle-inner');
     this.badge        = document.querySelector('#js-badge');
     this.content      = document.querySelector('#js-content');

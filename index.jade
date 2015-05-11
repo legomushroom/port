@@ -56,6 +56,11 @@ html
   - var size = 150, gap = 25;
   - var columnCnt = 25;
   body
+    .by
+      .by__text.by__text--1 demo for
+      .by__text.by__text--2 by
+      a(href="https://github.com/legomushroom/mojs", title="mojs github page").by__logo.by__logo--mojs
+      a(href="https://twitter.com/legomushroom", title="@legomushroom on twitter").by__logo.by__logo--legomushroom
     .curtain#js-curtain
       .curtain__progress-text loading..
       .curtain__progress-text-gradient#js-progress-gradient
@@ -70,8 +75,12 @@ html
     .badge#js-badge
     .wrapper#js-wrapper
       .particles#scroller(style="margin-left: #{-(size+gap)*1}px; margin-top: #{-(size+gap)*1}px; width:#{(size+gap)*(columnCnt-2.2) - size/2 - 2*gap}px; height:#{(size)*(columnCnt-4.5)-size-2*gap}px")
-          .blob-circle-wrap#js-blob-circle-wrap
+          .blob-circle-wrap
             .blob-circle#js-blob-circle
+              - for (var i = 0; i < 50; i++)
+                svg.blob-circle__frame
+                  ellipse.blob-circle__ellipse#js-blob-circle-ellipse(cx="50", cy="50", fill="none")
+
             //- .blob-circle__inner#js-blob-circle-inner
           //- .center
           - for (var j=0; j < columnCnt; j++)

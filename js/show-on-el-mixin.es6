@@ -9,14 +9,26 @@ var showOnEl = {
     this.blobCircle.style.top  = `${y}px`
     var borderWidth = Math.min(10*mojs.easing.cubic.in(size/800), 20),
         blobCircleSize = 30 + 2*borderWidth;
-    this.blobCircle.style['border-width'] = `${borderWidth/2}px`
-    this.blobCircle.style['width']       = `${blobCircleSize}px`
-    this.blobCircle.style['height']      = `${blobCircleSize}px`
-    this.blobCircle.style['margin-left'] = `${-blobCircleSize/2}px`
-    this.blobCircle.style['margin-top']  = `${-blobCircleSize/2}px`
-    this.blobCircle.style['display']     = 'block'
+
+    var strokeStep = (borderWidth/2)/(this.blobEllipses.length);
+    var i = 0;
+    for (let item of this.blobEllipses) {
+      i++;
+      // console.log(borderWidth/2 - i*strokeStep)
+      item.setAttribute('stroke-width', borderWidth/2 - i*strokeStep);
+      item.setAttribute('rx', blobCircleSize/2);
+      item.setAttribute('ry', blobCircleSize/2);
+    }
+    this.blobCircle.style.display = 'block';
+
+    var blobDuration = 500;
+    var sp = new mojs.Spriter({
+      el:        this.blobCircle,
+      duration:  blobDuration*this.S
+    })
+
     var blobCircleTm = new mojs.Timeline({
-      duration:  500*this.S,
+      duration:  blobDuration*this.S,
       onStart:() => {this.openSound.play();},
       onUpdate:   (p) => {
         var tr = `scale(${28*p}) translateZ(0)`;
