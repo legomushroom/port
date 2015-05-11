@@ -246,19 +246,7 @@ body {
   left: 5.5625rem;
   background-image: url("i/legomushroom.svg");
 }
-.blob-circle {
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  z-index: 1;
-  margin-left: -3.125rem;
-  margin-top: -3.125rem;
-  width: 6.25rem;
-  height: 6.25rem;
-}
-.blob-circle__frame {
+.sprite__frame {
   position: absolute;
   top: 0;
   left: 0;
@@ -269,9 +257,30 @@ body {
   width: 100%;
   height: 100%;
 }
-.blob-circle__ellipse {
+.sprite__ellipse {
   fill: none;
   stroke: #fff;
+}
+.dust {
+  position: absolute;
+  z-index: 10;
+  width: 12.5rem;
+  height: 12.5rem;
+  height: 3.125rem;
+}
+.dust--1 {
+  top: 16.875rem;
+  left: 6.25rem;
+}
+.blob-circle {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  z-index: 1;
+  margin-left: -3.125rem;
+  margin-top: -3.125rem;
+  width: 6.25rem;
+  height: 6.25rem;
 }
 .blob-circle-wrap {
   width: 0px;

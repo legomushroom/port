@@ -274,21 +274,8 @@ contentHeight = 280
     &--legomushroom
       left 89*PX
       background-image url('i/legomushroom.svg')
-      
-  
 
-blobSize = 100
-.blob-circle
-  box-sizing    border-box
-  // border        10px solid white
-  // circle        (blobSize)px
-  position      absolute
-  nw           -50%
-  z-index       1
-  // display       none
-  margin-left  -(blobSize/2)*PX
-  margin-top   -(blobSize/2)*PX
-  rect          blobSize*PX
+.sprite
   &__frame
     position    absolute
     nw          0
@@ -298,7 +285,25 @@ blobSize = 100
   &__ellipse
     fill        none
     stroke      white
-  // display       none
+    
+.dust
+  position  absolute
+  z-index   10
+  rect      200*PX
+  height    50*PX
+  &--1
+    top     270*PX
+    left    100*PX
+  
+  
+blobSize = 100
+.blob-circle
+  position      absolute
+  nw           -50%
+  z-index       1
+  margin-left  -(blobSize/2)*PX
+  margin-top   -(blobSize/2)*PX
+  rect          blobSize*PX
 
 .blob-circle-wrap
   width   0px

@@ -11,8 +11,8 @@ var closeButton   = require('./close-button-mixin');
 
 var main = {
   init: function(o) {
-    this.vars(); this.initContainer(); this.initClose(); this.initHideClose()
-    this.draw(); this.events()
+    this.vars(); this.initContainer(); this.initClose(); this.initHideClose();
+    this.prepareSprites(); this.events(); this.draw();
     setInterval(() => { this.updateProgress(false) }, 10)
     // setTimeout(()=> { this.start()}, 2000);
     return this;
@@ -29,6 +29,7 @@ var main = {
     this.particlesContainer = document.querySelector('#scroller');
     this.particles = document.querySelectorAll('.particle');
     this.S = 1; this.ext = 'mp3'; this.loadCnt = 0; this.maxLoadCnt = 8;
+    this.BLOB_DURATION = 500;
     this.progressStep = (150/this.maxLoadCnt) * (1/16);
     this.openSound      = new Howl({ urls: [`sounds/open-bubble-2.${this.ext}`], onload: this.updateProgress.bind(this)});
     this.openSound2     = new Howl({ urls: [`sounds/open-bubble-3.${this.ext}`], rate: .15, onload: this.updateProgress.bind(this)});
@@ -47,6 +48,7 @@ var main = {
     this.closeBtnI    = document.querySelector('#js-close-btn-inner');
     this.blobCircle   = document.querySelector('#js-blob-circle');
     this.blobEllipses = this.blobCircle.querySelectorAll('#js-blob-circle-ellipse')
+    this.dust1        = document.querySelector('#js-dust-1');
     // this.blobCircleW  = document.querySelector('#js-blob-circle-wrap');
     // this.blobCircleI  = document.querySelector('#js-blob-circle-inner');
     this.badge        = document.querySelector('#js-badge');

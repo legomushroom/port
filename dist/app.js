@@ -74,7 +74,7 @@
 	  init: function (o) {
 	    var _this = this;
 	    this.vars();this.initContainer();this.initClose();this.initHideClose();
-	    this.draw();this.events();
+	    this.prepareSprites();this.events();this.draw();
 	    setInterval(function () {
 	      _this.updateProgress(false);
 	    }, 10);
@@ -93,6 +93,7 @@
 	    this.particlesContainer = document.querySelector("#scroller");
 	    this.particles = document.querySelectorAll(".particle");
 	    this.S = 1;this.ext = "mp3";this.loadCnt = 0;this.maxLoadCnt = 8;
+	    this.BLOB_DURATION = 500;
 	    this.progressStep = 150 / this.maxLoadCnt * (1 / 16);
 	    this.openSound = new Howl({ urls: ["sounds/open-bubble-2." + this.ext], onload: this.updateProgress.bind(this) });
 	    this.openSound2 = new Howl({ urls: ["sounds/open-bubble-3." + this.ext], rate: 0.15, onload: this.updateProgress.bind(this) });
@@ -111,6 +112,7 @@
 	    this.closeBtnI = document.querySelector("#js-close-btn-inner");
 	    this.blobCircle = document.querySelector("#js-blob-circle");
 	    this.blobEllipses = this.blobCircle.querySelectorAll("#js-blob-circle-ellipse");
+	    this.dust1 = document.querySelector("#js-dust-1");
 	    // this.blobCircleW  = document.querySelector('#js-blob-circle-wrap');
 	    // this.blobCircleI  = document.querySelector('#js-blob-circle-inner');
 	    this.badge = document.querySelector("#js-badge");
@@ -241,7 +243,7 @@
 	var require;var require;/* WEBPACK VAR INJECTION */(function(global) {/*! 
 	  :: mo · js :: motion graphics toolbelt for the web
 	  Oleg Solomka @LegoMushroom 2015 MIT
-	  0.118.0 
+	  0.119.0 
 	*/
 
 	(function(f){
@@ -1556,7 +1558,7 @@
 	var mojs;
 
 	mojs = {
-	  revision: '0.118.0',
+	  revision: '0.119.0',
 	  isDebug: true,
 	  helpers: require('./h'),
 	  Bit: require('./shapes/bit'),
@@ -2820,8 +2822,8 @@
 	    onComplete: null
 	  };
 
-	  function Spriter(o) {
-	    this.o = o != null ? o : {};
+	  function Spriter(o1) {
+	    this.o = o1 != null ? o1 : {};
 	    if (this.o.el == null) {
 	      return h.error('No "el" option specified, aborting');
 	    }
@@ -2842,6 +2844,10 @@
 	    this._props = h.cloneObj(this.o);
 	    this.el = this.o.el;
 	    return this._frames = [];
+	  };
+
+	  Spriter.prototype.run = function(o) {
+	    return this._tween.start();
 	  };
 
 	  Spriter.prototype._extendDefaults = function() {
@@ -2898,7 +2904,7 @@
 	  };
 
 	  Spriter.prototype._setProgress = function(p) {
-	    var currentNum, proc, ref, ref1;
+	    var base, currentNum, proc, ref, ref1;
 	    proc = Math.floor(p / this._frameStep);
 	    if (this._prevFrame !== this._frames[proc]) {
 	      if ((ref = this._prevFrame) != null) {
@@ -2908,8 +2914,9 @@
 	      if ((ref1 = this._frames[currentNum]) != null) {
 	        ref1.style.opacity = 1;
 	      }
-	      return this._prevFrame = this._frames[proc];
+	      this._prevFrame = this._frames[proc];
 	    }
+	    return typeof (base = this._props).onUpdate === "function" ? base.onUpdate(p) : void 0;
 	  };
 
 	  return Spriter;
@@ -6642,6 +6649,14 @@
 	var mojs = __webpack_require__(2);
 
 	var showOnEl = {
+	  prepareSprites: function () {
+	    this.blobSprite = new mojs.Spriter({
+	      el: this.blobCircle,
+	      duration: this.BLOB_DURATION * this.S,
+	      isRunLess: true
+	    });
+	  },
+
 	  showInnerCircle: function (x, y) {
 	    var _this = this;
 	    var tween = new mojs.Tween();
@@ -6664,16 +6679,10 @@
 	    }
 
 	    this.blobCircle.style.display = "block";
-
-	    var blobDuration = 500;
-	    var sp = new mojs.Spriter({
-	      el: this.blobCircle,
-	      duration: blobDuration * this.S
-	    });
-
 	    var blobCircleTm = new mojs.Timeline({
-	      duration: blobDuration * this.S,
+	      duration: this.BLOB_DURATION * this.S,
 	      onStart: function () {
+	        _this.blobSprite.run();
 	        _this.openSound.play();
 	      },
 	      onUpdate: function (p) {
@@ -6873,44 +6882,12 @@
 	    el.style.opacity = mojs.easing.cubic.out(p);
 	  },
 	  prepareDust: function () {
-	    this.dust = new mojs.Transit({
-	      parent: this.dustWrap,
-	      x: 180, y: 15,
-	      type: "circle",
-	      count: 10,
-	      fill: "transparent",
-	      stroke: "white",
-	      strokeWidth: { 10: 0 },
-	      duration: 275 * this.S,
-	      delay: 300 * this.S,
-	      radiusX: { 20: 100 },
-	      radiusY: { 5: 10 },
-	      opacity: { 1: 0 },
-	      isRunLess: true,
-	      strokeDasharray: "50% 200%"
-	    }) //.then({
-	    //   shiftX:       {'-130': '-130'},
-	    //   duration:     150*this.S,
-	    //   radiusX:      {15: 80},
-	    //   radiusY:      {4: 8},
-	    //   strokeWidth:  {8: 0},
-	    //   opacity:      {.8:0}
-	    // }).then({
-	    //   shiftX:       {'-145': '-145'},
-	    //   duration:     75*this.S,
-	    //   radiusX:      {12: 60},
-	    //   radiusY:      {3: 7},
-	    //   strokeWidth:  {4: 0},
-	    //   opacity:      {.6:0}
-	    // }).then({
-	    //   shiftX:       {'-150': '-150'},
-	    //   duration:     50*this.S,
-	    //   radiusX:      {11: 55},
-	    //   radiusY:      {2: 6},
-	    //   strokeWidth:  {2: 0},
-	    //   opacity:      {.4:0}
-	    // });
-	    ;
+	    this.dust1Spriter = new mojs.Spriter({
+	      el: this.dust1,
+	      duration: 300 * this.S,
+	      delay: 275 * this.S,
+	      isRunLess: true
+	    });
 	  },
 
 	  showInnerPlastic: function (el) {
@@ -6924,6 +6901,7 @@
 	        shadow = el.querySelector("#js-shadow"),
 	        shadowWrap = el.querySelector("#js-shadow-wrap");
 	    // this.dust.run()
+	    this.dust1Spriter.run();
 	    var mp = new mojs.MotionPath({
 	      path: { x: -300, y: -300 },
 	      curvature: { x: "75%", y: "50%" },

@@ -13,43 +13,12 @@ var showInner = {
     el.style.opacity = mojs.easing.cubic.out(p);
   },
   prepareDust: function () {
-    this.dust = new mojs.Transit({
-      parent:       this.dustWrap,
-      x: 180,       y: 15,
-      type:         'circle',
-      count:        10,
-      fill:         'transparent',
-      stroke:       'white',
-      strokeWidth:  {10: 0},
-      duration:     275*this.S,
-      delay:        300*this.S,
-      radiusX:      {20: 100},
-      radiusY:      {5: 10},
-      opacity:      {1:0},
-      isRunLess:    true,
-      strokeDasharray: '50% 200%'
-    })//.then({
-    //   shiftX:       {'-130': '-130'},
-    //   duration:     150*this.S,
-    //   radiusX:      {15: 80},
-    //   radiusY:      {4: 8},
-    //   strokeWidth:  {8: 0},
-    //   opacity:      {.8:0}
-    // }).then({
-    //   shiftX:       {'-145': '-145'},
-    //   duration:     75*this.S,
-    //   radiusX:      {12: 60},
-    //   radiusY:      {3: 7},
-    //   strokeWidth:  {4: 0},
-    //   opacity:      {.6:0}
-    // }).then({
-    //   shiftX:       {'-150': '-150'},
-    //   duration:     50*this.S,
-    //   radiusX:      {11: 55},
-    //   radiusY:      {2: 6},
-    //   strokeWidth:  {2: 0},
-    //   opacity:      {.4:0}
-    // });
+    this.dust1Spriter = new mojs.Spriter({
+      el:         this.dust1,
+      duration:   300*this.S,
+      delay:      275*this.S,
+      isRunLess:  true
+    });
   },
 
   showInnerPlastic: function (el) {
@@ -62,6 +31,7 @@ var showInner = {
         shadow     = el.querySelector('#js-shadow'),
         shadowWrap = el.querySelector('#js-shadow-wrap');
     // this.dust.run()
+    this.dust1Spriter.run();
     var mp = new mojs.MotionPath({
       path:       { x: -300,  y: -300 },
       curvature:  { x: '75%', y: '50%' },

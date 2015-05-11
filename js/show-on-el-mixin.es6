@@ -1,6 +1,14 @@
 var mojs      = require('../js/vendor/mo');
 
 var showOnEl = {
+  prepareSprites: function () {
+    this.blobSprite = new mojs.Spriter({
+      el:         this.blobCircle,
+      duration:   this.BLOB_DURATION*this.S,
+      isRunLess:  true
+    })
+  },
+
   showInnerCircle: function (x, y) {
     var tween = new mojs.Tween;
 
@@ -20,16 +28,12 @@ var showOnEl = {
       item.setAttribute('ry', blobCircleSize/2);
     }
     this.blobCircle.style.display = 'block';
-
-    var blobDuration = 500;
-    var sp = new mojs.Spriter({
-      el:        this.blobCircle,
-      duration:  blobDuration*this.S
-    })
-
     var blobCircleTm = new mojs.Timeline({
-      duration:  blobDuration*this.S,
-      onStart:() => {this.openSound.play();},
+      duration:  this.BLOB_DURATION*this.S,
+      onStart:() => {
+        this.blobSprite.run();
+        this.openSound.play();
+      },
       onUpdate:   (p) => {
         var tr = `scale(${28*p}) translateZ(0)`;
         mojs.h.setPrefixedStyle(this.blobCircle, 'transform', tr);

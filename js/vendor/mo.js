@@ -1,7 +1,7 @@
 /*! 
   :: mo · js :: motion graphics toolbelt for the web
   Oleg Solomka @LegoMushroom 2015 MIT
-  0.118.0 
+  0.119.0 
 */
 
 (function(f){
@@ -1316,7 +1316,7 @@ module.exports = h;
 var mojs;
 
 mojs = {
-  revision: '0.118.0',
+  revision: '0.119.0',
   isDebug: true,
   helpers: require('./h'),
   Bit: require('./shapes/bit'),
@@ -2580,8 +2580,8 @@ Spriter = (function() {
     onComplete: null
   };
 
-  function Spriter(o) {
-    this.o = o != null ? o : {};
+  function Spriter(o1) {
+    this.o = o1 != null ? o1 : {};
     if (this.o.el == null) {
       return h.error('No "el" option specified, aborting');
     }
@@ -2602,6 +2602,10 @@ Spriter = (function() {
     this._props = h.cloneObj(this.o);
     this.el = this.o.el;
     return this._frames = [];
+  };
+
+  Spriter.prototype.run = function(o) {
+    return this._tween.start();
   };
 
   Spriter.prototype._extendDefaults = function() {
@@ -2658,7 +2662,7 @@ Spriter = (function() {
   };
 
   Spriter.prototype._setProgress = function(p) {
-    var currentNum, proc, ref, ref1;
+    var base, currentNum, proc, ref, ref1;
     proc = Math.floor(p / this._frameStep);
     if (this._prevFrame !== this._frames[proc]) {
       if ((ref = this._prevFrame) != null) {
@@ -2668,8 +2672,9 @@ Spriter = (function() {
       if ((ref1 = this._frames[currentNum]) != null) {
         ref1.style.opacity = 1;
       }
-      return this._prevFrame = this._frames[proc];
+      this._prevFrame = this._frames[proc];
     }
+    return typeof (base = this._props).onUpdate === "function" ? base.onUpdate(p) : void 0;
   };
 
   return Spriter;

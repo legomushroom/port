@@ -71,15 +71,27 @@ html
       .close__inner#js-close-btn-inner
     .content#js-content
       .content__dust-wrapper#js-dust-wrap
+        .dust.dust--1.sprite#js-dust-1
+          - var framesCnt   = 50
+          - var yMax        = 10
+          - var xMax        = 80
+          - var strokeMax   = 10
+          - var yStep       = yMax/framesCnt
+          - var xStep       = xMax/framesCnt
+          - var strokeStep  = strokeMax/framesCnt
+          - for (var i = 0; i < framesCnt; i++)
+            svg.sprite__frame
+              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}" fill="none", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="75")
+
       .content__inner#js-content-inner
     .badge#js-badge
     .wrapper#js-wrapper
       .particles#scroller(style="margin-left: #{-(size+gap)*1}px; margin-top: #{-(size+gap)*1}px; width:#{(size+gap)*(columnCnt-2.2) - size/2 - 2*gap}px; height:#{(size)*(columnCnt-4.5)-size-2*gap}px")
           .blob-circle-wrap
-            .blob-circle#js-blob-circle
+            .blob-circle.sprite#js-blob-circle
               - for (var i = 0; i < 50; i++)
-                svg.blob-circle__frame
-                  ellipse.blob-circle__ellipse#js-blob-circle-ellipse(cx="50", cy="50", fill="none")
+                svg.sprite__frame
+                  ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="50", cy="50", fill="none")
 
             //- .blob-circle__inner#js-blob-circle-inner
           //- .center
