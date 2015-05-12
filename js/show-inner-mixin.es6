@@ -105,7 +105,7 @@ var showInner = {
 
     var soundTimeline = new mojs.Timeline({
       delay: 300*this.S, onStart: () => {
-        if (this.isIOS || this.isIE) { return };
+        if (this.isIE) { return };
         this.bounceSound.play();
       }
     });

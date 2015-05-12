@@ -9,6 +9,7 @@ body {
   user-select: none;
   overflow: hidden;
   font-family: Open Sans, sans-serif;
+  min-width: 768px;
 }
 .curtain {
   width: 100%;
@@ -134,6 +135,12 @@ body {
   -ms-transform: translateZ(0);
   transform: translateZ(0);
 }
+.particle__over-mobile {
+  display: none;
+}
+.desktop .particle__over-mobile {
+  display: block;
+}
 .content {
   position: fixed;
   width: 33.75rem;
@@ -207,12 +214,12 @@ body {
   background: #fff;
   position: absolute;
   bottom: 0;
-  right: 0;
+  left: 0;
   height: 1.75rem;
   width: 6.875rem;
   z-index: 40;
-  opacity: 0.75;
-  border-top-left-radius: 0.75rem;
+  opacity: 0.5;
+  border-top-right-radius: 0.75rem;
 }
 .by:hover {
   opacity: 1;
@@ -225,10 +232,10 @@ body {
   top: 0.5625rem;
 }
 .by__text--1 {
-  left: 0.5625rem;
+  left: 0.4375rem;
 }
 .by__text--2 {
-  left: 4.5rem;
+  left: 4.375rem;
 }
 .by__logo {
   background: #f1f1f1;
@@ -241,11 +248,11 @@ body {
   background-size: 100% 100%;
 }
 .by__logo--mojs {
-  left: 3.1875rem;
+  left: 3.0625rem;
   background-image: url("i/mojs.svg");
 }
 .by__logo--legomushroom {
-  left: 5.4375rem;
+  left: 5.3125rem;
   background-image: url("i/legomushroom.svg");
 }
 .sprite__frame {
