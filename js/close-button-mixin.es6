@@ -2,7 +2,7 @@ var mojs = require('../js/vendor/mo');
 
 var showCloseButton = {  
   initClose: function () {
-    var dur = 400;
+    var dur = 400*this.S;
     var closeOption = {
       parent:       document.querySelector('#js-close-btn'),
       type:         'circle',
@@ -90,6 +90,7 @@ var showCloseButton = {
       randomRadius: 1,
       isRunLess:    true,
       childOptions: { radius: {'rand(12,5)':0} },
+      duration:     500*this.S,
       onUpdate: (p) => {
         p = mojs.easing.cubic.in(p);
         mojs.h.setPrefixedStyle(this.closeCross.el, 'transform', `scale(${1-p})`)
@@ -108,11 +109,25 @@ var showCloseButton = {
       fill:             'transparent',
       stroke:           'white',
       strokeWidth:      { 8:0 },
-      isRunLess:        true
-      // strokeDasharray: '25% 25%',
+      isRunLess:        true,
+      duration:         500*this.S
     });
+
+    // this.hideCircle2 = new mojs.Transit({
+    //   x: '50%',         y: '50%',
+    //   parent:           this.closeBtn,
+    //   type:             'circle',
+    //   radius:           {0: 15},
+    //   fill:             'transparent',
+    //   stroke:           'white',
+    //   strokeWidth:      { 3:0 },
+    //   isRunLess:        true,
+    //   delay:            300*this.S
+    // });
   },
-  hideClose: function () { this.hideBurst.run(); this.hideCircle.run(); }
+  hideClose: function () {
+    this.hideBurst.run(); this.hideCircle.run()//; this.hideCircle2.run();
+  }
 }
 
 

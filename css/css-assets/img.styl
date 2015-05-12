@@ -1,3 +1,18 @@
+.image-ie {
+  width: 256*PX;
+  height: 192*PX;
+  background: url('i/mojs-logo.png') no-repeat center center;
+  background-size: 100% 100%;
+  position: absolute;
+  top: 4.5*gs;
+  left: .8*gs;
+  border-radius: 15*PX;
+  display: none;
+  .ie & {
+    display: block;
+  }
+}
+
 .image {
   // perspective: 800px;
   position: absolute;
@@ -6,6 +21,9 @@
   height: 100%;
   background: transparent;
   font-size: 100%;
+  .ie & {
+    display: none;
+  }
 }
 // .face {
 //   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);

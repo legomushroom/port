@@ -75,7 +75,6 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  width: 100%;
   overflow: hidden;
 }
 .particles {
@@ -92,6 +91,7 @@ body {
   -ms-user-select: none;
   user-select: none;
   position: absolute;
+  overflow: hidden;
   z-index: 1;
   tap-highlight-color: rgba(0,0,0,0);
   -webkit-transform: translateZ(0);
@@ -131,9 +131,9 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-}
-.particle__content {
-  display: none;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
 }
 .content {
   position: fixed;
@@ -142,12 +142,12 @@ body {
   display: block;
   margin-left: -16.875rem;
   margin-top: -8.75rem;
-  z-index: 0;
+  z-index: 2;
   top: 50%;
   left: 50%;
-  -webkit-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
+  -webkit-transform: translateX(-5000px);
+  -ms-transform: translateX(-5000px);
+  transform: translateX(-5000px);
 }
 .content__inner {
   position: absolute;
@@ -201,6 +201,9 @@ body {
   -ms-transform-origin: 100% center;
   transform-origin: 100% center;
 }
+.ie .project__shadow {
+  display: none;
+}
 .by {
   background: #fff;
   position: absolute;
@@ -223,15 +226,15 @@ body {
   top: 0.5625rem;
 }
 .by__text--1 {
-  left: 0.625rem;
+  left: 0.5625rem;
 }
 .by__text--2 {
-  left: 4.625rem;
+  left: 4.5rem;
 }
 .by__logo {
   background: #f1f1f1;
   position: absolute;
-  top: 0.375rem;
+  top: 0.4375rem;
   width: 1rem;
   height: 1rem;
   border-radius: 50%;
@@ -239,11 +242,11 @@ body {
   background-size: 100% 100%;
 }
 .by__logo--mojs {
-  left: 3.3125rem;
+  left: 3.1875rem;
   background-image: url("i/mojs.svg");
 }
 .by__logo--legomushroom {
-  left: 5.5625rem;
+  left: 5.4375rem;
   background-image: url("i/legomushroom.svg");
 }
 .sprite__frame {
@@ -324,12 +327,29 @@ body {
   left: 75%;
   z-index: 10;
 }
+.image-ie {
+  width: 16rem;
+  height: 12rem;
+  background: url("i/mojs-logo.png") no-repeat center center;
+  background-size: 100% 100%;
+  position: absolute;
+  top: 2.8125rem;
+  left: 0.5rem;
+  border-radius: 0.9375rem;
+  display: none;
+}
+.ie .image-ie {
+  display: block;
+}
 .image {
   position: absolute;
   width: 100%;
   height: 100%;
   background: transparent;
   font-size: 100%;
+}
+.ie .image {
+  display: none;
 }
 .scene,
 .shape,

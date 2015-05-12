@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="151px" height="152px" viewBox="0 0 151 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.1 (12002) - http://www.bohemiancoding.com/sketch -->
+    <title>weather</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#216AF8" offset="0%"></stop>
+            <stop stop-color="#1ECBFE" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#E9BC1C" offset="0%"></stop>
+            <stop stop-color="#FFEE46" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
+            <stop stop-color="#FFFFFF" stop-opacity="0.882019928" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" offset="100%"></stop>
+        </linearGradient>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-4">
+            <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetInner1"></feOffset>
+            <feGaussianBlur stdDeviation="1" in="shadowOffsetInner1" result="shadowBlurInner1"></feGaussianBlur>
+            <feComposite in="shadowBlurInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 1   0 0 0 0 1   0 0 0 0 1  0 0 0 0.7 0" in="shadowInnerInner1" type="matrix" result="shadowMatrixInner1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+                <feMergeNode in="shadowMatrixInner1"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Group" sketch:type="MSLayerGroup" transform="translate(0.933333, 1.000000)">
+            <ellipse id="Oval-55" fill="url(#linearGradient-1)" sketch:type="MSShapeGroup" cx="75" cy="75.0358852" rx="75" ry="75.0358852"></ellipse>
+            <ellipse id="Oval-63" fill="url(#linearGradient-2)" sketch:type="MSShapeGroup" cx="52.8409091" cy="63.098358" rx="23.8636364" ry="23.8750544"></ellipse>
+            <path d="M53.091157,78.5060942 C44.9900076,79.175652 39.2045455,85.4290511 39.2045455,93.7948565 C39.2045455,100.48036 44.8711265,106.586596 52.8409091,107.356206 L52.8409091,107.437745 L102.272727,107.437745 C112.246491,107.437745 121.022727,98.275551 121.022727,86.9734124 C121.022727,75.6712737 112.246491,66.50908 102.272727,66.50908 C101.184679,66.50908 100.121823,66.5886109 99.0889072,66.7419934 C95.7201245,57.6446749 86.9691643,51.1608308 76.7045455,51.1608308 C63.525023,51.1608308 52.8409091,61.8500567 52.8409091,75.0358852 C52.8409091,76.2145196 52.9262745,77.3732063 53.091157,78.5060942 Z" id="Rectangle-216" fill="url(#linearGradient-3)" filter="url(#filter-4)" sketch:type="MSShapeGroup"></path>
+        </g>
+    </g>
+</svg>

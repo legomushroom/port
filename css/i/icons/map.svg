@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="151px" height="152px" viewBox="0 0 151 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.1 (12002) - http://www.bohemiancoding.com/sketch -->
+    <title>map</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <ellipse id="path-1" cx="75" cy="75.0358852" rx="75" ry="75.0358852"></ellipse>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Maps" sketch:type="MSLayerGroup" transform="translate(0.466667, 0.852681)">
+            <mask id="mask-2" sketch:name="Oval 55" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <use id="Oval-55" fill="#FFFFFF" sketch:type="MSShapeGroup" xlink:href="#path-1"></use>
+            <rect id="Rectangle-217" fill="#E7E0CD" sketch:type="MSShapeGroup" mask="url(#mask-2)" x="-5.11363636" y="0" width="54.5454545" height="148.366409"></rect>
+            <rect id="Rectangle-218" fill="#78C93A" sketch:type="MSShapeGroup" mask="url(#mask-2)" x="100.568182" y="0" width="47.7272727" height="51.1608308"></rect>
+            <rect id="Rectangle-218" fill="#FDC8D4" sketch:type="MSShapeGroup" mask="url(#mask-2)" x="100.568182" y="98.9109395" width="47.7272727" height="51.1608308"></rect>
+            <ellipse id="Oval-67" fill="#047DFD" sketch:type="MSShapeGroup" mask="url(#mask-2)" cx="75" cy="75.0358852" rx="37.5" ry="37.5179426"></ellipse>
+            <path d="M75,51.1608308 L59.6590909,97.2055785 L75,80.1519682 L90.3409091,97.2055785 L75,51.1608308 Z" id="Path-370" fill="#FFFFFF" sketch:type="MSShapeGroup" mask="url(#mask-2)"></path>
+        </g>
+    </g>
+</svg>

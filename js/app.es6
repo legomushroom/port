@@ -1,4 +1,5 @@
 // var Impulse   = require('impulse')
+require('classlist-polyfill')
 var mojs      = require('../js/vendor/mo')
 var Iscroll   = require('../js/vendor/iscroll-probe')
 var Howl      = require('howler').Howl
@@ -14,7 +15,6 @@ var main = {
     this.vars(); this.initContainer(); this.initClose(); this.initHideClose();
     this.prepareSprites(); this.events(); this.draw();
     setInterval(() => { this.updateProgress(false) }, 10)
-    // setTimeout(()=> { this.start()}, 2000);
     return this;
   },
   initContainer: function () {
@@ -28,8 +28,11 @@ var main = {
   vars: function() {
     this.particlesContainer = document.querySelector('#scroller');
     this.particles = document.querySelectorAll('.particle');
-    this.S = 1; this.ext = 'mp3'; this.loadCnt = 0; this.maxLoadCnt = 8;
+    this.S = 1; this.loadCnt = 0; this.maxLoadCnt = 8;
     this.BLOB_DURATION = 500;
+    this.ext = this.isCanPlayMP3() ? 'mp3' : 'wav';
+    this.isIOS = this.isIOSSafari();
+    this.isIE = !this.isIE(); this.isIE && document.body.classList.add('ie');
     this.progressStep = (150/this.maxLoadCnt) * (1/16);
     this.openSound      = new Howl({ urls: [`sounds/open-bubble-2.${this.ext}`], onload: this.updateProgress.bind(this)});
     this.openSound2     = new Howl({ urls: [`sounds/open-bubble-3.${this.ext}`], rate: .15, onload: this.updateProgress.bind(this)});
@@ -41,7 +44,6 @@ var main = {
     this.closeScaleSound = new Howl({ urls: [`sounds/open-bubble-3.${this.ext}`], rate: .25, onload: this.updateProgress.bind(this) });
     this.closeBtnSound   = new Howl({ urls: [`sounds/open-bubble-3.${this.ext}`], rate: 1, onload: this.updateProgress.bind(this) });
     this.loadImage('css/i/mojs-logo.png');
-
     this.particleRadius = getComputedStyle(this.particles[0]).width;
     this.particleRadius = parseInt(this.particleRadius, 10)/2;
     this.closeBtn     = document.querySelector('#js-close-btn');
@@ -62,15 +64,15 @@ var main = {
     this.progress     = document.querySelector('#js-progress');
     this.progressGrad = document.querySelector('#js-progress-gradient');
     this.particlesLength = this.particles.length;
-    var styles     = getComputedStyle(this.particlesContainer);
-    this.width     = parseInt(styles.width, 10);
-    this.height    = parseInt(styles.height,10);    
-    this.radPoint = mojs.helpers.getRadialPoint;
+    var styles        = getComputedStyle(this.particlesContainer);
+    this.width        = parseInt(styles.width, 10);
+    this.height       = parseInt(styles.height,10);    
+    this.radPoint     = mojs.helpers.getRadialPoint;
     this.particleBuffer = null; this.isOpen = false;
-    this.blobBase = 1.6; this.blob = this.blobBase; this.blobShift = this.blobBase;
+    this.blobBase     = 1.6; this.blob = this.blobBase; this.blobShift = this.blobBase;
     this.prepareDust(); this.calcDimentions()
-    this.xOffset = this.particleRadius + 25;
-    this.yOffset = 1.4*this.particleRadius;
+    this.xOffset      = this.particleRadius + 25;
+    this.yOffset      = 1.4*this.particleRadius;
     var i = this.particlesLength;
     while(i--) {
       var particle = this.particles[i];
@@ -79,11 +81,9 @@ var main = {
     }
   },
   draw: function() {
-    var origin = `${this.bubleCenter.x}px ${this.bubleCenter.y}px`
-    var h = mojs.h, inEasing = mojs.easing.cubic.in;
+    var origin = `${this.bubleCenter.x}px ${this.bubleCenter.y}px`,
+        h = mojs.h, inEasing = mojs.easing.cubic.in;
     h.setPrefixedStyle(this.particlesContainer, 'perspective-origin', origin)
-
-    // var cnt = 0;
 
     var i = this.particlesLength;
     while(i--) {
@@ -94,8 +94,8 @@ var main = {
           a      = this.blob - (2*radius)/this.size,
           b      = this.blobShift - (2*radius)/this.size, scaleMax = 1;
 
-      var delta = mojs.helpers.clamp(inEasing(a), 0.03, scaleMax)
-      var deltaShift = h.clamp((inEasing(b)), 0.03, scaleMax)      
+      var delta = mojs.helpers.clamp(inEasing(a), 0.03, scaleMax),
+          deltaShift = h.clamp((inEasing(b)), 0.03, scaleMax);
 
       var isDeltaChanged = this.particleBuffer.prevDelta !== delta;
       if (isDeltaChanged || this.particleBuffer.prevDeltaShift !== deltaShift) {
@@ -153,18 +153,19 @@ var main = {
   },
   loadImage: function (url) {
     let image = new Image;
-    image.addEventListener('load', this.updateProgress.bind(this),  false);
-    // image.addEventListener 'error', ((e)=> @imageLoaded(false)), false
-    // image.addEventListener 'abort', ((e)=> @imageLoaded(false)), false
+    image.addEventListener('load',  this.updateProgress.bind(this), false);
+    image.addEventListener('error', this.updateProgress.bind(this), false);
     image.src = url;
+  },
+  isCanPlayMP3: function () { return !navigator.userAgent.indexOf("Opera"); },
+  isIOSSafari:  function () {
+    var userAgent = navigator.userAgent;
+    return !!(userAgent.match(/iPad/i) || userAgent.match(/iPhone/i));
+  },
+  isIE: function () {
+    return !!(window.navigator.msPointerEnabled && !window.PointerEvent);
   }
 }
-
-// for (let item of ['a', 'b', 'c']) {
-//   setTimeout(function () {
-//     console.log(item);
-//   }, 20)
-// }
 
 mojs.h.extend(main, events);
 mojs.h.extend(main, showOnEl);

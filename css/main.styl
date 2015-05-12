@@ -99,7 +99,7 @@ body
   bottom      0
   left        0
   right       0
-  width       100%
+  // width       100%
   overflow    hidden
     
 .particles
@@ -110,6 +110,7 @@ body
   user-select none
   
   position absolute
+  overflow hidden
   z-index 1
   tap-highlight-color rgba(0,0,0,0)
   // width 2000px
@@ -139,8 +140,10 @@ contentHeight = 280
     circle 100%
     position absolute
     nw 0
-  &__content
-    display none
+    transform translateZ(0)
+    // background-image url('i/mojs-transparent.png')
+    // background-size 300% auto
+    // background-position 340px -10px
 
 // svg
 //   border 2px solid red !important
@@ -153,10 +156,10 @@ contentHeight = 280
   margin-left  -(contentWidth/2)*PX
   margin-top   -(contentHeight/2)*PX
   // border        1px solid white
-  z-index       0
+  z-index       2
   nw            50%
   // opacity       0
-  transform     translateZ(0)
+  transform     translateX(-5000px)
   // display       none
   &__inner
     position absolute
@@ -212,6 +215,8 @@ contentHeight = 280
     border-radius 26px
     background linear-gradient(to right, rgba(58,8,57,0) 0%,rgba(58,8,57,0.65) 100%)
     transform-origin 100% center
+    .ie &
+      display none
     // box-shadow 0 0 150px #333
 
 
@@ -258,21 +263,21 @@ contentHeight = 280
     position        absolute
     top             9*PX
     &--1
-      left 10*PX
+      left 9*PX
     &--2
-      left 74*PX
+      left 72*PX
   &__logo
     background    #f1f1f1
     position      absolute
-    top           6*PX
+    top           7*PX
     circle        16*PX
     background url('') no-repeat center center
     background-size 100% 100%
     &--mojs
-      left 53*PX
+      left 51*PX
       background-image url('i/mojs.svg')
     &--legomushroom
-      left 89*PX
+      left 87*PX
       background-image url('i/legomushroom.svg')
 
 .sprite

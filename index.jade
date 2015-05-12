@@ -7,6 +7,7 @@ html
     meta(name="viewport", content="width=320px, height=320px, initial-scale=1,   user-scalable=no")
 
   mixin img()
+    .image-ie
     .image
       .scene
         .shape.cuboid-1.cub-1
@@ -50,9 +51,6 @@ html
               .photon-shader
             .face.side.s2
               .photon-shader
-
-  
-  - var colors = ['#FC2D79', '#FC2D79',  '#11CDC5', '#FCB635', '#f1f1f1', '#4A90E2']
   - var size = 150, gap = 25;
   - var columnCnt = 25;
   body
@@ -77,30 +75,38 @@ html
           - var strokeStep = strokeMax/framesCnt
           - for (var i = 0; i < framesCnt; i++)
             svg.sprite__frame
-              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="75")
+              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="75", stroke-linecap="round")
         .dust.dust--2.sprite#js-dust-2
           - var framesCnt = 50, yMax = 8, xMax = 60, strokeMax = 8
           - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
           - var strokeStep = strokeMax/framesCnt
           - for (var i = 0; i < framesCnt; i++)
             svg.sprite__frame
-              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="125")
+              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="125", stroke-linecap="round")
         .dust.dust--3.sprite#js-dust-3
           - var framesCnt = 50, yMax = 4, xMax = 30, strokeMax = 5
           - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
           - var strokeStep = strokeMax/framesCnt
           - for (var i = 0; i < framesCnt; i++)
             svg.sprite__frame
-              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="150")
+              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="150", stroke-linecap="round")
         .dust.dust--4.sprite#js-dust-4
           - var framesCnt = 50, yMax = 3, xMax = 25, strokeMax = 3
           - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
           - var strokeStep = strokeMax/framesCnt
           - for (var i = 0; i < framesCnt; i++)
             svg.sprite__frame
-              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}" fill="none", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="30", stroke-dashoffset="20")
-
+              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}" fill="none", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="30", stroke-dashoffset="20", stroke-linecap="round")
       .content__inner#js-content-inner
+        .project
+          .project__img
+            .project__shadow-wrap#js-shadow-wrap
+              .project__shadow#js-shadow
+            +img()
+          .project__text#js-text
+            h2 Some project
+            p It if sometimes furnished unwilling as additions so. Blessing resolved peculiar fat graceful ham. Sussex on at really ladies in as elinor.
+
     .badge#js-badge
     .wrapper#js-wrapper
       .particles#scroller(style="margin-left: #{-(size+gap)*1}px; margin-top: #{-(size+gap)*1}px; width:#{(size+gap)*(columnCnt-2.2) - size/2 - 2*gap}px; height:#{(size)*(columnCnt-4.5)-size-2*gap}px")
@@ -110,30 +116,30 @@ html
                 svg.sprite__frame
                   ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="50", cy="50", fill="none")
 
-            //- .blob-circle__inner#js-blob-circle-inner
-          //- .center
+          - var colors = ['#FC2D79', '#FC2D79',  '#11CDC5', '#FCB635', '#c1c1c1', '#4A90E2']
+          //- - var images = ['clock', 'phone',  'map', 'settings', 'weather', 'mojs', 'play', 'sport', 'message', 'music']
           - for (var j=0; j < columnCnt; j++)
             - for (var i=0; i < columnCnt-1; i++)
               - var color = colors[Math.round((colors.length-1)*Math.random())]
+              //- - var image = images[Math.round((images.length-1)*Math.random())]
               - var shift = (j % 2) ? -(size+gap)/2: 0;
-              - var left = i*(size+gap)-shift;
-              - var top  = j*(size-gap/2);
+              - var left = i*(size+gap)-shift, top  = j*(size-gap/2);
               - var middle = ~~(columnCnt/2)
               - var className = (j === middle && i === middle) ? 'is-open1': '';
-              //- - var className = (j === (middle-5) && i ===( middle-5)) ? 'is-open': '';
               .particle( class="#{className}", id="js-particle-#{i}",
                              data-left="#{left}", data-top="#{top}"
                              style="left: #{left}px; top: #{top}px" )
                 .particle__inner(style="background: #{color}")
-                .particle__content
-                  .project
-                    .project__img
-                      .project__shadow-wrap#js-shadow-wrap
-                        .project__shadow#js-shadow
-                      +img()
-                    .project__text#js-text
-                      h2 Some project
-                      p It if sometimes furnished unwilling as additions so. Blessing resolved peculiar fat graceful ham. Sussex on at really ladies in as elinor.
+                //- .particle__inner(style="background: #{color} url(css/i/icons/#{image}.svg) no-repeat center center")
+                //- .particle__content
+                //-   .project
+                //-     .project__img
+                //-       .project__shadow-wrap#js-shadow-wrap
+                //-         .project__shadow#js-shadow
+                //-       +img()
+                //-     .project__text#js-text
+                //-       h2 Some project
+                //-       p It if sometimes furnished unwilling as additions so. Blessing resolved peculiar fat graceful ham. Sussex on at really ladies in as elinor.
 
 
 

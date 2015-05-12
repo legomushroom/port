@@ -10,6 +10,7 @@ var showOnEl = {
   },
 
   showInnerCircle: function (x, y) {
+    // return
     var tween = new mojs.Tween;
 
     var size = Math.min(this.wWidth, this.wHeight);
@@ -22,7 +23,6 @@ var showOnEl = {
     var i = 0;
     for (let item of this.blobEllipses) {
       i++;
-      // console.log(borderWidth/2 - i*strokeStep)
       item.setAttribute('stroke-width', borderWidth/2 - i*strokeStep);
       item.setAttribute('rx', blobCircleSize/2);
       item.setAttribute('ry', blobCircleSize/2);
@@ -60,9 +60,8 @@ var showOnEl = {
     this.isOpen = true;
     el.style['z-index']  = 20
     this.iscroll.enabled = false;
-    this.iscroll.scrollTo(-x,-y, 500*this.S);
     this.showInnerCircle(el.x+75, el.y+75)
-
+    this.iscroll.scrollTo(-x,-y, 500*this.S);
     var soundTimeline = new mojs.Timeline({
       delay: 0*this.S, onStart: () => { this.openSound2.play(); } });
 
@@ -82,8 +81,9 @@ var showOnEl = {
       }
     });
 
-    this.content.style.opacity = 0;
-    this.contentI.innerHTML = el.querySelector('.particle__content').innerHTML;
+    // this.content.style.opacity = 0;
+    // this.contentI.innerHTML = el.querySelector('.particle__content').innerHTML;
+    mojs.h.setPrefixedStyle(this.content, 'transform', `translate3d(-5000px,-5000px,0)`);
 
     var scaleUpTimeline = new mojs.Timeline({
       duration: 600*this.S, delay: 350*this.S,
