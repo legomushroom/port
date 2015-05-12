@@ -91,7 +91,6 @@ body {
   -ms-user-select: none;
   user-select: none;
   position: absolute;
-  overflow: hidden;
   z-index: 1;
   tap-highlight-color: rgba(0,0,0,0);
   -webkit-transform: translateZ(0);

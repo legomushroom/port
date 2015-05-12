@@ -62,7 +62,7 @@ var showInner = {
       offsetX:    300,
       offsetY:    300,
       el:         image,
-      duration:   (this.isIE) ? 0 : 1000*this.S,
+      duration:   (this.isIE) ? 200*this.S : 1000*this.S,
       easing:     'cubic.out',
       // onStart: () => {
       //   mojs.h.setPrefixedStyle(this.content, 'transform', `translate3d(0,0,0)`);
@@ -81,20 +81,23 @@ var showInner = {
         bounceEasing  = mojs.easing.path('M0,100 C28.3125,98.6523445 39.0445328,8.99375039 40.1669859,0 C40.1669859,-0.0485295402 50.9999996,152.873952 74.0660521,0 C80.8905119,21.9365596 87.1001393,26.7923438 92.0689049,0 C92.0689049,-1.92034044 95.3231688,20.3352347 100,0');
 
     var timeline1 = new mojs.Timeline({
-      duration: (this.isIE) ? 0 : 800*this.S,
+      duration: (this.isIE) ? 200*this.S : 800*this.S,
+      onStart: ()=> {
+        mojs.h.setPrefixedStyle(this.content, 'transform', `translate3d(0,0,0)`);
+      },
       onComplete: () => { this.showClose(); },
       onUpdate: (p) => {
         var b     = mojs.easing.bounce.out(p);
         var bin   = mojs.easing.bounce.in(p);
         var t     = mojs.easing.cubic.out(p);
-        var r     = `rotateY(${0 + 90*(1-b)}deg) rotateX(${70*(1-t)}deg) rotateZ(${90*(1-t)}deg)`
+        var r     = `rotateY(${90*(1-b)}deg) rotateX(${70*(1-t)}deg) rotateZ(${90*(1-t)}deg)`
         var scale = `scaleX(1) scaleY(1)`;
         var tr    = `${r} ${scale}`;
         mojs.h.setPrefixedStyle(scene, 'transform', tr);
         mojs.h.setPrefixedStyle(scene, 'transform-origin', `${50+50*t}% 100%`);
         scene.style.opacity = mojs.easing.expo.out(p);
         var scale = `scaleX(${opacityEasing(p)})`
-        var transform = `translate(${(-300*(mojs.easing.bounce.in(1-p)))-5}px, 2px) ${scale}`;
+        var transform = `translate(${(-300*(mojs.easing.bounce.in(1-p)))}px, 2px) ${scale}`;
         mojs.h.setPrefixedStyle(shadowWrap, 'transform', transform);
         shadow.style.opacity = .75*bounceEasing(p);
       }
