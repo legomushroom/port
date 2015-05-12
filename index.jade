@@ -5,53 +5,8 @@ html
     title port
     link(rel="stylesheet", type="text/css", href="css/main.css")
     //- meta(name="viewport", content="width=320px, height=320px, initial-scale=1,   user-scalable=no")
-    meta(name="viewport", content="width=768px, height=768px, user-scalable=no")
+    meta(name="viewport", content="width=768px, user-scalable=no")
 
-  mixin img()
-    .image-ie
-    .image
-      .scene
-        .shape.cuboid-1.cub-1
-          .face.ft
-            .photon-shader
-          .face.bk
-            .photon-shader
-          .face.rt
-            .photon-shader
-          .face.lt
-            .photon-shader
-          .face.bm
-            .photon-shader
-          .face.tp
-            .photon-shader
-          .cr.cr-0
-            .face.side.s0
-              .photon-shader  
-            .face.side.s1
-              .photon-shader
-            .face.side.s2
-              .photon-shader
-          .cr.cr-1
-            .face.side.s0
-              .photon-shader
-            .face.side.s1
-              .photon-shader
-            .face.side.s2
-              .photon-shader
-          .cr.cr-2
-            .face.side.s0
-              .photon-shader
-            .face.side.s1
-              .photon-shader
-            .face.side.s2
-              .photon-shader
-          .cr.cr-3
-            .face.side.s0
-              .photon-shader
-            .face.side.s1
-              .photon-shader
-            .face.side.s2
-              .photon-shader
   - var size = 150, gap = 25;
   - var columnCnt = 25, mobileColumnCnt = 10;
   body
@@ -64,13 +19,6 @@ html
       .curtain__progress-text loading..
       .curtain__progress-text-gradient#js-progress-gradient
       .curtain__progress#js-progress
-    //- .mobile-suggest#js-mobile-suggest
-      .mobile-suggest__content
-        .mobile-suggest__images
-          .mobile-suggest__image.mobile-suggest__image--desktop
-          .mobile-suggest__image.mobile-suggest__image--tablet
-        .mobile-suggest__text.
-          Please see this page on your desktop or tablet for better experience
 
     .close#js-close-btn
       .close__inner#js-close-btn-inner
@@ -109,23 +57,57 @@ html
           .project__img
             .project__shadow-wrap#js-shadow-wrap
               .project__shadow#js-shadow
-            +img()
+            .image-ie
+            .image
+              .scene
+                .shape.cuboid-1.cub-1
+                  .face.ft
+                    .photon-shader
+                  .face.bk
+                    .photon-shader
+                  .face.rt
+                    .photon-shader
+                  .face.lt
+                    .photon-shader
+                  .face.bm
+                    .photon-shader
+                  .face.tp
+                    .photon-shader
+                  .cr.cr-0
+                    .face.side.s0
+                      .photon-shader  
+                    .face.side.s1
+                      .photon-shader
+                    .face.side.s2
+                      .photon-shader
+                  .cr.cr-1
+                    .face.side.s0
+                      .photon-shader
+                    .face.side.s1
+                      .photon-shader
+                    .face.side.s2
+                      .photon-shader
+                  .cr.cr-2
+                    .face.side.s0
+                      .photon-shader
+                    .face.side.s1
+                      .photon-shader
+                    .face.side.s2
+                      .photon-shader
+                  .cr.cr-3
+                    .face.side.s0
+                      .photon-shader
+                    .face.side.s1
+                      .photon-shader
+                    .face.side.s2
+                      .photon-shader
           .project__text#js-text
             h2 Some project
             p It if sometimes furnished unwilling as additions so. Blessing resolved peculiar fat graceful ham. Sussex on at really ladies in as elinor.
 
     .badge#js-badge
-    style.
-      .particles {
-        width:  #{(size+gap)*(mobileColumnCnt-2.2) - size/2 - 2*gap}px;
-        height: #{(size)*(mobileColumnCnt-4.5)-size-2*gap}px;
-      }
-      .desktop .particles {
-        width:  #{(size+gap)*(columnCnt-2.2) - size/2 - 2*gap}px;
-        height: #{(size)*(columnCnt-4.5)-size-2*gap}px;
-      }
     .wrapper#js-wrapper
-      .particles#scroller(style="margin-left: #{-(size+gap)}px; margin-top: #{-(size+gap)}px;")
+      .particles#scroller
           .blob-circle-wrap
             .blob-circle.sprite#js-blob-circle
               - for (var i = 0; i < 50; i++)
@@ -146,15 +128,15 @@ html
                              data-left="#{left}", data-top="#{top}"
                              style="left: #{left}px; top: #{top}px" )
                 .particle__inner(style="background: #{color}")
-                //- .particle__inner(style="background: #{color} url(css/i/icons/#{image}.svg) no-repeat center center")
-                //- .particle__content
-                //-   .project
-                //-     .project__img
-                //-       .project__shadow-wrap#js-shadow-wrap
-                //-         .project__shadow#js-shadow
-                //-       +img()
-                //-     .project__text#js-text
-                //-       h2 Some project
-                //-       p It if sometimes furnished unwilling as additions so. Blessing resolved peculiar fat graceful ham. Sussex on at really ladies in as elinor.
-
+    style.
+      .particles {
+        width:  #{(size+gap)*(mobileColumnCnt) - size/2 - 2*gap}px;
+        height: #{(size)*(mobileColumnCnt-1)-size-2*gap}px;
+        margin-left: #{-(size+gap)}px;
+        margin-top: #{-(size+gap)}px;
+      }
+      .desktop .particles {
+        width:  #{(size+gap)*(columnCnt-2.2) - size/2 - 2*gap}px;
+        height: #{(size)*(columnCnt-4.5)-size-2*gap}px;
+      }           
     script(src="dist/app.js")

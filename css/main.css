@@ -214,12 +214,12 @@ body {
   background: #fff;
   position: absolute;
   bottom: 0;
-  left: 0;
+  right: 0;
   height: 1.75rem;
   width: 6.875rem;
   z-index: 40;
-  opacity: 0.5;
-  border-top-right-radius: 0.75rem;
+  opacity: 0.75;
+  border-top-left-radius: 0.75rem;
 }
 .by:hover {
   opacity: 1;

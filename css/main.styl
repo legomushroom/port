@@ -30,22 +30,6 @@ body
   overflow hidden
   font-family Open Sans, sans-serif
   min-width 768px
-  // perspective 1000px
-  // &::-webkit-scrollbar
-  //   overflow -moz-scrollbars-none !important
-  //   display none !important
-  //   -ms-overflow-style none !important
-  //   width 0 !important
-   
-// .element
-//   border 1px solid hotpink
-//   padding 40px
-//   position absolute
-//   color white
-//   transform translate(50%, 50%)
-// .element-parent
-//   transform translate3d(0%, 0%,0)
-
 .curtain
   rect 100%
   position fixed
@@ -86,33 +70,6 @@ body
   &.is-hide
     opacity 0
     z-index 0
-    
-// .mobile-suggest
-//   z-index        40
-//   color          white
-//   letter-spacing .5*PX
-//   font-size      12*PX
-//   line-height    20*PX
-//   text-align     center
-//   contentWidth = 240
-//   &__content
-//     width        contentWidth*PX
-//     position     absolute
-//     nw           50%
-//     margin-left -(contentWidth/2)*PX
-//     margin-top  -90*PX
-//   &__images
-//     display inline-block
-//   &__image
-//     float           left
-//     margin-bottom   2*gs
-//     circle          80*PX
-//     &--desktop
-//       background    #B5F82E url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB3aWR0aD0iODFweCIgaGVpZ2h0PSI4MHB4IiB2aWV3Qm94PSIwIDAgODEgODAiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM6c2tldGNoPSJodHRwOi8vd3d3LmJvaGVtaWFuY29kaW5nLmNvbS9za2V0Y2gvbnMiPiAgICAgICAgPHRpdGxlPlVudGl0bGVkIDc8L3RpdGxlPiAgICA8ZGVzYz5DcmVhdGVkIHdpdGggU2tldGNoLjwvZGVzYz4gICAgPGRlZnM+PC9kZWZzPiAgICA8ZyBpZD0iUGFnZS0xIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBza2V0Y2g6dHlwZT0iTVNQYWdlIj4gICAgICAgIDxnIGlkPSJPdmFsLTEtQ29weS0rLVNoYXBlIiBza2V0Y2g6dHlwZT0iTVNMYXllckdyb3VwIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNS4wMDAwMDAsIDE5LjAwMDAwMCkiIGZpbGw9IiNGRkZGRkYiPiAgICAgICAgICAgIDxwYXRoIGQ9Ik0yLjk5MDYyMzU1LDIuNzQ4MTIxMzQgQzQuNDAzMjU0ODcsMS42MTYzMzQ1OCA2LjE5OTMxNDcsMC45NDM2NTI5OTcgOC4wMTU1NTQ5OCwwLjkyODUxNzY2MSBDMTkuMjg4MDE2NiwwLjkyODUxNzY2MSAzMC41NjA0NzgyLDAuOTMwMTk5MzY1IDQxLjgzMjkzOTksMC45MjY4MzU5NTcgQzQ0LjAwMjMzOCwwLjg1NDUyMjY4NyA0Ni4xOTE5MTY1LDEuNjkzNjkyOTYgNDcuNzUyNTM3OCwzLjIwMzg2MzEyIEM0OS4zODg4MzU4LDQuODI4Mzg5MTQgNTAuMjE2MjM0MSw3LjE3NDM2NjE2IDUwLjExNzAxMzYsOS40NjQ4NDY5NiBDNTAuMTEzNjUwMiwxNi44Njc3MDc4IDUwLjExNzAxMzYsMjQuMjcwNTY4NiA1MC4xMTUzMzE5LDMxLjY3MzQyOTQgQzUwLjEyNTQyMjEsMzQuMDc0OTAyNyA0OS4wNjkzMTIsMzYuNTA2NjQ2NiA0Ny4xNzczOTUxLDM4LjAxNTEzNTEgQzQ1LjcxNDMxMjYsMzkuMTUzNjQ4NiA0My44NjQ0MzgzLDM5LjgzMzA1NyA0Mi4wMDExMTAzLDM5Ljc3OTI0MjUgQzM3LjEzOTMwNDEsMzkuNzcyNTE1NyAzMi4yNzU4MTYzLDM5Ljc3NzU2MDggMjcuNDE0MDEwMSwzOS43NzU4NzkxIEMyNy40MTIzMjg0LDQwLjc5ODM1NTEgMjcuNDEyMzI4NCw0MS44MjI1MTI4IDI3LjQxNDAxMDEsNDIuODQ0OTg4OCBDMjkuNzQ0ODUxOCw0Mi44NTMzOTc0IDMyLjA3NzM3NTIsNDIuODI5ODUzNSAzNC40MDgyMTY5LDQyLjg1NTA3OTEgQzM1LjQ4MjgyNTcsNDIuOTEwNTc1MyAzNi4xOTc1NDk5LDQ0LjIyMjMwNDQgMzUuNjQ3NjMyNyw0NS4xNTM5Njg0IEMzNS4zNjM0MjQ4LDQ1LjcwNzI0OSAzNC43NDI4NzYsNDYuMDIxNzI3NiAzNC4xMzA3MzU4LDQ1Ljk5ODE4MzggQzI4LjU1MjUyMzcsNDUuOTkzMTM4NiAyMi45NzQzMTE3LDQ2LjAwOTk1NTcgMTcuMzk3NzgxNCw0NS45ODk3NzUyIEMxNi40NTc3MDg4LDQ1Ljk5NjUwMjEgMTUuNjYzOTQ0Niw0NS4wMTYwNjg2IDE1Ljg5NjAxOTcsNDQuMTAxMjIxNyBDMTYuMDMwNTU2LDQzLjM4NDgxNTggMTYuNzE2NjkxMyw0Mi44MjQ4MDg0IDE3LjQ0NjU1MDgsNDIuODQ2NjcwNSBDMTkuNzE2ODUxMSw0Mi44Mzk5NDM3IDIxLjk4ODgzMzIsNDIuODQ4MzUyMiAyNC4yNTkxMzM1LDQyLjg0NDk4ODggQzI0LjI1NzQ1MTgsNDEuODIyNTEyOCAyNC4yNTc0NTE4LDQwLjgwMDAzNjggMjQuMjU5MTMzNSwzOS43Nzc1NjA4IEMxOC43OTUyNzc0LDM5Ljc3NTg3OTEgMTMuMzMxNDIxMiwzOS43NzU4NzkxIDcuODY3NTY1MDMsMzkuNzc3NTYwOCBDNS45NjU1NTc4NSwzOS43MzIxNTQ4IDQuMDk4ODY2NDUsMzguOTU1MjA3NiAyLjY3NzgyNjYxLDM3LjY5NzI5MyBDMS4wNzE3OTkzMywzNi4yMDM5Mzk5IDAuMTQ1MTgwNDQ4LDM0LjAyMTA4ODIgMC4xMjY2ODE3MDQsMzEuODMzMTkxMyBDMC4xMjY2ODE3MDQsMjQuMjA2NjYzOSAwLjEyODM2MzQwOCwxNi41ODAxMzY0IDAuMTI1LDguOTUzNjA4OTUgQzAuMTI2NjgxNzA0LDYuNjA3NjMxOTMgMS4xNjkzMzgxNiw0LjI0NjUxOTU3IDIuOTkwNjIzNTUsMi43NDgxMjEzNCBMMi45OTA2MjM1NSwyLjc0ODEyMTM0IFogTTYuOTE5MDgzOTksNC4xODc2NTk5MyBDNC45MzQ2NzMzMiw0LjY1MDEyODUyIDMuMzAxNzM4NzgsNi41MzE5NTUyNSAzLjI4MTU1ODMzLDguNTk4NzY5NDIgQzMuMjc4MTk0OTIsMTYuMzk4NTEyNCAzLjI4MzI0MDAzLDI0LjE5OTkzNyAzLjI3ODE5NDkyLDMyLjAwMTM2MTcgQzMuMjQ5NjA1OTYsMzQuNDE2Mjg4NiA1LjQxOTAwNDA2LDM2LjY1NjMxODMgNy44NDkwNjYyOCwzNi42MjQzNjU5IEMxOS4zNTAyMzk3LDM2LjYyMTAwMjUgMzAuODUxNDEzLDM2LjYxOTMyMDggNDIuMzU0MjY4MSwzNi42MjQzNjU5IEM0NC43ODkzNzU0LDM2LjY3MzEzNTMgNDYuOTg3MzYyNSwzNC40MzMxMDU2IDQ2Ljk1ODc3MzYsMzIuMDA4MDg4NSBDNDYuOTY3MTgyMSwyNC4zMjI3MDE0IDQ2Ljk1NzA5MTgsMTYuNjM4OTk2IDQ2Ljk2MzgxODcsOC45NTM2MDg5NSBDNDcuMTIxODk4OCw2LjQyOTM3MTMxIDQ0Ljg3NTE0MjMsNC4wNDQ3MTUxIDQyLjM0NDE3NzksNC4wODE3MTI1OCBMNy44NDkwNjYyOCw0LjA4MTcxMjU4IEM3LjUzNjI2OTM1LDQuMDg1MDc1OTkgNy4yMjUxNTQxMSw0LjEyMjA3MzQ4IDYuOTE5MDgzOTksNC4xODc2NTk5MyBMNi45MTkwODM5OSw0LjE4NzY1OTkzIFogTTI0Ljg3NSw5IEMyNS40MjcyODQ3LDkgMjUuODc1LDguNTUyMjg0NzUgMjUuODc1LDggQzI1Ljg3NSw3LjQ0NzcxNTI1IDI1LjQyNzI4NDcsNyAyNC44NzUsNyBDMjQuMzIyNzE1Myw3IDIzLjg3NSw3LjQ0NzcxNTI1IDIzLjg3NSw4IEMyMy44NzUsOC41NTIyODQ3NSAyNC4zMjI3MTUzLDkgMjQuODc1LDkgWiIgaWQ9IlNoYXBlIiBza2V0Y2g6dHlwZT0iTVNTaGFwZUdyb3VwIj48L3BhdGg+ICAgICAgICA8L2c+ICAgIDwvZz48L3N2Zz4=') no-repeat center center
-//     &--tablet
-//       background    #FD288B url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB3aWR0aD0iODFweCIgaGVpZ2h0PSI4MHB4IiB2aWV3Qm94PSIwIDAgODEgODAiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM6c2tldGNoPSJodHRwOi8vd3d3LmJvaGVtaWFuY29kaW5nLmNvbS9za2V0Y2gvbnMiPiAgICAgICAgPHRpdGxlPlVudGl0bGVkIDc8L3RpdGxlPiAgICA8ZGVzYz5DcmVhdGVkIHdpdGggU2tldGNoLjwvZGVzYz4gICAgPGRlZnM+PC9kZWZzPiAgICA8ZyBpZD0iUGFnZS0xIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBza2V0Y2g6dHlwZT0iTVNQYWdlIj4gICAgICAgIDxwYXRoIGQ9Ik0yMy44OTA1NTUsMjAuMDA1OTk5NiBDMzUuMTYzMDE2NiwyMC4wMDU5OTk2IDQ2LjQzNTQ3ODIsMjAuMDA3NjgxMyA1Ny43MDc5Mzk5LDIwLjAwNDMxNzkgQzU5Ljg3NzMzOCwxOS45MzIwMDQ2IDYyLjA2NjkxNjUsMjAuNzcxMTc0OSA2My42Mjc1Mzc4LDIyLjI4MTM0NTEgQzY1LjI2MzgzNTgsMjMuOTA1ODcxMSA2Ni4wOTEyMzQxLDI2LjI1MTg0ODEgNjUuOTkyMDEzNiwyOC41NDIzMjg5IEM2NS45ODg2NTAyLDM1Ljk0NTE4OTcgNjUuOTkyMDEzNiw0My4zNDgwNTA2IDY1Ljk5MDMzMTksNTAuNzUwOTExNCBDNjYuMDAwNDIyMSw1My4xNTIzODQ2IDY0Ljk0NDMxMiw1NS41ODQxMjg2IDYzLjA1MjM5NTEsNTcuMDkyNjE3IEM2MS41ODkzMTI2LDU4LjIzMTEzMDYgNTkuNzM5NDM4Myw1OC45MTA1MzkgNTcuODc2MTEwMyw1OC44NTY3MjQ1IEM1My4wMTQzMDQxLDU4Ljg0OTk5NzYgNDguMTUwODE2Myw1OC44NTUwNDI4IDQzLjI4OTAxMDEsNTguODUzMzYxMSBDNDEsNTguODU1MDQxNSA0MS44NTM2ODE2LDU4Ljg1NTA0MTUgNDAuMTM0MTMzNSw1OC44NTUwNDI4IEMzNC42NzAyNzc0LDU4Ljg1MzM2MTEgMjkuMjA2NDIxMiw1OC44NTMzNjExIDIzLjc0MjU2NSw1OC44NTUwNDI4IEMyMS44NDA1NTc4LDU4LjgwOTYzNjggMTkuOTczODY2NSw1OC4wMzI2ODk1IDE4LjU1MjgyNjYsNTYuNzc0Nzc1IEMxNi45NDY3OTkzLDU1LjI4MTQyMTggMTYuMDIwMTgwNCw1My4wOTg1NzAxIDE2LjAwMTY4MTcsNTAuOTEwNjczMyBDMTYuMDAxNjgxNyw0My4yODQxNDU4IDE2LjAwMzM2MzQsMzUuNjU3NjE4NCAxNiwyOC4wMzEwOTA5IEMxNi4wMDE2ODE3LDI1LjY4NTExMzkgMTcuMDQ0MzM4MiwyMy4zMjQwMDE1IDE4Ljg2NTYyMzUsMjEuODI1NjAzMyBDMjAuMjc4MjU0OSwyMC42OTM4MTY1IDIyLjA3NDMxNDcsMjAuMDIxMTM0OSAyMy44OTA1NTUsMjAuMDA1OTk5NiBaIE0yMi43OTQwODQsMjMuMjY0MjkyNCBDMjAuODA5NjczMywyMy43MjY3NjEgMTkuMTc2NzM4OCwyNS42MDg1ODc3IDE5LjE1NjU1ODMsMjcuNjc1NDAxOSBDMTkuMTUzMTk0OSwzNS40NzUxNDQ5IDE5LjE1ODI0LDQzLjI3NjU2OTUgMTkuMTUzMTk0OSw1MS4wNzc5OTQyIEMxOS4xMjQ2MDYsNTMuNDkyOTIxMSAyMS4yOTQwMDQxLDU1LjczMjk1MDcgMjMuNzI0MDY2Myw1NS43MDA5OTg0IEMzNS4yMjUyMzk3LDU1LjY5NzYzNSA0Ni43MjY0MTMsNTUuNjk1OTUzMyA1OC4yMjkyNjgxLDU1LjcwMDk5ODQgQzYwLjY2NDM3NTQsNTUuNzQ5NzY3OCA2Mi44NjIzNjI1LDUzLjUwOTczODEgNjIuODMzNzczNiw1MS4wODQ3MjEgQzYyLjg0MjE4MjEsNDMuMzk5MzMzOSA2Mi44MzIwOTE4LDM1LjcxNTYyODUgNjIuODM4ODE4NywyOC4wMzAyNDE0IEM2Mi45OTY4OTg4LDI1LjUwNjAwMzggNjAuNzUwMTQyMywyMy4xMjEzNDc2IDU4LjIxOTE3NzksMjMuMTU4MzQ1MSBMMjMuNzI0MDY2MywyMy4xNTgzNDUxIEMyMy40MTEyNjkzLDIzLjE2MTcwODUgMjMuMTAwMTU0MSwyMy4xOTg3MDYgMjIuNzk0MDg0LDIzLjI2NDI5MjQgTDIyLjc5NDA4NCwyMy4yNjQyOTI0IFogTTI0Ljc1LDQxLjQyOTg1MDIgQzI1Ljg1NDU2OTUsNDEuNDI5ODUwMiAyNi43NSw0MC41MzQ0MTk3IDI2Ljc1LDM5LjQyOTg1MDIgQzI2Ljc1LDM4LjMyNTI4MDcgMjUuODU0NTY5NSwzNy40Mjk4NTAyIDI0Ljc1LDM3LjQyOTg1MDIgQzIzLjY0NTQzMDUsMzcuNDI5ODUwMiAyMi43NSwzOC4zMjUyODA3IDIyLjc1LDM5LjQyOTg1MDIgQzIyLjc1LDQwLjUzNDQxOTcgMjMuNjQ1NDMwNSw0MS40Mjk4NTAyIDI0Ljc1LDQxLjQyOTg1MDIgWiIgaWQ9IlNoYXBlLUNvcHkiIGZpbGw9IiNGRkZGRkYiIHNrZXRjaDp0eXBlPSJNU1NoYXBlR3JvdXAiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQxLjAwMDAwMCwgMzkuNDI5ODUwKSByb3RhdGUoLTkwLjAwMDAwMCkgdHJhbnNsYXRlKC00MS4wMDAwMDAsIC0zOS40Mjk4NTApICI+PC9wYXRoPiAgICA8L2c+PC9zdmc+') no-repeat center center
-//       margin-left   gs
-
 .badge
   position fixed
   nw 0
@@ -134,16 +91,12 @@ body
   overflow visible
   position relative
   user-select none
-  
   position absolute
-  // overflow hidden
   z-index 1
   tap-highlight-color rgba(0,0,0,0)
-  // width 2000px
   transform translateZ(0)
   user-select none
   text-size-adjust none
-  // background #fff
 
 particleSize = 150/2
 contentWidth  = 540
@@ -171,13 +124,6 @@ contentHeight = 280
     display none
     .desktop &
       display block
-    // background-image url('i/mojs-transparent.png')
-    // background-size 300% auto
-    // background-position 340px -10px
-
-// svg
-//   border 2px solid red !important
-
 .content
   position      fixed
   width         contentWidth*PX
@@ -188,21 +134,10 @@ contentHeight = 280
   // border        1px solid white
   z-index       2
   nw            50%
-  // opacity       0
   transform     translateX(-5000px)
-  // display       none
   &__inner
     position absolute
     rect 100%
-  &__dust-wrapper
-    // border 2px solid white
-    // position    absolute
-    // top         220px
-    // width       240px
-    // height      60px
-    // overflow    hidden
-    // z-index     2
-    
   &.is-show
     display     block
 
@@ -210,7 +145,6 @@ contentHeight = 280
   color white
   position relative
   rect 100%
-  // border 1px solid white
   &__text, 
   &__img
     position absolute
@@ -224,14 +158,6 @@ contentHeight = 280
     line-height 1.6
   h2
     text-transform uppercase
-  // &__dust-wrap
-  //   // border 2px solid white
-  //   position    absolute
-  //   top         220px
-  //   width       240px
-  //   height      60px
-  //   overflow    hidden
-  //   z-index     1
   &__shadow-wrap
     transform-origin 100% center
   &__shadow
@@ -247,45 +173,18 @@ contentHeight = 280
     transform-origin 100% center
     .ie &
       display none
-    // box-shadow 0 0 150px #333
-
-
-// {el = '.blob-circle1'}
-//   box-sizing border-box
-//   position absolute
-//   rect 200*PX
-//   overflow hidden
-//   outline 1px solid orange
-//   mask-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC');
-//   // perspective 1000px
-//   &.is-run
-//     // transform scale(2)
-//     transform translateZ(200px) translateX(50%)
-//     transition transform 2s linear
-//     {el}__inner
-//       // transform translateZ(300px) translateX(-50%) translateY(-50%)
-//       transform translate(-50%, -50%) scale(1.04)
-//       transition transform 2s linear
-//   &__inner
-//     box-sizing border-box
-//     border 3px solid white
-//     rect 100%
-//     position absolute
-//     nw 50%
-//     transform translate(-50%, -50%) scale(1)
-
 .by
   background    white
   position      absolute
   bottom        0
   // right         15.3*gs
-  // right         0
-  left          0
+  right         0
+  // left          0
   height        28*PX
   width         110*PX
   z-index       40
-  opacity       .5
-  border-top-right-radius 12*PX
+  opacity       .75
+  border-top-left-radius 12*PX
   &:hover
     opacity     1
   &__text
@@ -311,7 +210,6 @@ contentHeight = 280
     &--legomushroom
       left 85*PX
       background-image url('i/legomushroom.svg')
-
 .sprite
   &__frame
     position    absolute
@@ -322,11 +220,8 @@ contentHeight = 280
   &__ellipse
     fill        none
     stroke      white
-    
 .dust
   position  absolute
-  // z-index   10
-  // z-index   1
   rect      200*PX
   height    50*PX
   &--1
@@ -345,7 +240,6 @@ contentHeight = 280
   &--4
     left   -77*PX
     opacity .7
-  
   
 blobSize = 100
 .blob-circle
@@ -377,12 +271,6 @@ blobSize = 100
     opacity 1
     left 75%
     z-index 10
-  // &__inner
-  //   position absolute
-  //   circle 50*PX
-  //   border 2px solid white
-  //   transform translate(-50%, -50%)
-  //   nw 50%
 
 @import './css-assets/img.styl'
 
