@@ -72,11 +72,17 @@ var showCloseButton = {
     }
     mojs.h.extend(closeOption4, closeOption2);
     this.closeCircle4 = new mojs.Transit(closeOption4);
+
+    this.showCloseBtnTween = new mojs.Tween;
+    this.showCloseBtnTween.add(
+      this.closeCircle.tween,  this.closeCircle2.tween,
+      this.closeCircle3.tween, this.closeCircle4.tween,
+      this.closeCross.tween,   this.closeBurst.tween
+    );
+    
   },
   showClose: function () {
-    this.closeBtn.classList.add('is-show');
-    this.closeCircle.run(); this.closeCross.run(); this.closeBurst.run();
-    this.closeCircle2.run(); this.closeCircle3.run(); this.closeCircle4.run()
+    this.closeBtn.classList.add('is-show'); this.showCloseBtnTween.start();
   },
   initHideClose: function () {
     this.hideBurst = new mojs.Burst({
@@ -95,10 +101,10 @@ var showCloseButton = {
         p = mojs.easing.cubic.in(p);
         mojs.h.setPrefixedStyle(this.closeCross.el, 'transform', `scale(${1-p})`)
       },
-      onStart: () => { this.closeBtnSound.play(); },
-      onComplete:   () => {
+      onStart:    () => { this.closeBtnSound.play(); },
+      onComplete: () => {
         this.closeBtn.classList.remove('is-show');
-        mojs.h.setPrefixedStyle(this.closeCross.el, 'transform', `none`)
+        mojs.h.setPrefixedStyle(this.closeCross.el, 'transform', `none`);
       }
     });
     this.hideCircle = new mojs.Transit({
@@ -112,23 +118,8 @@ var showCloseButton = {
       isRunLess:        true,
       duration:         500*this.S
     });
-
-    // this.hideCircle2 = new mojs.Transit({
-    //   x: '50%',         y: '50%',
-    //   parent:           this.closeBtn,
-    //   type:             'circle',
-    //   radius:           {0: 15},
-    //   fill:             'transparent',
-    //   stroke:           'white',
-    //   strokeWidth:      { 3:0 },
-    //   isRunLess:        true,
-    //   delay:            300*this.S
-    // });
   },
-  hideClose: function () {
-    this.hideBurst.run(); this.hideCircle.run()//; this.hideCircle2.run();
-  }
+  hideClose: function () { this.hideBurst.run(); this.hideCircle.run(); }
 }
-
 
 export default showCloseButton

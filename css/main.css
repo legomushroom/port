@@ -220,6 +220,7 @@ body {
   z-index: 40;
   opacity: 0.75;
   border-top-left-radius: 0.75rem;
+  display: none;
 }
 .by:hover {
   opacity: 1;
@@ -231,6 +232,9 @@ body {
   position: absolute;
   top: 0.5625rem;
 }
+.ios .by__text {
+  top: 0.5rem;
+}
 .by__text--1 {
   left: 0.4375rem;
 }
@@ -240,12 +244,15 @@ body {
 .by__logo {
   background: #f1f1f1;
   position: absolute;
-  top: 0.4375rem;
   width: 1rem;
   height: 1rem;
   border-radius: 50%;
   background: url("") no-repeat center center;
   background-size: 100% 100%;
+  top: 0.4375rem;
+}
+.ios .by__logo {
+  top: 0.375rem;
 }
 .by__logo--mojs {
   left: 3.0625rem;
@@ -281,8 +288,7 @@ body {
   left: 6.25rem;
 }
 .dust--2,
-.dust--3,
-.dust--4 {
+.dust--3 {
   top: 14.1875rem;
 }
 .dust--2 {
@@ -291,10 +297,6 @@ body {
 }
 .dust--3 {
   left: -4.375rem;
-  opacity: 0.7;
-}
-.dust--4 {
-  left: -4.8125rem;
   opacity: 0.7;
 }
 .blob-circle {

@@ -177,14 +177,13 @@ contentHeight = 280
   background    white
   position      absolute
   bottom        0
-  // right         15.3*gs
   right         0
-  // left          0
   height        28*PX
   width         110*PX
   z-index       40
   opacity       .75
   border-top-left-radius 12*PX
+  display none
   &:hover
     opacity     1
   &__text
@@ -193,6 +192,8 @@ contentHeight = 280
     letter-spacing  .2*PX
     position        absolute
     top             9*PX
+    .ios &
+      top  8*PX
     &--1
       left 7*PX
     &--2
@@ -200,10 +201,12 @@ contentHeight = 280
   &__logo
     background    #f1f1f1
     position      absolute
-    top           7*PX
     circle        16*PX
     background url('') no-repeat center center
     background-size 100% 100%
+    top           7*PX
+    .ios &
+      top  6*PX
     &--mojs
       left 49*PX
       background-image url('i/mojs.svg')
@@ -228,8 +231,8 @@ contentHeight = 280
     top     270*PX
     left    100*PX
   &--2,
-  &--3,
-  &--4
+  &--3
+  // &--4
     top     227*PX
   &--2
     left   -40*PX
@@ -237,9 +240,9 @@ contentHeight = 280
   &--3
     left   -70*PX
     opacity .7
-  &--4
-    left   -77*PX
-    opacity .7
+  // &--4
+  //   left   -77*PX
+  //   opacity .7
   
 blobSize = 100
 .blob-circle

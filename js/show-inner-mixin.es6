@@ -1,17 +1,16 @@
 var mojs = require('../js/vendor/mo');
 
 var showInner = {
-  showInner: function (el) {
-    this.showInnerPlastic(el);
-  },
+
   moveTextEl: function (el, p) {
     p = mojs.easing.cubic.out(p);
-    var transform       = `rotate(${90*(1-p)}deg) translateZ(0) translateY(${200*(1-p)}%)`;
-    var transformOrigin = `left ${80*(p)}%`
-    mojs.h.setPrefixedStyle(el, 'transform', transform);
+    var transform       = `rotate(${90*(1-p)}deg) translateZ(0) translateY(${200*(1-p)}%)`,
+        transformOrigin = `left ${80*(p)}%`;
+    mojs.h.setPrefixedStyle(el, 'transform',        transform);
     mojs.h.setPrefixedStyle(el, 'transform-origin', transformOrigin);
     el.style.opacity = mojs.easing.cubic.out(p);
   },
+
   prepareDust: function () {
     this.dust1Spriter = new mojs.Spriter({
       el:         this.dust1,
@@ -31,26 +30,25 @@ var showInner = {
       delay:      725*this.S,
       isRunLess:  true
     });
-    this.dust4Spriter = new mojs.Spriter({
-      el:         this.dust4,
-      duration:   50*this.S,
-      delay:      800*this.S,
-      isRunLess:  true
-    });
+    // this.dust4Spriter = new mojs.Spriter({
+    //   el:         this.dust4,
+    //   duration:   50*this.S,
+    //   delay:      800*this.S,
+    //   isRunLess:  true
+    // });
   },
 
   runDust: function () {
-    if (this.isIOS || this.isIE) { return };
+    if (this.isTabletMobile || this.isIE) { return };
     this.dust1Spriter.run(); this.dust2Spriter.run();
-    this.dust3Spriter.run(); this.dust4Spriter.run();
+    this.dust3Spriter.run();
+    // this.dust4Spriter.run();
   },
+
   showInnerPlastic: function (el) {
-    // this.content.style.opacity    = 1;
-    // this.content.style['z-index'] = 2;
-    // mojs.h.setPrefixedStyle(this.content, 'transform', `translate3d(0,0,0)`);
-    var tween = new mojs.Tween,
-        image = el.querySelector('.image'),
-        scene = el.querySelector('.shape'),
+    var tween      = new mojs.Tween,
+        image      = el.querySelector('.image'),
+        scene      = el.querySelector('.shape'),
         shadow     = el.querySelector('#js-shadow'),
         shadowWrap = el.querySelector('#js-shadow-wrap');
     
@@ -64,9 +62,6 @@ var showInner = {
       el:         image,
       duration:   (this.isIE) ? 200*this.S : 1000*this.S,
       easing:     'cubic.out',
-      // onStart: () => {
-      //   mojs.h.setPrefixedStyle(this.content, 'transform', `translate3d(0,0,0)`);
-      // },
       onPosit:   function (p, x, y, angle) {
         p = mojs.easing.expo.out(mojs.easing.cubic.in(p))
         var rotate    = `rotateX(70deg) rotateZ(${-60*(1-p)}deg)`,
@@ -87,26 +82,22 @@ var showInner = {
       },
       onComplete: () => { this.showClose(); },
       onUpdate: (p) => {
-        var b     = mojs.easing.bounce.out(p);
-        var bin   = mojs.easing.bounce.in(p);
-        var t     = mojs.easing.cubic.out(p);
-        var r     = `rotateY(${90*(1-b)}deg) rotateX(${70*(1-t)}deg) rotateZ(${90*(1-t)}deg)`
-        var scale = `scaleX(1) scaleY(1)`;
-        var tr    = `${r} ${scale}`;
-        mojs.h.setPrefixedStyle(scene, 'transform', tr);
-        mojs.h.setPrefixedStyle(scene, 'transform-origin', `${50+50*t}% 100%`);
-        scene.style.opacity = mojs.easing.expo.out(p);
-        var scale = `scaleX(${opacityEasing(p)})`
-        var transform = `translate(${(-300*(mojs.easing.bounce.in(1-p)))}px, 2px) ${scale}`;
+        var b      = mojs.easing.bounce.out(p), bin   = mojs.easing.bounce.in(p),
+            t      = mojs.easing.cubic.out(p),
+            rotate = `rotateY(${90*(1-b)}deg) rotateX(${70*(1-t)}deg) rotateZ(${90*(1-t)}deg)`,
+            scale     = `scaleX(${opacityEasing(p)})`,
+            transform = `translate(${(-300*(mojs.easing.bounce.in(1-p)))-5}px, 2px) ${scale}`;
+        mojs.h.setPrefixedStyle(scene,      'transform', `${rotate}`);
+        mojs.h.setPrefixedStyle(scene,      'transform-origin', `${50+50*t}% 100%`);
         mojs.h.setPrefixedStyle(shadowWrap, 'transform', transform);
+        scene.style.opacity  = mojs.easing.expo.out(p);
         shadow.style.opacity = .75*bounceEasing(p);
       }
     });
 
     var soundTimeline = new mojs.Timeline({
       delay: 300*this.S, onStart: () => {
-        if (this.isIE) { return };
-        this.bounceSound.play();
+        if (this.isIE) { return }; this.bounceSound.play();
       }
     });
 

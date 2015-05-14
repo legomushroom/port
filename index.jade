@@ -2,9 +2,8 @@ doctype
 html
   head
     meta(charset='UTF-8')
-    title port
+    title mojs demo 2
     link(rel="stylesheet", type="text/css", href="css/main.css")
-    //- meta(name="viewport", content="width=320px, height=320px, initial-scale=1,   user-scalable=no")
     meta(name="viewport", content="width=768px, user-scalable=no")
 
   - var size = 150, gap = 25;
@@ -23,42 +22,41 @@ html
     .close#js-close-btn
       .close__inner#js-close-btn-inner
     .content#js-content
-      .content__dust-wrapper#js-dust-wrap
-        .dust.dust--1.sprite#js-dust-1
-          - var framesCnt = 50, yMax = 10, xMax = 80, strokeMax = 10
-          - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
-          - var strokeStep = strokeMax/framesCnt
-          - for (var i = 0; i < framesCnt; i++)
-            svg.sprite__frame
-              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="75", stroke-linecap="round")
-        .dust.dust--2.sprite#js-dust-2
-          - var framesCnt = 50, yMax = 8, xMax = 60, strokeMax = 8
-          - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
-          - var strokeStep = strokeMax/framesCnt
-          - for (var i = 0; i < framesCnt; i++)
-            svg.sprite__frame
-              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="125", stroke-linecap="round")
-        .dust.dust--3.sprite#js-dust-3
-          - var framesCnt = 50, yMax = 4, xMax = 30, strokeMax = 5
-          - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
-          - var strokeStep = strokeMax/framesCnt
-          - for (var i = 0; i < framesCnt; i++)
-            svg.sprite__frame
-              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="200", stroke-dashoffset="150", stroke-linecap="round")
-        .dust.dust--4.sprite#js-dust-4
-          - var framesCnt = 50, yMax = 3, xMax = 25, strokeMax = 3
-          - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
-          - var strokeStep = strokeMax/framesCnt
-          - for (var i = 0; i < framesCnt; i++)
-            svg.sprite__frame
-              ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}" fill="none", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="30", stroke-dashoffset="20", stroke-linecap="round")
+      .dust.dust--1.sprite#js-dust-1
+        - var framesCnt = 50, yMax = 10, xMax = 80, strokeMax = 10
+        - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
+        - var strokeStep = strokeMax/framesCnt
+        - for (var i = 0; i < framesCnt; i++)
+          svg.sprite__frame
+            ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="#{3.4*i}", stroke-dashoffset="#{6.8*i}", stroke-linecap="round")
+      .dust.dust--2.sprite#js-dust-2
+        - var framesCnt = 50, yMax = 8, xMax = 50, strokeMax = 8
+        - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
+        - var strokeStep = strokeMax/framesCnt
+        - for (var i = 0; i < framesCnt; i++)
+          svg.sprite__frame
+            ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="#{3.6*i}", stroke-dashoffset="#{1.4*i}", stroke-linecap="round")
+      .dust.dust--3.sprite#js-dust-3
+        - var framesCnt = 50, yMax = 4, xMax = 30, strokeMax = 5
+        - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
+        - var strokeStep = strokeMax/framesCnt
+        - for (var i = 0; i < framesCnt; i++)
+          svg.sprite__frame
+            ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="#{1.8*i}", stroke-dashoffset="#{.4*i}", stroke-linecap="round")
+      //- .dust.dust--4.sprite#js-dust-4
+      //-   - var framesCnt = 50, yMax = 3, xMax = 25, strokeMax = 3
+      //-   - var yStep = yMax/framesCnt, xStep = xMax/framesCnt
+      //-   - var strokeStep = strokeMax/framesCnt
+      //-   - for (var i = 0; i < framesCnt; i++)
+      //-     svg.sprite__frame
+      //-       ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="100", cy="10", rx="#{i*xStep}", ry="#{i*yStep}" fill="none", stroke-width="#{strokeMax - i*strokeStep}", stroke-dasharray="#{1.8*i}", stroke-dashoffset="#{.4*i}", stroke-linecap="round")
       .content__inner#js-content-inner
         .project
           .project__img
             .project__shadow-wrap#js-shadow-wrap
               .project__shadow#js-shadow
-            .image-ie
-            .image
+            a(href="https://github.com/legomushroom/mojs").image-ie
+            a(href="https://github.com/legomushroom/mojs").image
               .scene
                 .shape.cuboid-1.cub-1
                   .face.ft
@@ -103,7 +101,7 @@ html
                       .photon-shader
           .project__text#js-text
             h2 Some project
-            p It if sometimes furnished unwilling as additions so. Blessing resolved peculiar fat graceful ham. Sussex on at really ladies in as elinor.
+            p This section is intended to represent some project but for now has dummy placeholder and points to mo · js library.
 
     .badge#js-badge
     .wrapper#js-wrapper
@@ -115,11 +113,9 @@ html
                   ellipse.sprite__ellipse#js-blob-circle-ellipse(cx="50", cy="50", fill="none")
 
           - var colors = ['#FC2D79', '#FC2D79',  '#11CDC5', '#FCB635', '#c1c1c1', '#4A90E2']
-          //- - var images = ['clock', 'phone',  'map', 'settings', 'weather', 'mojs', 'play', 'sport', 'message', 'music']
           - for (var j=0; j < columnCnt; j++)
             - for (var i=0; i < columnCnt-1; i++)
               - var color = colors[Math.round((colors.length-1)*Math.random())]
-              //- - var image = images[Math.round((images.length-1)*Math.random())]
               - var shift = (j % 2) ? -(size+gap)/2: 0;
               - var left = i*(size+gap)-shift, top  = j*(size-gap/2);
               - var middle = ~~(columnCnt/2)
@@ -130,8 +126,8 @@ html
                 .particle__inner(style="background: #{color}")
     style.
       .particles {
-        width:  #{(size+gap)*(mobileColumnCnt) - size/2 - 2*gap}px;
-        height: #{(size)*(mobileColumnCnt-1)-size-2*gap}px;
+        width:  #{(size+gap)*(mobileColumnCnt) - size/2}px;
+        height: #{(size)*(mobileColumnCnt-1)-size}px;
         margin-left: #{-(size+gap)}px;
         margin-top: #{-(size+gap)}px;
       }

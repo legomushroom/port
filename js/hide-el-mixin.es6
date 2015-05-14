@@ -31,7 +31,6 @@ var hideOnEl = {
         if (this.isOpen) {
           return mojs.h.setPrefixedStyle(this.content, 'transform', `translate3d(-5000px,-5000px,0)`);
         }
-        //this.content.style.opacity = 0; this.content.style['z-index'] = 0;
         mojs.h.setPrefixedStyle(this.content, 'transform', `translate3d(-5000px,-5000px,0)`);
       }
     });
