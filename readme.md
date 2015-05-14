@@ -1,6 +1,19 @@
 ## Bubble Layout
 [try it online](http://codepen.io/sol0mka/full/yNOage/) :: 
 demo for [mojs](https://github.com/legomushroom/mojs)(v0.190.0) library
+
+## Install
+`npm install`
+
+## Run
+`webpack`
+
+for styles and index.jade compilation:
+
+`gulp`
+
+in another tab
+
 ## License
 
 (The MIT License)
