@@ -1,4 +1,4 @@
-var mojs = require('../js/vendor/mo');
+var mojs = require('mo-js');
 
 var showCloseButton = {  
   initClose: function () {

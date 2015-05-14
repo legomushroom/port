@@ -1,6 +1,6 @@
 
 require('classlist-polyfill');
-var mojs          = require('../js/vendor/mo');
+var mojs          = require('mo-js');
 var Iscroll       = require('../js/vendor/iscroll-probe');
 var Howl          = require('howler').Howl;
 var Hammer        = require('hammerjs');
